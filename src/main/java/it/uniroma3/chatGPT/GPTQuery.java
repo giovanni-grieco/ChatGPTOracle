@@ -1,9 +1,9 @@
 package it.uniroma3.chatGPT;
 
 public class GPTQuery {
+    private String prompt;
     private String risposta;
     private String modello;
-    private String prompt;
     private int tempoDiRisposta;
 
     public GPTQuery(String risposta, String modello, String prompt, int tempoDiRisposta){
@@ -47,6 +47,6 @@ public class GPTQuery {
 
     @Override
     public String toString(){
-        return "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Prompt: " + prompt + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms";
+        return "Prompt: " + prompt + "\n" + "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms";
     }
 }

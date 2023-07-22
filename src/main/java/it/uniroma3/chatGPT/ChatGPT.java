@@ -78,6 +78,18 @@ public class ChatGPT {
         return sb.toString();
     }
 
+    public GPTQuery processPrompt(String prompt, String modelName){
+        try {
+            String answer;
+            int initTime = (int) System.currentTimeMillis();
+            answer = answerQuestion(prompt, modelName);
+            int endTime = (int) System.currentTimeMillis();
+            return new GPTQuery(answer, modelName, prompt, endTime-initTime);
+        } catch (Exception e) {
+            return new GPTQuery("Exception raised->"+e.getMessage(), modelName, prompt, 0);
+        }
+    }
+
     /**
      * Interroga il modello della OpenAI specificato fornendo una lista di prompt
      * @param prompts Una lista d'interrogazioni testuali da fare al modello
@@ -85,20 +97,13 @@ public class ChatGPT {
      * @param millisDelay Delay fra una richiesta e l'altra
      * @return Una lista di risposte ottenute dal modello
      */
-    public List<GPTQuery> processPrompts(List<String> prompts, String modelName , int millisDelay){
+    public List<GPTQuery> processPrompts(List<String> prompts, String modelName , int millisDelay) throws InterruptedException {
         List<GPTQuery> outputs = new ArrayList<>();
         for(String prompt : prompts){
-            try {
-
-                String answer;
-                int initTime = (int) System.currentTimeMillis();
-                answer = answerQuestion(prompt, modelName);
-                int endTime = (int) System.currentTimeMillis();
-                outputs.add(new GPTQuery(answer, modelName, prompt, endTime-initTime));
-                Thread.sleep(millisDelay);
-            } catch (Exception e) {
-                outputs.add(new GPTQuery("Exception raised->"+e.getMessage(), modelName, prompt, 0));
-            }
+            System.out.println("Asking: "+prompt);
+            outputs.add(this.processPrompt(prompt, modelName));
+            System.out.println("Waiting "+millisDelay+"ms");
+            Thread.sleep(millisDelay);
         }
         return outputs;
     }

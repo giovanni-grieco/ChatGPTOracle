@@ -14,15 +14,20 @@ import org.json.JSONObject;
 
 public class ChatGPT {
 
-    private static String[] models ={"text-davinci-003", "text-davinci-002", "text-davinci-001", "text-curie-001", "text-babbage-001", "text-ada-001", "davinci", "curie", "babbage", "ada"};
-    private static String URL_API = "https://api.openai.com/v1/completions";
+    public static String[] models ={"text-davinci-003", "text-davinci-002", "text-davinci-001", "text-curie-001", "text-babbage-001", "text-ada-001", "davinci", "curie", "babbage", "ada"};
+    private final static String URL_API = "https://api.openai.com/v1/completions";
 
-    private static String URL_AVAILABLE_MODELS = "https://api.openai.com/v1/models";
+    private final static String URL_AVAILABLE_MODELS = "https://api.openai.com/v1/models";
     //private static String model= "text-babbage-001";
-    private static String privateKey= "-----";
+    private static String privateKey = null;
+
+    public ChatGPT() throws IOException {
+        AppProperties proprieta = new AppProperties();
+        privateKey = proprieta.getAPIKey();
+    }
 
 
-    private static List<String> availableOpenAiModels() throws IOException {
+    public List<String> availableOpenAiModels() throws IOException {
         List<String> models = new ArrayList<>();
         String myToken = "Bearer "+" "+privateKey;
         HttpURLConnection conn = (HttpURLConnection) new URL(URL_AVAILABLE_MODELS).openConnection();
@@ -40,7 +45,7 @@ public class ChatGPT {
         return models;
     }
 
-    public static String answerQuestion(String text, String model) throws Exception {
+    public String answerQuestion(String text, String model) throws Exception {
 
         String myToken = "Bearer "+" "+privateKey;
 
@@ -64,7 +69,7 @@ public class ChatGPT {
 
     }
 
-    public static String buildQuestion(String field1, String field2) {
+    public String buildQuestion(String field1, String field2) {
         StringBuilder sb = new StringBuilder("Say if ");
 
         sb.append("'"+field1+"'");
@@ -74,27 +79,5 @@ public class ChatGPT {
         sb.append(" are the same real world object or attribute? Answer with 'yes' or 'no'.");
 
         return sb.toString();
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        System.out.println("All available models:");
-        for(String model : availableOpenAiModels()){
-            System.out.println(model);
-        }
-        //Usiamo una lista di modelli più piccola presa dal sito della OpenAI
-        for(String modello : models){
-            System.out.println("----");
-            System.out.println("Model used-> "+modello);
-            long initTime = System.currentTimeMillis();
-            try {
-                System.out.println(answerQuestion(buildQuestion("D. Gallinari", "Danilo Gallinari"), modello));
-            }catch(Exception e){
-             e.printStackTrace();
-             System.out.println("Utilizzo del modello \""+modello+"\" fallito");
-            }
-            System.out.println("ChatGPT Query time:"+(System.currentTimeMillis()-initTime)+" ms");
-            Thread.sleep(15000); // altrimenti si raggiunge un overflow di richieste e da errore 429
-        }
     }
 }

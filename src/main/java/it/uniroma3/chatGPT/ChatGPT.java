@@ -19,7 +19,7 @@ public class ChatGPT {
 
     private static String URL_AVAILABLE_MODELS = "https://api.openai.com/v1/models";
     //private static String model= "text-babbage-001";
-    private static String privateKey= "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";
+    private static String privateKey= "-----";
 
 
     private static List<String> availableOpenAiModels() throws IOException {

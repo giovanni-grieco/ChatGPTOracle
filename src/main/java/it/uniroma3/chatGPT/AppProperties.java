@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class AppProperties {
     private static final String appPropertiesFile = "app.properties";
-    private Properties appProperties;
+    private final Properties appProperties;
     public AppProperties() throws IOException {
         appProperties = new Properties();
         appProperties.load(new FileInputStream(appPropertiesFile));

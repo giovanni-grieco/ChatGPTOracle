@@ -26,7 +26,6 @@ public class ChatGPT {
         privateKey = proprieta.getAPIKey();
     }
 
-
     public List<String> availableOpenAiModels() throws IOException {
         List<String> models = new ArrayList<>();
         String myToken = "Bearer "+" "+privateKey;
@@ -57,16 +56,14 @@ public class ChatGPT {
         JSONObject data = new JSONObject();
         data.put("model", model);
         data.put("prompt", text);
-        data.put("max_tokens",700);
+        data.put("max_tokens",700); // andrebbero dimunuiti i max tokens, tanto deve dire solo si o no e rischiamo di meno
         data.put("temperature", 0);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
 
-
         String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).get();
 
         return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getString("text");
-
     }
 
     public String buildQuestion(String field1, String field2) {
@@ -79,5 +76,26 @@ public class ChatGPT {
         sb.append(" are the same real world object or attribute? Answer with 'yes' or 'no'.");
 
         return sb.toString();
+    }
+
+    /**
+     * Interroga il modello della OpenAI specificato fornendo una lista di prompt
+     * @param prompts Una lista d'interrogazioni testuali da fare al modello
+     * @param modelName modello da interrogare
+     * @param millisDelay Delay fra una richiesta e l'altra
+     * @return Una lista di risposte ottenute dal modello
+     */
+    public List<String> processPrompts(List<String> prompts, String modelName ,int millisDelay){
+        List<String> outputs = new ArrayList<>();
+        for(String prompt : prompts){
+            try {
+                outputs.add(this.answerQuestion(prompt,modelName));
+                Thread.sleep(millisDelay);
+            } catch (Exception e) {
+                e.printStackTrace();
+                outputs.add("Exception raised");
+            }
+        }
+        return outputs;
     }
 }

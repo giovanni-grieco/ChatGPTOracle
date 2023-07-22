@@ -85,15 +85,19 @@ public class ChatGPT {
      * @param millisDelay Delay fra una richiesta e l'altra
      * @return Una lista di risposte ottenute dal modello
      */
-    public List<String> processPrompts(List<String> prompts, String modelName ,int millisDelay){
-        List<String> outputs = new ArrayList<>();
+    public List<GPTQuery> processPrompts(List<String> prompts, String modelName , int millisDelay){
+        List<GPTQuery> outputs = new ArrayList<>();
         for(String prompt : prompts){
             try {
-                outputs.add(this.answerQuestion(prompt,modelName));
+
+                String answer;
+                int initTime = (int) System.currentTimeMillis();
+                answer = answerQuestion(prompt, modelName);
+                int endTime = (int) System.currentTimeMillis();
+                outputs.add(new GPTQuery(answer, modelName, prompt, endTime-initTime));
                 Thread.sleep(millisDelay);
             } catch (Exception e) {
-                e.printStackTrace();
-                outputs.add("Exception raised");
+                outputs.add(new GPTQuery("Exception raised->"+e.getMessage(), modelName, prompt, 0));
             }
         }
         return outputs;

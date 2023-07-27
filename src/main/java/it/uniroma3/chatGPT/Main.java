@@ -36,8 +36,10 @@ public class Main {
             List<File> htmls = firstEntity.dataLocationsToFiles();
             String htmlNonFiltrato = Files.readString(htmls.get(0).toPath());
             System.out.println("Caratteri prima del filtraggio: "+htmlNonFiltrato.length());
-            String pagina_filtrata=HTMLFilter.filter(Files.readString(htmls.get(0).toPath()),List.of("style","script","head","meta","img"));
+            String pagina_filtrata=HTMLFilter.filter(Files.readString(htmls.get(0).toPath()),List.of("style","script","head","meta","img","link"));
             System.out.println("Caratteri dopo il filtraggio: "+pagina_filtrata.length());
+            System.out.println("Differenza: "+(htmlNonFiltrato.length()-pagina_filtrata.length()));
+            System.out.println(pagina_filtrata);
             /*ChatGPT gpt = new ChatGPT(appProperties);
             GPTQuery risposta = gpt.processPrompt(PromptBuilder.twoWebPagesTalkingAboutTheSameEntity(Files.readString(htmls.get(0).toPath()), Files.readString(htmls.get(1).toPath())), "text-davinci-003");
             System.out.println(risposta.getRisposta());*/

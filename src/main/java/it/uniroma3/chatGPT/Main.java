@@ -1,15 +1,10 @@
 package it.uniroma3.chatGPT;
 
-import it.uniroma3.chatGPT.GPT.ChatGPT;
-import it.uniroma3.chatGPT.GPT.GPTQuery;
-import it.uniroma3.chatGPT.GPT.PromptBuilder;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.utils.HTMLFilter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;

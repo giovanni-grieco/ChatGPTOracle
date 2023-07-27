@@ -1,5 +1,9 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.AppProperties;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,10 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import it.uniroma3.chatGPT.AppProperties;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 
 public class ChatGPT {

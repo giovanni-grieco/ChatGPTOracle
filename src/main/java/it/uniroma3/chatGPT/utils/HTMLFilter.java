@@ -37,6 +37,8 @@ public class HTMLFilter {
             }
         }
 
-        return doc.select("body").html();
+        //sostituisce i tag div con \n
+        doc.select("div").append("\\n");
+        return doc.select("body").text().replaceAll("\\\\n","\n");
     }
 }

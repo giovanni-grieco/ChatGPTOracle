@@ -5,6 +5,7 @@ import it.uniroma3.chatGPT.GPT.GPTQuery;
 import it.uniroma3.chatGPT.GPT.PromptBuilder;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
+import it.uniroma3.chatGPT.utils.HTMLFilter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,9 +34,13 @@ public class Main {
             }
             Entity firstEntity=(Entity) entities.toArray()[0];
             List<File> htmls = firstEntity.dataLocationsToFiles();
-            ChatGPT gpt = new ChatGPT(appProperties);
+            String htmlNonFiltrato = Files.readString(htmls.get(0).toPath());
+            System.out.println("Caratteri prima del filtraggio: "+htmlNonFiltrato.length());
+            String pagina_filtrata=HTMLFilter.filter(Files.readString(htmls.get(0).toPath()),List.of("style","script","head","meta","img"));
+            System.out.println("Caratteri dopo il filtraggio: "+pagina_filtrata.length());
+            /*ChatGPT gpt = new ChatGPT(appProperties);
             GPTQuery risposta = gpt.processPrompt(PromptBuilder.twoWebPagesTalkingAboutTheSameEntity(Files.readString(htmls.get(0).toPath()), Files.readString(htmls.get(1).toPath())), "text-davinci-003");
-            System.out.println(risposta.getRisposta());
+            System.out.println(risposta.getRisposta());*/
             /*ChatGPT gpt = new ChatGPT(appProperties);
             List<GPTQuery> risposte;
             risposte = gpt.processPrompts(List.of("Is 5+5 equals to 10? answer with yes or no", "Can a squirrel fly? Answer with yes or no"), "text-davinci-003", 1000);

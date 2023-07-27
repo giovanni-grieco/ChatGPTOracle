@@ -1,19 +1,47 @@
 package it.uniroma3.chatGPT.data;
 
+import it.uniroma3.chatGPT.AppProperties;
+import it.uniroma3.chatGPT.utils.FileRetriever;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Entity {
     private String name;
-    private List<String> htmlLocations;
+    private List<String> dataLocations;
 
     public Entity(String name) {
         this.name = name;
-        this.htmlLocations = new ArrayList<>();
+        this.dataLocations = new ArrayList<>();
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getDataLocations() {
+        return dataLocations;
+    }
+
+    public void setDataLocations(List<String> dataLocations) {
+        this.dataLocations = dataLocations;
     }
 
     public void addHtmlLocation(String htmlLocation) {
-        this.htmlLocations.add(htmlLocation);
+        this.dataLocations.add(htmlLocation);
+    }
+
+    public List<File> dataLocationsToFiles() throws IOException {
+        List<File> files = new ArrayList<>();
+        for(String dataLocation : dataLocations){
+            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+dataLocation+".html"));
+        }
+        return files;
     }
 
     @Override
@@ -31,6 +59,6 @@ public class Entity {
 
     @Override
     public String toString(){
-        return "Entity: "+name+"\n"+"Html Locations: "+htmlLocations.toString();
+        return "Entity: "+name+"\n"+"Data Locations: "+ dataLocations.toString();
     }
 }

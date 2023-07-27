@@ -47,7 +47,7 @@ public class ChatGPT {
     public String answerQuestion(String text, String model) throws Exception {
 
         String myToken = "Bearer "+" "+privateKey;
-
+        // E' necessario creare una connessione a risposta???? Non basta una connessione a per lista di prompt?
         HttpURLConnection conn = (HttpURLConnection) new URL(URL_API).openConnection();
         conn.setRequestProperty("Authorization",myToken);
         conn.setRequestProperty("Content-Type","application/json");
@@ -66,21 +66,10 @@ public class ChatGPT {
         return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getString("text");
     }
 
-    public String buildQuestion(String field1, String field2) {
-        StringBuilder sb = new StringBuilder("Say if ");
-
-        sb.append("'"+field1+"'");
-        sb.append(" and ");
-        sb.append("'"+field2+"'");
-
-        sb.append(" are the same real world object or attribute? Answer with 'yes' or 'no'.");
-
-        return sb.toString();
-    }
-
     public GPTQuery processPrompt(String prompt, String modelName){
         try {
             String answer;
+            System.out.println("Answering: "+prompt);
             int initTime = (int) System.currentTimeMillis();
             answer = answerQuestion(prompt, modelName);
             int endTime = (int) System.currentTimeMillis();

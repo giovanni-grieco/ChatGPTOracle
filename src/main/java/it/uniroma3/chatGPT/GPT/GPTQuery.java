@@ -1,4 +1,4 @@
-package it.uniroma3.chatGPT;
+package it.uniroma3.chatGPT.GPT;
 
 public class GPTQuery {
     private String prompt;

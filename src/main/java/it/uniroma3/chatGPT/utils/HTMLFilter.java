@@ -7,17 +7,29 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HTMLFilter {
+
     public static String filter(String html, Iterable<String> tagsToRemove){
         Document doc = Jsoup.parse(html);
         removeSpecifiedTags(doc, tagsToRemove);
         removeHTMLAttributes(doc);
         removeEmptyTags(doc);
-        return convert2Text(doc);
-        //return doc.toString();
+        //return convert2Text(doc);
+        return doc.text();
+    }
+
+    public static String filter(String html, Iterable<String> tagsToRemove, String templateName) throws IOException {
+        String partialFilter = filter(html, tagsToRemove);
+        ContentRichSection section = loadContentRichSectionFromTemplate(templateName);
+        return partialFilter.substring(partialFilter.indexOf(section.getStart()),partialFilter.indexOf(section.getEnd())); // CHE ODIO!!!
     }
 
     private static String convert2Text(Document doc){
@@ -56,4 +68,16 @@ public class HTMLFilter {
         }
     }
 
+    private static ContentRichSection loadContentRichSectionFromTemplate(String templateName) throws IOException {
+        File contentRichTemplateInformation = FileRetriever.getFile("contentRichTemplate.txt");
+        String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
+        String[] contentRichTemplateLines = contentRichTemplate.split("\n");
+        for(String line : contentRichTemplateLines){
+            if(line.startsWith(templateName)){
+                String[] templateDetails = line.split("\\|");
+                return new ContentRichSection(templateName,templateDetails[1], templateDetails[2]);
+            }
+        }
+        throw new IOException("Template '"+templateName +"'not found in contentRichTemplate.txt");
+    }
 }

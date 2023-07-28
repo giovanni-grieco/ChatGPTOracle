@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Entity {
     private String name;
-    private List<String> dataLocations;
+    private List<Data> dataLocations;
 
     public Entity(String name) {
         this.name = name;
@@ -24,22 +24,23 @@ public class Entity {
         this.name = name;
     }
 
-    public List<String> getDataLocations() {
+    public List<Data> getDataLocations() {
         return dataLocations;
     }
 
-    public void setDataLocations(List<String> dataLocations) {
+    public void setDataLocations(List<Data> dataLocations) {
         this.dataLocations = dataLocations;
     }
 
     public void addHtmlLocation(String htmlLocation) {
-        this.dataLocations.add(htmlLocation);
+        String[] split = htmlLocation.split("//");
+        this.dataLocations.add(new Data(split[0], split[1]));
     }
 
     public List<File> dataLocationsToFiles() throws IOException {
         List<File> files = new ArrayList<>();
-        for(String dataLocation : dataLocations){
-            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+dataLocation+".html"));
+        for(Data dataLocation : dataLocations){
+            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+dataLocation.toPath()+".html"));
         }
         return files;
     }

@@ -10,6 +10,7 @@ import it.uniroma3.chatGPT.utils.HTMLFilter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ public class Main {
             System.out.println("Dataset Path: "+appProperties.getDatasetPath());
             System.out.println("Dataset Folder: "+appProperties.getDatasetFolder());
             System.out.println("Ground Truth File Name: "+appProperties.getGroundTruthFileName());
+
             EntityExtractor extractor = new EntityExtractor(appProperties);
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             for(Entity e:entities){
@@ -29,24 +31,29 @@ public class Main {
                 List<File> htmls = e.dataLocationsToFiles();
                 System.out.println("Htmls: "+htmls.toString());
             }
+
             Entity firstEntity=(Entity) entities.toArray()[0];
-            List<File> htmls = firstEntity.dataLocationsToFiles();
+            /*List<File> htmls = firstEntity.dataLocationsToFiles();
             String htmlNonFiltrato = Files.readString(htmls.get(0).toPath());
-            System.out.println("Caratteri prima del filtraggio: "+htmlNonFiltrato.length());
             String pagina_filtrata=HTMLFilter.filter(Files.readString(htmls.get(0).toPath()),List.of("style","script","head","meta","img","link"));
-            System.out.println("Caratteri dopo il filtraggio: "+pagina_filtrata.length());
-            System.out.println("Differenza: "+(htmlNonFiltrato.length()-pagina_filtrata.length()));
+
+            String htmlNonFiltrato1 = Files.readString(htmls.get(1).toPath());
             String pagina_filtrata1=HTMLFilter.filter(Files.readString(htmls.get(1).toPath()),List.of("style","script","head","meta","img","link"));
-            ChatGPT gpt = new ChatGPT(appProperties);
-            GPTQuery risposta = gpt.processPrompt(PromptBuilder.twoWebPagesTalkingAboutTheSameEntity(pagina_filtrata,pagina_filtrata1), "text-davinci-003");
-            System.out.println(risposta.getRisposta());
-            List<GPTQuery> risposte;
-            risposte = gpt.processPrompts(List.of("Is 5+5 equals to 10? answer with yes or no", "Can a squirrel fly? Answer with yes or no"), "text-davinci-003", 1000);
-            System.out.println("\n\nPrinting answers...");
-            System.out.println("----");
-            for (GPTQuery answer : risposte) {
-                System.out.println(answer.toString()+"\n----");
+
+            String pagina_filtrata_contentRich=HTMLFilter.filter(Files.readString(htmls.get(0).toPath()),List.of("style","script","head","meta","img","link"), firstEntity.getDataLocations().get(0).getDomain());
+            String pagina_filtrata1_contentRich=HTMLFilter.filter(Files.readString(htmls.get(1).toPath()),List.of("style","script","head","meta","img","link"), firstEntity.getDataLocations().get(1).getDomain());*/
+
+
+            // FINIRE IL TEST IN MEDIA SCALA DOPO. HO BISOGNO DI MANGIARE!!
+            List<String> prompts = new ArrayList<>();
+            for(int i =0; i<firstEntity.getDataLocations().size(); i++){
+                //l'unico di cui ho stabilito un template è ebay
+                if(firstEntity.getDataLocations().get(i).getDomain().equals("www.ebay.com")){
+                    String html = Files.readString(firstEntity.getDataLocations().get(i).toPath());
+                    String htmlFiltrato = HTMLFilter.filter(html, List.of("style","script","head","meta","img","link"), firstEntity.getDataLocations().get(i).getDomain());
+                }
             }
+
         }catch (IOException e){
             System.out.println(e.getMessage());
         }catch (Exception e){

@@ -22,8 +22,8 @@ public class ChatGPT {
     //private static String model= "text-babbage-001";
     private static String privateKey = null;
 
-    public ChatGPT(AppProperties proprieta) throws IOException {
-        privateKey = proprieta.getAPIKey();
+    public ChatGPT() throws IOException {
+        privateKey = AppProperties.getAppProperties().getAPIKey();
     }
 
     public List<String> availableOpenAiModels() throws IOException {
@@ -69,7 +69,7 @@ public class ChatGPT {
     public GPTQuery processPrompt(String prompt, String modelName){
         try {
             String answer;
-            System.out.println("Answering: "+prompt);
+            System.out.println("Answering...");
             int initTime = (int) System.currentTimeMillis();
             answer = answerQuestion(prompt, modelName);
             int endTime = (int) System.currentTimeMillis();

@@ -13,8 +13,8 @@ import java.util.Set;
 public class EntityExtractor {
     private final Path groundTruthPath;
 
-    public EntityExtractor(AppProperties appProperties) throws IOException{
-        groundTruthPath = Path.of(appProperties.getDatasetPath()+"/"+appProperties.getGroundTruthFileName());
+    public EntityExtractor() throws IOException{
+        groundTruthPath = Path.of(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getGroundTruthFileName());
     }
 
     public Set<Entity> extractEntitiesFromGroundTruth() throws IOException {

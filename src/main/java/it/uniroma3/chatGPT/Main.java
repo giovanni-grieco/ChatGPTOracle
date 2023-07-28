@@ -24,7 +24,7 @@ public class Main {
             System.out.println("Dataset Folder: " + appProperties.getDatasetFolder());
             System.out.println("Ground Truth File Name: " + appProperties.getGroundTruthFileName());
 
-            EntityExtractor extractor = new EntityExtractor(appProperties);
+            EntityExtractor extractor = new EntityExtractor();
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             for (Entity e : entities) {
                 System.out.println(e.toString());
@@ -36,6 +36,18 @@ public class Main {
             System.out.println("First Entity->" + firstEntity.toString());
             List<String> prompts = new ArrayList<>();
             System.out.println(firstEntity.getDataLocations().size());
+
+
+            //C'è un errore qui
+            /*1-2, 1-3, 1-4, 1-5, 1-6, 1-7, 1-8
+            2-3, 2-4, 2-5, 2-6, 2-7, 2-8
+            3-4, 3-5, 3-6, 3-7, 3-8
+            4-5, 4-6, 4-7, 4-8
+            5-6, 5-7, 5-8
+            6-7, 6-8
+            7-8
+            dovrebbe essere 28 coppie, non 21
+            */
 
             for (int i = 0; i < firstEntity.getDataLocations().size(); i++) {
                 //l'unico di cui ho stabilito un template è ebay
@@ -57,9 +69,9 @@ public class Main {
             System.out.println(prompts.size());
 
             ChatGPT gpt = new ChatGPT();
-            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
+            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 15000);
             for (GPTQuery answer : answers) {
-                System.out.println(answer);
+                System.out.println(answer.getRisposta());
             }
 
         } catch (IOException e) {

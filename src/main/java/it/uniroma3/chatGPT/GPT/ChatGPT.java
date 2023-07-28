@@ -10,13 +10,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
 public class ChatGPT {
 
-    public static String[] models ={"text-davinci-003", "text-davinci-002", "text-davinci-001", "text-curie-001", "text-babbage-001", "text-ada-001", "davinci", "curie", "babbage", "ada"};
-    private final static String URL_API = "https://api.openai.com/v1/completions";
+    //public static String[] models ={"text-davinci-003", "text-davinci-002", "text-davinci-001", "text-curie-001", "text-babbage-001", "text-ada-001", "davinci", "curie", "babbage", "ada"};
+    private final static String COMPLETION_URL_API = "https://api.openai.com/v1/completions";
+
+    private final static String CHAT_URL_API = "https://api.openai.com/v1/chat/completions";
 
     private final static String URL_AVAILABLE_MODELS = "https://api.openai.com/v1/models";
     //private static String model= "text-babbage-001";
@@ -44,11 +47,11 @@ public class ChatGPT {
         return models;
     }
 
-    public String answerQuestion(String text, String model) throws Exception {
+    public String answerQuestionCompletion(String text, String model) throws Exception {
 
         String myToken = "Bearer "+" "+privateKey;
         // E' necessario creare una connessione a risposta???? Non basta una connessione a per lista di prompt?
-        HttpURLConnection conn = (HttpURLConnection) new URL(URL_API).openConnection();
+        HttpURLConnection conn = (HttpURLConnection) new URL(COMPLETION_URL_API).openConnection();
         conn.setRequestProperty("Authorization",myToken);
         conn.setRequestProperty("Content-Type","application/json");
         conn.setRequestMethod("GET");
@@ -57,7 +60,7 @@ public class ChatGPT {
         data.put("model", model);
         data.put("prompt", text);
         data.put("max_tokens",700); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
-        data.put("temperature", 0);
+        data.put("temperature", 0.1);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
 
@@ -66,12 +69,32 @@ public class ChatGPT {
         return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getString("text");
     }
 
+    // not working
+    /*public String answerQuestionChat(String text, String model) throws Exception{
+        String myToken = "Bearer "+" "+privateKey;
+        HttpURLConnection conn = (HttpURLConnection) new URL(COMPLETION_URL_API).openConnection();
+        conn.setRequestProperty("Authorization",myToken);
+        conn.setRequestProperty("Content-Type","application/json");
+        conn.setRequestMethod("GET");
+
+        *//*JSONObject data = new JSONObject();
+        data.put("model", model);
+        data.put("messages", new JSONArray().put(new JSONObject().put("role","system").put("content", "You are a system capable of determine if a two snippets of text talk about the same object, entity or attribute. You answer only with yes or no.")).put(new JSONObject().put("role","user").put("content", text)));
+        System.out.println(data);*//*
+        String dataAMano = "{\"model\": \"gpt-3.5-turbo\",\"messages\": [{\"role\": \"system\",\"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\",\"content\": \"Hello!\"}]}";
+        System.out.println(dataAMano);
+        conn.setDoOutput(true);
+        conn.getOutputStream().write(dataAMano.getBytes());
+        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).get();
+        return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getJSONObject("messages").getJSONObject("content").toString();
+    }*/
+
     public GPTQuery processPrompt(String prompt, String modelName){
         try {
             String answer;
             System.out.println("Answering...");
             int initTime = (int) System.currentTimeMillis();
-            answer = answerQuestion(prompt, modelName);
+            answer = answerQuestionCompletion(prompt, modelName);
             int endTime = (int) System.currentTimeMillis();
             return new GPTQuery(answer, modelName, prompt, endTime-initTime);
         } catch (Exception e) {
@@ -90,8 +113,10 @@ public class ChatGPT {
         List<GPTQuery> outputs = new ArrayList<>();
         for(String prompt : prompts){
             System.out.println("Asking: "+prompt);
-            outputs.add(this.processPrompt(prompt, modelName));
-            System.out.println("Waiting "+millisDelay+"ms");
+            GPTQuery answer = this.processPrompt(prompt, modelName);
+            outputs.add(answer);
+            System.out.println("Answer: "+answer.getRisposta());
+            System.out.println("Waiting "+millisDelay+"ms\n");
             Thread.sleep(millisDelay);
         }
         return outputs;

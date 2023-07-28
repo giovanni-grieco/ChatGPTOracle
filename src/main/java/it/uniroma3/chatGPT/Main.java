@@ -33,9 +33,7 @@ public class Main {
             }
 
             Entity firstEntity = (Entity) entities.toArray()[0];
-            System.out.println("First Entity->" + firstEntity.toString());
             List<String> prompts = new ArrayList<>();
-            System.out.println(firstEntity.getDataLocations().size());
 
             for (int i = 0; i < firstEntity.getDataLocations().size(); i++) {
                 //l'unico di cui ho stabilito un template è ebay
@@ -43,7 +41,6 @@ public class Main {
                     String html = Files.readString(firstEntity.getDataLocations().get(i).toFullPath());
                     String htmlFiltratoA = HTMLFilter.filter(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(i).getDomain());
                     for (int j = i + 1; j < firstEntity.getDataLocations().size(); j++) {
-                        System.out.println("i:"+(i+1)+" j:"+(j+1));
                         if (firstEntity.getDataLocations().get(j).getDomain().equals("www.ebay.com")) {
                             String html1 = Files.readString(firstEntity.getDataLocations().get(j).toFullPath());
                             String htmlFiltratoB = HTMLFilter.filter(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(j).getDomain());
@@ -52,11 +49,8 @@ public class Main {
                     }
                 }
             }
-            System.out.println(firstNnumbers(firstEntity.getDataLocations().size() - 1));
-            System.out.println(prompts.size());
-
             ChatGPT gpt = new ChatGPT();
-            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 10000);
+            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
             for (GPTQuery answer : answers) {
                 System.out.println(answer.getRisposta());
             }

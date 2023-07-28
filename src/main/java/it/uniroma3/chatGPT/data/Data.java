@@ -1,5 +1,8 @@
 package it.uniroma3.chatGPT.data;
 
+import it.uniroma3.chatGPT.AppProperties;
+
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class Data {
@@ -29,6 +32,10 @@ public class Data {
 
     public Path toPath(){
         return Path.of(domain+"/"+id);
+    }
+
+    public Path toFullPath() throws IOException {
+        return Path.of(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+domain+"/"+id+".html");
     }
 
     @Override

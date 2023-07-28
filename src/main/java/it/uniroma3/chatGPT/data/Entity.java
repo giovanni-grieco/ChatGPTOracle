@@ -16,6 +16,7 @@ public class Entity {
         this.name = name;
         this.dataLocations = new ArrayList<>();
     }
+
     public String getName() {
         return name;
     }
@@ -39,15 +40,15 @@ public class Entity {
 
     public List<File> dataLocationsToFiles() throws IOException {
         List<File> files = new ArrayList<>();
-        for(Data dataLocation : dataLocations){
-            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+dataLocation.toPath()+".html"));
+        for (Data dataLocation : dataLocations) {
+            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + dataLocation.toPath() + ".html"));
         }
         return files;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof Entity e){
+        if (obj instanceof Entity e) {
             return e.name.equals(this.name);
         }
         return false;
@@ -59,7 +60,7 @@ public class Entity {
     }
 
     @Override
-    public String toString(){
-        return "Entity: "+name+"\n"+"Data Locations: "+ dataLocations.toString();
+    public String toString() {
+        return "Entity: " + name + "\n" + "Data Locations: " + dataLocations.toString();
     }
 }

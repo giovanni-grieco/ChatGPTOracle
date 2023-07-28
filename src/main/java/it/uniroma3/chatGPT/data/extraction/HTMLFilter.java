@@ -1,5 +1,6 @@
-package it.uniroma3.chatGPT.utils;
+package it.uniroma3.chatGPT.data.extraction;
 
+import it.uniroma3.chatGPT.utils.FileRetriever;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
@@ -12,10 +13,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class HTMLFilter {
+
+    public static final Iterable<String> DEFAULT_TAGS = List.of("style","script","head","meta","img","link");
 
     public static String filter(String html, Iterable<String> tagsToRemove){
         Document doc = Jsoup.parse(html);

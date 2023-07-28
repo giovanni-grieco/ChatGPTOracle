@@ -20,25 +20,25 @@ public class AppProperties {
     }
 
     public static AppProperties getAppProperties() throws IOException {
-        if(appProperties == null){
+        if (appProperties == null) {
             appProperties = new AppProperties();
         }
         return appProperties;
     }
 
-    public String getAPIKey(){
+    public String getAPIKey() {
         return properties.getProperty("OpenAI_API_KEY");
     }
 
-    public String getDatasetPath(){
+    public String getDatasetPath() {
         return properties.getProperty("DATASET_PATH");
     }
 
-    public String getDatasetFolder(){
+    public String getDatasetFolder() {
         return properties.getProperty("DATASET_FOLDER_NAME");
     }
 
-    public String getGroundTruthFileName(){
+    public String getGroundTruthFileName() {
         return properties.getProperty("DATASET_GT_FILE_NAME");
     }
 

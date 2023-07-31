@@ -24,15 +24,15 @@ public class HTMLFilter {
         List<String> prompts = new ArrayList<>();
         for(Entity firstEntity : entities) {
             try {
-                for (int i = 0; i < firstEntity.getDataLocations().size(); i++) {
+                for (int i = 0; i < firstEntity.getData().size(); i++) {
                     //l'unico di cui ho stabilito un template è ebay
-                    if (firstEntity.getDataLocations().get(i).getDomain().equals("www.ebay.com")) {
-                        String html = Files.readString(firstEntity.getDataLocations().get(i).toFullPath());
-                        String htmlFiltratoA = HTMLFilter.filter(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(i).getDomain());
-                        for (int j = i + 1; j < firstEntity.getDataLocations().size(); j++) {
-                            if (firstEntity.getDataLocations().get(j).getDomain().equals("www.ebay.com")) {
-                                String html1 = Files.readString(firstEntity.getDataLocations().get(j).toFullPath());
-                                String htmlFiltratoB = HTMLFilter.filter(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(j).getDomain());
+                    if (firstEntity.getData().get(i).getDomain().equals("www.ebay.com")) {
+                        String html = Files.readString(firstEntity.getData().get(i).toFullPath());
+                        String htmlFiltratoA = HTMLFilter.filter(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(i).getDomain());
+                        for (int j = i + 1; j < firstEntity.getData().size(); j++) {
+                            if (firstEntity.getData().get(j).getDomain().equals("www.ebay.com")) {
+                                String html1 = Files.readString(firstEntity.getData().get(j).toFullPath());
+                                String htmlFiltratoB = HTMLFilter.filter(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(j).getDomain());
                                 prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippetSameEntity(htmlFiltratoA, htmlFiltratoB));
                             }
                         }

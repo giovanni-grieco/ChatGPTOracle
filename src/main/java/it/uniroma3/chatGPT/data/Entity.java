@@ -10,11 +10,11 @@ import java.util.List;
 
 public class Entity {
     private String name;
-    private List<Data> dataLocations;
+    private List<Data> data;
 
     public Entity(String name) {
         this.name = name;
-        this.dataLocations = new ArrayList<>();
+        this.data = new ArrayList<>();
     }
 
     public String getName() {
@@ -25,22 +25,22 @@ public class Entity {
         this.name = name;
     }
 
-    public List<Data> getDataLocations() {
-        return dataLocations;
+    public List<Data> getData() {
+        return data;
     }
 
-    public void setDataLocations(List<Data> dataLocations) {
-        this.dataLocations = dataLocations;
+    public void setData(List<Data> data) {
+        this.data = data;
     }
 
     public void addHtmlLocation(String htmlLocation) {
         String[] split = htmlLocation.split("//");
-        this.dataLocations.add(new Data(split[0], split[1]));
+        this.data.add(new Data(split[0], split[1]));
     }
 
     public List<File> dataLocationsToFiles() throws IOException {
         List<File> files = new ArrayList<>();
-        for (Data dataLocation : dataLocations) {
+        for (Data dataLocation : data) {
             files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + dataLocation.toPath() + ".html"));
         }
         return files;
@@ -61,6 +61,6 @@ public class Entity {
 
     @Override
     public String toString() {
-        return "Entity: " + name + "\n" + "Data Locations: " + dataLocations.toString();
+        return "Entity: " + name + "\n" + "Data Locations: " + data.toString();
     }
 }

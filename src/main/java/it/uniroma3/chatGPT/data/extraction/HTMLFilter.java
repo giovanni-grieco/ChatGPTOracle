@@ -1,7 +1,5 @@
 package it.uniroma3.chatGPT.data.extraction;
 
-import it.uniroma3.chatGPT.GPT.ChatGPT;
-import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.utils.FileRetriever;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -20,31 +18,10 @@ public class HTMLFilter {
 
     public static final Iterable<String> DEFAULT_TAGS = List.of("style","script","head","meta","img","link");
 
-    public static Iterable<String> filterEntityData(Iterable<Entity> entities) {
-        List<String> prompts = new ArrayList<>();
-        for(Entity firstEntity : entities) {
-            try {
-                for (int i = 0; i < firstEntity.getData().size(); i++) {
-                    //l'unico di cui ho stabilito un template è ebay
-                    if (firstEntity.getData().get(i).getDomain().equals("www.ebay.com")) {
-                        String html = Files.readString(firstEntity.getData().get(i).toFullPath());
-                        String htmlFiltratoA = HTMLFilter.filter(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(i).getDomain());
-                        for (int j = i + 1; j < firstEntity.getData().size(); j++) {
-                            if (firstEntity.getData().get(j).getDomain().equals("www.ebay.com")) {
-                                String html1 = Files.readString(firstEntity.getData().get(j).toFullPath());
-                                String htmlFiltratoB = HTMLFilter.filter(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(j).getDomain());
-                                prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippetSameEntity(htmlFiltratoA, htmlFiltratoB));
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(e.getMessage());
-                System.out.println(firstEntity.toString());
-            }
-        }
-        return prompts;
+    public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws IOException {
+        String partialFilter = filter(html, tagsToRemove);
+        ContentRichSection section = loadContentRichSectionFromTemplate(templateName);
+        return partialFilter.substring(partialFilter.indexOf(section.getStart())+section.getStart().length(),partialFilter.indexOf(section.getEnd())); // CHE ODIO!!!
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove){
@@ -54,12 +31,6 @@ public class HTMLFilter {
         removeEmptyTags(doc);
         //return convert2Text(doc);
         return doc.text();
-    }
-
-    public static String filter(String html, Iterable<String> tagsToRemove, String templateName) throws IOException {
-        String partialFilter = filter(html, tagsToRemove);
-        ContentRichSection section = loadContentRichSectionFromTemplate(templateName);
-        return partialFilter.substring(partialFilter.indexOf(section.getStart())+section.getStart().length(),partialFilter.indexOf(section.getEnd())); // CHE ODIO!!!
     }
 
     private static String convert2Text(Document doc){

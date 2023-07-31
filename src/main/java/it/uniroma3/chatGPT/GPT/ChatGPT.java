@@ -1,6 +1,8 @@
 package it.uniroma3.chatGPT.GPT;
 
 import it.uniroma3.chatGPT.AppProperties;
+import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,6 +124,34 @@ public class ChatGPT {
         return outputs;
     }
     public static class PromptBuilder {
+
+        public static Iterable<String> generatePrompts(Iterable<Entity> entities) {
+            List<String> prompts = new ArrayList<>();
+            for(Entity firstEntity : entities) {
+                try {
+                    for (int i = 0; i < firstEntity.getData().size(); i++) {
+                        //l'unico di cui ho stabilito un template è ebay
+                        if (firstEntity.getData().get(i).getDomain().equals("www.ebay.com")) {
+                            String html = Files.readString(firstEntity.getData().get(i).toFullPath());
+                            String htmlFiltratoA = HTMLFilter.filterTemplate(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(i).getDomain());
+                            for (int j = i + 1; j < firstEntity.getData().size(); j++) {
+                                if (firstEntity.getData().get(j).getDomain().equals("www.ebay.com")) {
+                                    String html1 = Files.readString(firstEntity.getData().get(j).toFullPath());
+                                    String htmlFiltratoB = HTMLFilter.filterTemplate(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(j).getDomain());
+                                    prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippetSameEntity(htmlFiltratoA, htmlFiltratoB));
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                    System.out.println(firstEntity.toString());
+                }
+            }
+            return prompts;
+        }
+
         public static String buildPromptTwoSnippetSameEntity(String webPageA, String webPageB) {
             String prompt = "You will be given 2 snippets of text talking about an entity, object or attribute.\n";
             prompt += "First: " + webPageA + ".\n";

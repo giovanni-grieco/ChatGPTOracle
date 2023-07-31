@@ -9,10 +9,7 @@ import it.uniroma3.chatGPT.utils.FileSaver;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +34,7 @@ public class Main {
                 System.out.println("Htmls: " + htmls.toString());
             }
 
-            List<String> prompts = (List<String>) HTMLFilter.filterEntityData(entities);
+            List<String> prompts = (List<String>) ChatGPT.PromptBuilder.generatePrompts(entities);
             System.out.println("Entities size: " + entities.size());
             System.out.println("Prompts size: " + prompts.size());
 

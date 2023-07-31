@@ -45,6 +45,10 @@ public class GPTQuery {
         this.tempoDiRisposta = tempoDiRisposta;
     }
 
+    public boolean isYes(){
+        return risposta.contains("yes") || risposta.contains("Yes") || risposta.contains("YES") || risposta.contains("y") || risposta.contains("Y");
+    }
+
     @Override
     public String toString(){
         return "Prompt: " + prompt + "\n" + "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms";

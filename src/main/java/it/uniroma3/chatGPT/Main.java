@@ -2,16 +2,21 @@ package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.GPT.ChatGPT;
 import it.uniroma3.chatGPT.GPT.GPTQuery;
-import it.uniroma3.chatGPT.GPT.PromptBuilder;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
+import it.uniroma3.chatGPT.utils.FileSaver;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class Main {
@@ -32,29 +37,40 @@ public class Main {
                 System.out.println("Htmls: " + htmls.toString());
             }
 
-            Entity firstEntity = (Entity) entities.toArray()[0];
-            List<String> prompts = new ArrayList<>();
+            List<String> prompts = (List<String>) HTMLFilter.filterEntityData(entities);
+            System.out.println("Entities size: " + entities.size());
+            System.out.println("Prompts size: " + prompts.size());
 
-            for (int i = 0; i < firstEntity.getDataLocations().size(); i++) {
-                //l'unico di cui ho stabilito un template è ebay
-                if (firstEntity.getDataLocations().get(i).getDomain().equals("www.ebay.com")) {
-                    String html = Files.readString(firstEntity.getDataLocations().get(i).toFullPath());
-                    String htmlFiltratoA = HTMLFilter.filter(html, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(i).getDomain());
-                    for (int j = i + 1; j < firstEntity.getDataLocations().size(); j++) {
-                        if (firstEntity.getDataLocations().get(j).getDomain().equals("www.ebay.com")) {
-                            String html1 = Files.readString(firstEntity.getDataLocations().get(j).toFullPath());
-                            String htmlFiltratoB = HTMLFilter.filter(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getDataLocations().get(j).getDomain());
-                            prompts.add(PromptBuilder.twoWebPagesTalkingAboutTheSameEntity(htmlFiltratoA, htmlFiltratoB));
-                        }
-                    }
-                }
+            List<String> promptsRandom = new ArrayList<String>();
+            for (int i = 0; i < 40; i++) {
+                Random random = new Random();
+                int randomNumber = random.nextInt();
+                randomNumber = Math.abs(randomNumber);
+                randomNumber = randomNumber % prompts.size();
+                promptsRandom.add(prompts.get(randomNumber));
             }
+
             ChatGPT gpt = new ChatGPT();
-            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
+            List<GPTQuery> answers = gpt.processPrompts(promptsRandom, "text-davinci-003", 20000);
             for (GPTQuery answer : answers) {
                 System.out.println(answer.getRisposta());
             }
 
+            int yes = 0;
+            for (GPTQuery query : answers) {
+                if (query.isYes()) {
+                    yes++;
+                }
+            }
+            String results = "Positive results: " + yes + "\n" +
+                    "Negative results: " + (answers.size() - yes) + "\n" +
+                    "Total results: " + answers.size() + "\n" +
+                    "Accuracy: " + (double) yes / answers.size() + "\n";
+            System.out.println(results);
+            LocalDate now = LocalDate.now();
+            LocalTime nowTime = LocalTime.now();
+            String fileName = now.toString() + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
+            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println(e.getMessage());

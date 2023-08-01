@@ -124,7 +124,6 @@ public class ChatGPT {
         return outputs;
     }
     public static class PromptBuilder {
-
         public static Iterable<String> generatePrompts(Iterable<Entity> entities) {
             List<String> prompts = new ArrayList<>();
             for(Entity firstEntity : entities) {
@@ -138,7 +137,7 @@ public class ChatGPT {
                                 if (firstEntity.getData().get(j).getDomain().equals("www.ebay.com")) {
                                     String html1 = Files.readString(firstEntity.getData().get(j).toFullPath());
                                     String htmlFiltratoB = HTMLFilter.filterTemplate(html1, HTMLFilter.DEFAULT_TAGS, firstEntity.getData().get(j).getDomain());
-                                    prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippetSameEntity(htmlFiltratoA, htmlFiltratoB));
+                                    prompts.add(buildPromptTwoSnippets(htmlFiltratoA, htmlFiltratoB));
                                 }
                             }
                         }
@@ -152,12 +151,13 @@ public class ChatGPT {
             return prompts;
         }
 
-        public static String buildPromptTwoSnippetSameEntity(String webPageA, String webPageB) {
+        public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
             String prompt = "You will be given 2 snippets of text talking about an entity, object or attribute.\n";
             prompt += "First: " + webPageA + ".\n";
             prompt += "Second: " + webPageB + ".\n";
             prompt += "Are the 2 snippets talking about the same entity, object or attribute? Answer with 'yes' or 'no'";
             return prompt;
         }
+
     }
 }

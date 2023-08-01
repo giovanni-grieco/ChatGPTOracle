@@ -12,6 +12,10 @@ public class ContentRichSection {
         this.end = end;
     }
 
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
+    }
+
     public String getStart() {
         return start;
     }

@@ -30,10 +30,6 @@ public class Data {
         this.id = id;
     }
 
-    public Path toPath(){
-        return Path.of(domain+"/"+id);
-    }
-
     public Path toFullPath() throws IOException {
         return Path.of(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+domain+"/"+id+".html");
     }

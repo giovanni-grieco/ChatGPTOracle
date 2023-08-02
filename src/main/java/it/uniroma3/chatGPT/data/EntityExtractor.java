@@ -4,6 +4,7 @@ import it.uniroma3.chatGPT.AppProperties;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,8 +14,8 @@ import java.util.Set;
 public class EntityExtractor {
     private final Path groundTruthPath;
 
-    public EntityExtractor() throws IOException {
-        groundTruthPath = Path.of(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getGroundTruthFileName());
+    public EntityExtractor(Path path) {
+        groundTruthPath = path;
     }
 
     public Set<Entity> extractEntitiesFromGroundTruth() throws IOException {

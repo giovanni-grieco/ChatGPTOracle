@@ -8,6 +8,7 @@ import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import it.uniroma3.chatGPT.utils.FileSaver;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -26,8 +27,9 @@ public class Main {
             System.out.println("Dataset Folder: " + datasetFolder);
             System.out.println("Ground Truth File Name: " + groundTruthFileName);
 
-            EntityExtractor extractor = new EntityExtractor();
+            EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
+            System.out.println("Entities extracted: " + entities.size());
             Set<Entity> ebayEntities = new HashSet<>();
             for (Entity e : entities) {
                 List<Data> ebayData = new ArrayList<>();
@@ -41,7 +43,7 @@ public class Main {
                     ebayEntities.add(e);
                 }
             }
-
+            System.out.println("Ebay Entities extracted: " + ebayEntities.size());
             System.out.println("Computing prompts...");
             List<Entity> entityList = new ArrayList<>(ebayEntities);
             List<String> prompts = new ArrayList<>();
@@ -97,7 +99,6 @@ public class Main {
                 prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
             }
 
-            System.out.println("Entities size: " + entities.size());
             System.out.println("Prompts size: " + prompts.size());
 
             ChatGPT gpt = new ChatGPT(APIKEY);

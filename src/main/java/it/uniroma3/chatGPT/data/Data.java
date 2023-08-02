@@ -31,12 +31,12 @@ public class Data {
     }
 
     public Path toFullPath() throws IOException {
-        return Path.of(AppProperties.getAppProperties().getDatasetPath()+"/"+AppProperties.getAppProperties().getDatasetFolder()+"/"+domain+"/"+id+".html");
+        return Path.of(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + domain + "/" + id + ".html");
     }
 
     @Override
     public String toString() {
-        return this.domain+"/"+this.id;
+        return this.domain + "/" + this.id;
     }
 
 }

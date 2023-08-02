@@ -28,7 +28,7 @@ public class ChatGPT {
     private static String privateKey = null;
 
     public ChatGPT(String apiKey) throws IOException {
-        privateKey = apiKey;
+        ChatGPT.privateKey = apiKey;
     }
 
     public List<String> availableOpenAiModels() throws IOException {
@@ -71,25 +71,6 @@ public class ChatGPT {
         return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getString("text");
     }
 
-    // not working
-    /*public String answerQuestionChat(String text, String model) throws Exception{
-        String myToken = "Bearer "+" "+privateKey;
-        HttpURLConnection conn = (HttpURLConnection) new URL(COMPLETION_URL_API).openConnection();
-        conn.setRequestProperty("Authorization",myToken);
-        conn.setRequestProperty("Content-Type","application/json");
-        conn.setRequestMethod("GET");
-
-        *//*JSONObject data = new JSONObject();
-        data.put("model", model);
-        data.put("messages", new JSONArray().put(new JSONObject().put("role","system").put("content", "You are a system capable of determine if a two snippets of text talk about the same object, entity or attribute. You answer only with yes or no.")).put(new JSONObject().put("role","user").put("content", text)));
-        System.out.println(data);*//*
-        String dataAMano = "{\"model\": \"gpt-3.5-turbo\",\"messages\": [{\"role\": \"system\",\"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\",\"content\": \"Hello!\"}]}";
-        System.out.println(dataAMano);
-        conn.setDoOutput(true);
-        conn.getOutputStream().write(dataAMano.getBytes());
-        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).get();
-        return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getJSONObject("messages").getJSONObject("content").toString();
-    }*/
 
     public GPTQuery processPrompt(String prompt, String modelName) throws GPTException {
         try {

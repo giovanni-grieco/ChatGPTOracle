@@ -6,7 +6,7 @@ public class GPTQuery {
     private String modello;
     private int tempoDiRisposta;
 
-    public GPTQuery(String risposta, String modello, String prompt, int tempoDiRisposta){
+    public GPTQuery(String risposta, String modello, String prompt, int tempoDiRisposta) {
         this.risposta = risposta;
         this.modello = modello;
         this.prompt = prompt;
@@ -45,12 +45,12 @@ public class GPTQuery {
         this.tempoDiRisposta = tempoDiRisposta;
     }
 
-    public boolean isYes(){
+    public boolean isYes() {
         return risposta.contains("yes") || risposta.contains("Yes") || risposta.contains("YES") || risposta.contains("y") || risposta.contains("Y");
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Prompt: " + prompt + "\n" + "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms";
     }
 }

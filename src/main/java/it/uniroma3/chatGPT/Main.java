@@ -48,8 +48,11 @@ public class Main {
             List<Entity> entityList = new ArrayList<>(ebayEntities);
             List<String> prompts = new ArrayList<>();
 
+            int entitaDiverseFraLoro = 40;
+            int entitaUgualiFraLoro = 10;
+
             //entità diverse fra loro
-            for (int i = 0; i < 25; i++) {
+            for (int i = 0; i < entitaDiverseFraLoro; i++) {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
                 randomNumber = Math.abs(randomNumber);
@@ -77,7 +80,7 @@ public class Main {
             }
 
             //entità uguali fra loro
-            for (int i = 0; i < 25; i++) {
+            for (int i = 0; i < entitaUgualiFraLoro; i++) {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
                 randomNumber = randomNumber % entityList.size();
@@ -112,7 +115,7 @@ public class Main {
             int falseNegative = 0;
 
             for (int i = 0; i < answers.size(); i++) {
-                if (i < answers.size() / 2) {
+                if (i < entitaDiverseFraLoro) {
                     if (!answers.get(i).isYes()) {
                         trueNegative++;
                     } else {

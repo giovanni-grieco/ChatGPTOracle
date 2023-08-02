@@ -20,23 +20,27 @@ public class Main {
     public static void main(String[] args) {
         try {
             AppProperties appProperties = AppProperties.getAppProperties();
-            System.out.println("API Key: " + appProperties.getAPIKey());
-            System.out.println("Dataset Path: " + appProperties.getDatasetPath());
-            System.out.println("Dataset Folder: " + appProperties.getDatasetFolder());
-            System.out.println("Ground Truth File Name: " + appProperties.getGroundTruthFileName());
+            String APIKEY = appProperties.getAPIKey();
+            String datasetPath = appProperties.getDatasetPath();
+            String datasetFolder = appProperties.getDatasetFolder();
+            String groundTruthFileName = appProperties.getGroundTruthFileName();
+            System.out.println("API Key: " + APIKEY);
+            System.out.println("Dataset Path: " + datasetPath);
+            System.out.println("Dataset Folder: " + datasetFolder);
+            System.out.println("Ground Truth File Name: " + groundTruthFileName);
 
             EntityExtractor extractor = new EntityExtractor();
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
-            Set<Entity>ebayEntities = new HashSet<>();
+            Set<Entity> ebayEntities = new HashSet<>();
             for (Entity e : entities) {
                 List<Data> ebayData = new ArrayList<>();
-                for(Data d : e.getData()){
-                    if(d.getDomain().equals("www.ebay.com")){
+                for (Data d : e.getData()) {
+                    if (d.getDomain().equals("www.ebay.com")) {
                         ebayData.add(d);
                     }
                 }
                 e.setData(ebayData);
-                if(ebayData.size()>1){
+                if (ebayData.size() > 1) {
                     ebayEntities.add(e);
                 }
             }
@@ -46,23 +50,23 @@ public class Main {
             List<String> prompts = new ArrayList<>();
 
             //entità diverse fra loro
-            for(int i=0;i<25;i++){
+            for (int i = 0; i < 25; i++) {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
                 randomNumber = Math.abs(randomNumber);
                 randomNumber = randomNumber % entityList.size();
                 Entity e1 = (Entity) entityList.get(randomNumber);
-                int anotherRandomNumber = random.nextInt()%entityList.size();
+                int anotherRandomNumber = random.nextInt() % entityList.size();
                 anotherRandomNumber = Math.abs(anotherRandomNumber);
-                while(anotherRandomNumber == randomNumber){
-                    anotherRandomNumber = random.nextInt()%entityList.size();
+                while (anotherRandomNumber == randomNumber) {
+                    anotherRandomNumber = random.nextInt() % entityList.size();
                     anotherRandomNumber = Math.abs(anotherRandomNumber);
                 }
                 Entity e2 = (Entity) entityList.get(anotherRandomNumber);
                 //estraiamo 2 informazioni a caso dalle entità
-                int randomDataNumber1 = random.nextInt()%e1.getData().size();
+                int randomDataNumber1 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
-                int randomDataNumber2 = random.nextInt()%e2.getData().size();
+                int randomDataNumber2 = random.nextInt() % e2.getData().size();
                 randomDataNumber2 = Math.abs(randomDataNumber2);
                 String dataE1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
                 String dataE2 = Files.readString(e2.getData().get(randomDataNumber2).toFullPath());
@@ -74,18 +78,18 @@ public class Main {
             }
 
             //entità uguali fra loro
-            for(int i=0;i<25; i++){
+            for (int i = 0; i < 25; i++) {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
                 randomNumber = randomNumber % entityList.size();
                 randomNumber = Math.abs(randomNumber);
                 Entity e1 = (Entity) entityList.get(randomNumber);
-                int randomDataNumber1 = random.nextInt()%e1.getData().size();
-                int randomDataNumber2 = random.nextInt()%e1.getData().size();
+                int randomDataNumber1 = random.nextInt() % e1.getData().size();
+                int randomDataNumber2 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
                 randomDataNumber2 = Math.abs(randomDataNumber2);
-                while(randomDataNumber1 == randomDataNumber2){
-                    randomDataNumber2 = random.nextInt()%e1.getData().size();
+                while (randomDataNumber1 == randomDataNumber2) {
+                    randomDataNumber2 = random.nextInt() % e1.getData().size();
                     randomDataNumber2 = Math.abs(randomDataNumber2);
                 }
                 String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
@@ -99,7 +103,7 @@ public class Main {
             System.out.println("Entities size: " + entities.size());
             System.out.println("Prompts size: " + prompts.size());
 
-            ChatGPT gpt = new ChatGPT();
+            ChatGPT gpt = new ChatGPT(APIKEY);
             List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
             for (GPTQuery answer : answers) {
                 System.out.println(answer.getRisposta());
@@ -112,34 +116,35 @@ public class Main {
             int falsePositive = 0;
             int falseNegative = 0;
 
-            for(int i = 0;i< answers.size();i++){
-                if(i<answers.size()/2){
-                    if(!answers.get(i).isYes()){
+            for (int i = 0; i < answers.size(); i++) {
+                if (i < answers.size() / 2) {
+                    if (!answers.get(i).isYes()) {
                         trueNegative++;
-                    }else{
+                    } else {
                         falsePositive++;
                     }
-                }else{
-                    if(answers.get(i).isYes()){
+                } else {
+                    if (answers.get(i).isYes()) {
                         truePositive++;
-                    }else{
+                    } else {
                         falseNegative++;
                     }
                 }
             }
 
-            double precision = (double)truePositive/(truePositive+falsePositive);
-            double recall = (double)truePositive/(truePositive+falseNegative);
-            double Fscore = 2*((precision*recall)/(precision+recall));
+
+            double precision = (double) truePositive / (truePositive + falsePositive);
+            double recall = (double) truePositive / (truePositive + falseNegative);
+            double Fscore = 2 * ((precision * recall) / (precision + recall));
 
             String results = "True positive: " + truePositive + "\n" +
-                    "True negative: " + trueNegative+ "\n" +
-                    "False positive: " + falsePositive+ "\n" +
-                    "False negative: " + falseNegative+ "\n" +
+                    "True negative: " + trueNegative + "\n" +
+                    "False positive: " + falsePositive + "\n" +
+                    "False negative: " + falseNegative + "\n" +
                     "Total answers: " + answers.size() + "\n" +
-                    "Precision: "+ (double)truePositive/(truePositive+falsePositive) + "\n" +
-                    "Recall: "+ (double)truePositive/(truePositive+falseNegative) + "\n" +
-                    "Fscore: "+ Fscore + "\n";
+                    "Precision: " + (double) truePositive / (truePositive + falsePositive) + "\n" +
+                    "Recall: " + (double) truePositive / (truePositive + falseNegative) + "\n" +
+                    "Fscore: " + Fscore + "\n";
             System.out.println(results);
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
@@ -153,9 +158,5 @@ public class Main {
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
-    }
-
-    private static int firstNnumbers(int n) {
-        return n * (n - 1) / 2;
     }
 }

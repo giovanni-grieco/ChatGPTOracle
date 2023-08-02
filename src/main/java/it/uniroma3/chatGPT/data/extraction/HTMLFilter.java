@@ -23,8 +23,12 @@ public class HTMLFilter {
     public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateNotFoundException, IOException {
         loadContentRichSectionFromTemplate(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
         String partialFilter = filter(html, tagsToRemove);
+        System.out.println("Template: "+templateName);
+        System.out.println("partialFilter: " + partialFilter);
         String fromStart = partialFilter.substring(partialFilter.indexOf(contentRichSection.getStart()) + contentRichSection.getStart().length());
-        return fromStart.substring(0, partialFilter.indexOf(contentRichSection.getEnd()));
+        String result = fromStart.substring(0, partialFilter.indexOf(contentRichSection.getEnd()));
+        System.out.println("result: " + result);
+        return result;
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove) {
@@ -79,9 +83,6 @@ public class HTMLFilter {
         for (String line : contentRichTemplateLines) {
             if (line.startsWith(templateName)) {
                 String[] templateDetails = line.split("-");
-                for (String s : templateDetails) {
-                    System.out.println(s);
-                }
                 contentRichSection.setStart(templateDetails[1]);
                 contentRichSection.setEnd(templateDetails[2]);
                 contentRichSection.setTemplateName(templateName);

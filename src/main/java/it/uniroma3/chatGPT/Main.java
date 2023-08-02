@@ -30,7 +30,7 @@ public class Main {
             EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             System.out.println("Entities extracted: " + entities.size());
-            Set<Entity> ebayEntities = new HashSet<>();
+           /* Set<Entity> ebayEntities = new HashSet<>();
             for (Entity e : entities) {
                 List<Data> ebayData = new ArrayList<>();
                 for (Data d : e.getData()) {
@@ -42,12 +42,11 @@ public class Main {
                 if (ebayData.size() > 1) {
                     ebayEntities.add(e);
                 }
-            }
-            System.out.println("Ebay Entities extracted: " + ebayEntities.size());
+            }*/
+            System.out.println("Entities extracted: " + entities.size());
             System.out.println("Computing prompts...");
-            List<Entity> entityList = new ArrayList<>(ebayEntities);
+            List<Entity> entityList = new ArrayList<>(entities);
             List<String> prompts = new ArrayList<>();
-
             int entitaDiverseFraLoro = 40;
             int entitaUgualiFraLoro = 10;
 

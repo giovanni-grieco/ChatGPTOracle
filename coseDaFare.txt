@@ -1,0 +1,3 @@
+Aggiungere anchor points per altre template
+Cambiare il rateo di casi positivi o negativi avendo più negativi dei positivi
+Considerare l'implementazione dei k-shot learning con modello custom openAI

@@ -1,8 +1,5 @@
 package it.uniroma3.chatGPT.GPT;
 
-import it.uniroma3.chatGPT.AppProperties;
-import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +23,7 @@ public class ChatGPT {
     //private static String model= "text-babbage-001";
     private static String privateKey = null;
 
-    public ChatGPT(String apiKey) throws IOException {
+    public ChatGPT(String apiKey) {
         ChatGPT.privateKey = apiKey;
     }
 
@@ -38,7 +34,7 @@ public class ChatGPT {
         conn.setRequestProperty("Authorization", myToken);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestMethod("GET");
-        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).get();
+        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).orElse("");
         JSONObject obj = new JSONObject(output);
         JSONArray dataArray = obj.getJSONArray("data");
 
@@ -49,10 +45,10 @@ public class ChatGPT {
         return models;
     }
 
-    public String answerQuestionCompletion(String text, String model) throws Exception {
+    public String answerQuestionCompletion(String text, String model) throws IOException {
 
         String myToken = "Bearer " + " " + privateKey;
-        // E' necessario creare una connessione a risposta???? Non basta una connessione a per lista di prompt?
+        // È necessario creare una connessione per risposta? Non basta una connessione a per lista di prompt?
         HttpURLConnection conn = (HttpURLConnection) new URL(COMPLETION_URL_API).openConnection();
         conn.setRequestProperty("Authorization", myToken);
         conn.setRequestProperty("Content-Type", "application/json");
@@ -66,7 +62,7 @@ public class ChatGPT {
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
 
-        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).get();
+        String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).orElse("");
 
         return new JSONObject(output).getJSONArray("choices").getJSONObject(0).getString("text");
     }
@@ -102,7 +98,7 @@ public class ChatGPT {
                 outputs.add(answer);
                 System.out.println("Answer: " + answer.getRisposta());
             } catch (GPTException e) {
-                e.printStackTrace();
+                System.out.println("Error: " + e.getMessage());
                 System.out.println("Skipping to next prompt...");
             }
             System.out.println("Waiting " + millisDelay + "ms\n");

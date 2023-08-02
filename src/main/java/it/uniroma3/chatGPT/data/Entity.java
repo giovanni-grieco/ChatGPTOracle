@@ -1,10 +1,5 @@
 package it.uniroma3.chatGPT.data;
 
-import it.uniroma3.chatGPT.AppProperties;
-import it.uniroma3.chatGPT.utils.FileRetriever;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

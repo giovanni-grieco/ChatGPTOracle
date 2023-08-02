@@ -20,11 +20,11 @@ public class HTMLFilter {
 
     private static final ContentRichSection contentRichSection = new ContentRichSection(null, null, null);
 
-    public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws IOException {
-        String partialFilter = filter(html, tagsToRemove);
-        loadContentRichSectionFromTemplate(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
-        String fromStart = partialFilter.substring(partialFilter.indexOf(contentRichSection.getStart()) + contentRichSection.getStart().length());
-        return fromStart.substring(0, partialFilter.indexOf(contentRichSection.getEnd()));
+    public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateNotFoundException {
+            loadContentRichSectionFromTemplate(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+            String partialFilter = filter(html, tagsToRemove);
+            String fromStart = partialFilter.substring(partialFilter.indexOf(contentRichSection.getStart()) + contentRichSection.getStart().length());
+            return fromStart.substring(0, partialFilter.indexOf(contentRichSection.getEnd()));
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove) {
@@ -73,18 +73,21 @@ public class HTMLFilter {
         }
     }
 
-    private static void loadContentRichSectionFromTemplate(String templateName, File contentRichTemplateInformation) throws IOException {
-        String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
-        String[] contentRichTemplateLines = contentRichTemplate.split("\n");
-        for (String line : contentRichTemplateLines) {
-            if (line.startsWith(templateName)) {
-                String[] templateDetails = line.split("-");
-                contentRichSection.setStart(templateDetails[1]);
-                contentRichSection.setEnd(templateDetails[2]);
-                contentRichSection.setTemplateName(templateName);
-                return;
+    private static void loadContentRichSectionFromTemplate(String templateName, File contentRichTemplateInformation) throws HTMLTemplateNotFoundException {
+        try {
+            String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
+            String[] contentRichTemplateLines = contentRichTemplate.split("\n");
+            for (String line : contentRichTemplateLines) {
+                if (line.startsWith(templateName)) {
+                    String[] templateDetails = line.split("-");
+                    contentRichSection.setStart(templateDetails[1]);
+                    contentRichSection.setEnd(templateDetails[2]);
+                    contentRichSection.setTemplateName(templateName);
+                    return;
+                }
             }
+        }catch (IOException e) {
+            throw new HTMLTemplateNotFoundException("Template '" + templateName + "'not found in contentRichTemplate.txt",e.getCause());
         }
-        throw new IOException("Template '" + templateName + "'not found in contentRichTemplate.txt");
     }
 }

@@ -7,9 +7,6 @@ import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import it.uniroma3.chatGPT.utils.FileSaver;
-
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -46,7 +43,7 @@ public class Main {
             }
 
             System.out.println("Computing prompts...");
-            List<Entity> entityList = new ArrayList(ebayEntities);
+            List<Entity> entityList = new ArrayList<>(ebayEntities);
             List<String> prompts = new ArrayList<>();
 
             //entità diverse fra loro
@@ -55,14 +52,14 @@ public class Main {
                 int randomNumber = random.nextInt();
                 randomNumber = Math.abs(randomNumber);
                 randomNumber = randomNumber % entityList.size();
-                Entity e1 = (Entity) entityList.get(randomNumber);
+                Entity e1 = entityList.get(randomNumber);
                 int anotherRandomNumber = random.nextInt() % entityList.size();
                 anotherRandomNumber = Math.abs(anotherRandomNumber);
                 while (anotherRandomNumber == randomNumber) {
                     anotherRandomNumber = random.nextInt() % entityList.size();
                     anotherRandomNumber = Math.abs(anotherRandomNumber);
                 }
-                Entity e2 = (Entity) entityList.get(anotherRandomNumber);
+                Entity e2 = entityList.get(anotherRandomNumber);
                 //estraiamo 2 informazioni a caso dalle entità
                 int randomDataNumber1 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
@@ -83,7 +80,7 @@ public class Main {
                 int randomNumber = random.nextInt();
                 randomNumber = randomNumber % entityList.size();
                 randomNumber = Math.abs(randomNumber);
-                Entity e1 = (Entity) entityList.get(randomNumber);
+                Entity e1 = entityList.get(randomNumber);
                 int randomDataNumber1 = random.nextInt() % e1.getData().size();
                 int randomDataNumber2 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
@@ -135,7 +132,7 @@ public class Main {
 
             double precision = (double) truePositive / (truePositive + falsePositive);
             double recall = (double) truePositive / (truePositive + falseNegative);
-            double Fscore = 2 * ((precision * recall) / (precision + recall));
+            double fscore = 2 * ((precision * recall) / (precision + recall));
 
             String results = "True positive: " + truePositive + "\n" +
                     "True negative: " + trueNegative + "\n" +
@@ -144,19 +141,16 @@ public class Main {
                     "Total answers: " + answers.size() + "\n" +
                     "Precision: " + (double) truePositive / (truePositive + falsePositive) + "\n" +
                     "Recall: " + (double) truePositive / (truePositive + falseNegative) + "\n" +
-                    "Fscore: " + Fscore + "\n";
+                    "fscore: " + fscore + "\n";
             System.out.println(results);
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
-            String fileName = now.toString() + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
+            String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
             FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
     }
+
 }

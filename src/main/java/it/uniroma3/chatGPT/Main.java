@@ -36,7 +36,7 @@ public class Main {
                     }
                 }
                 e.setData(ebayData);
-                if(ebayData.size()>0){
+                if(ebayData.size()>1){
                     ebayEntities.add(e);
                 }
             }
@@ -84,6 +84,10 @@ public class Main {
                 int randomDataNumber2 = random.nextInt()%e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
                 randomDataNumber2 = Math.abs(randomDataNumber2);
+                while(randomDataNumber1 == randomDataNumber2){
+                    randomDataNumber2 = random.nextInt()%e1.getData().size();
+                    randomDataNumber2 = Math.abs(randomDataNumber2);
+                }
                 String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
                 String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
                 //Filtriamo le informazioni

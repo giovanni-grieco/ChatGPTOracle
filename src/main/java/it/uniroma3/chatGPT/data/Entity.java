@@ -38,14 +38,6 @@ public class Entity {
         this.data.add(new Data(split[0], split[1]));
     }
 
-    public List<File> dataLocationsToFiles() throws IOException {
-        List<File> files = new ArrayList<>();
-        for (Data dataLocation : data) {
-            files.add(FileRetriever.getFile(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + dataLocation.toPath() + ".html"));
-        }
-        return files;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Entity e) {

@@ -1,5 +1,5 @@
-www.ebay.com-Details about-|-
-buy.net-Offers for--
+www.ebay.com-/html/body/div/div[2]/div/div[2]/div/div/div[1]/table/tbody/tr[1]/td/div/h1/text()-/html/body/div/div[2]/div/div[2]/div[2]/h1/text()-
+buy.net-/html/body/div[2]/div/div[1]/div/div/div[1]/text()--
 cammarkt.com---
 www.alibaba.com---
 www.buzzillions.com---

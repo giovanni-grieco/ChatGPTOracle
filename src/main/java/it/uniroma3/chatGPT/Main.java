@@ -7,6 +7,7 @@ import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import it.uniroma3.chatGPT.utils.FileSaver;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -26,7 +27,6 @@ public class Main {
             System.out.println("Dataset Path: " + datasetPath);
             System.out.println("Dataset Folder: " + datasetFolder);
             System.out.println("Ground Truth File Name: " + groundTruthFileName);
-
             EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             System.out.println("Entities extracted: " + entities.size());
@@ -47,63 +47,76 @@ public class Main {
             System.out.println("Computing prompts...");
             List<Entity> entityList = new ArrayList<>(ebayEntities);
             List<String> prompts = new ArrayList<>();
-            int entitaDiverseFraLoro = 40;
-            int entitaUgualiFraLoro = 10;
+            int entitaDiverseFraLoro = 100;
+            int entitaUgualiFraLoro = 0;
 
             //entità diverse fra loro
             for (int i = 0; i < entitaDiverseFraLoro; i++) {
-                Random random = new Random();
-                int randomNumber = random.nextInt();
-                randomNumber = Math.abs(randomNumber);
-                randomNumber = randomNumber % entityList.size();
-                Entity e1 = entityList.get(randomNumber);
-                int anotherRandomNumber = random.nextInt() % entityList.size();
-                anotherRandomNumber = Math.abs(anotherRandomNumber);
-                while (anotherRandomNumber == randomNumber) {
-                    anotherRandomNumber = random.nextInt() % entityList.size();
+                try {
+                    Random random = new Random();
+                    int randomNumber = random.nextInt();
+                    randomNumber = Math.abs(randomNumber);
+                    randomNumber = randomNumber % entityList.size();
+                    Entity e1 = entityList.get(randomNumber);
+                    int anotherRandomNumber = random.nextInt() % entityList.size();
                     anotherRandomNumber = Math.abs(anotherRandomNumber);
+                    while (anotherRandomNumber == randomNumber) {
+                        anotherRandomNumber = random.nextInt() % entityList.size();
+                        anotherRandomNumber = Math.abs(anotherRandomNumber);
+                    }
+                    Entity e2 = entityList.get(anotherRandomNumber);
+                    //estraiamo 2 informazioni a caso dalle entità
+                    int randomDataNumber1 = random.nextInt() % e1.getData().size();
+                    randomDataNumber1 = Math.abs(randomDataNumber1);
+                    int randomDataNumber2 = random.nextInt() % e2.getData().size();
+                    randomDataNumber2 = Math.abs(randomDataNumber2);
+                    String dataE1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
+                    String dataE2 = Files.readString(e2.getData().get(randomDataNumber2).toFullPath());
+                    //Filtriamo le informazioni
+                    String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                    String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TAGS, e2.getData().get(randomDataNumber2).getDomain());
+                    System.out.println(pureDataE1);
+                    System.out.println(pureDataE2);
+
+                    //Creiamo il prompt
+                    prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
                 }
-                Entity e2 = entityList.get(anotherRandomNumber);
-                //estraiamo 2 informazioni a caso dalle entità
-                int randomDataNumber1 = random.nextInt() % e1.getData().size();
-                randomDataNumber1 = Math.abs(randomDataNumber1);
-                int randomDataNumber2 = random.nextInt() % e2.getData().size();
-                randomDataNumber2 = Math.abs(randomDataNumber2);
-                String dataE1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
-                String dataE2 = Files.readString(e2.getData().get(randomDataNumber2).toFullPath());
-                //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TAGS, e2.getData().get(randomDataNumber2).getDomain());
-                //Creiamo il prompt
-                prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
             }
 
             //entità uguali fra loro
             for (int i = 0; i < entitaUgualiFraLoro; i++) {
-                Random random = new Random();
-                int randomNumber = random.nextInt();
-                randomNumber = randomNumber % entityList.size();
-                randomNumber = Math.abs(randomNumber);
-                Entity e1 = entityList.get(randomNumber);
-                int randomDataNumber1 = random.nextInt() % e1.getData().size();
-                int randomDataNumber2 = random.nextInt() % e1.getData().size();
-                randomDataNumber1 = Math.abs(randomDataNumber1);
-                randomDataNumber2 = Math.abs(randomDataNumber2);
-                while (randomDataNumber1 == randomDataNumber2) {
-                    randomDataNumber2 = random.nextInt() % e1.getData().size();
+                try {
+                    Random random = new Random();
+                    int randomNumber = random.nextInt();
+                    randomNumber = randomNumber % entityList.size();
+                    randomNumber = Math.abs(randomNumber);
+                    Entity e1 = entityList.get(randomNumber);
+                    int randomDataNumber1 = random.nextInt() % e1.getData().size();
+                    int randomDataNumber2 = random.nextInt() % e1.getData().size();
+                    randomDataNumber1 = Math.abs(randomDataNumber1);
                     randomDataNumber2 = Math.abs(randomDataNumber2);
+                    while (randomDataNumber1 == randomDataNumber2) {
+                        randomDataNumber2 = random.nextInt() % e1.getData().size();
+                        randomDataNumber2 = Math.abs(randomDataNumber2);
+                    }
+                    String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
+                    String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
+                    //Filtriamo le informazioni
+                    String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                    String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber2).getDomain());
+                    System.out.println(pureDataE1);
+                    System.out.println(pureDataE2);
+                    prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
+                } catch (Exception e) {
+                    System.out.println("Exception: " + e.getMessage());
                 }
-                String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
-                String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
-                //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber2).getDomain());
-                prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
             }
 
             System.out.println("Prompts size: " + prompts.size());
 
-            ChatGPT gpt = new ChatGPT(APIKEY);
+            /*ChatGPT gpt = new ChatGPT(APIKEY);
             List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
 
             //la prima metà dovrebbero essere tutti no
@@ -146,7 +159,7 @@ public class Main {
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
             String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
-            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);
+            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);*/
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());

@@ -1,6 +1,7 @@
 package it.uniroma3.chatGPT.data.extraction;
 
 import it.uniroma3.chatGPT.utils.FileRetriever;
+import it.uniroma3.chatGPT.utils.FileSaver;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
@@ -16,19 +17,26 @@ import java.util.List;
 
 public class HTMLFilter {
 
-    public static final Iterable<String> DEFAULT_TAGS = List.of("style", "script", "head", "meta", "img", "link");
+    public static final Iterable<String> DEFAULT_TAGS = List.of("style", "script", "head", "meta", "img", "link", "br", "input","wbr","embed","area","param");
 
-    private static final ContentRichSection contentRichSection = new ContentRichSection(null, null, null);
 
-    public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateNotFoundException, IOException {
-        loadContentRichSectionFromTemplate(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+    public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateException, IOException {
+        HTMLFilter.loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
         String partialFilter = filter(html, tagsToRemove);
-        System.out.println("Template: "+templateName);
-        System.out.println("partialFilter: " + partialFilter);
-        String fromStart = partialFilter.substring(partialFilter.indexOf(contentRichSection.getStart()) + contentRichSection.getStart().length());
-        String result = fromStart.substring(0, partialFilter.indexOf(contentRichSection.getEnd()));
-        System.out.println("result: " + result);
-        return result;
+        // System.out.println("Template: "+templateName);
+        //System.out.println("partialFilter: " + partialFilter);
+        FileSaver.saveFile("C:/Users/giovi/Desktop/","partialFilter.txt",partialFilter);
+        XPaths xPath = loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+        int xPathIndex = 0;
+        do{
+            XPathExtractor xPathExtractor = new XPathExtractor(xPath.getXPaths().get(xPathIndex), partialFilter);
+            String result = xPathExtractor.extract();
+            if(result!=null && result.length()>1){
+                return result;
+            }
+            xPathIndex++;
+        }while(xPathIndex<xPath.getXPaths().size());
+        return null;
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove) {
@@ -36,8 +44,8 @@ public class HTMLFilter {
         removeSpecifiedTags(doc, tagsToRemove);
         removeHTMLAttributes(doc);
         removeEmptyTags(doc);
-        //return convert2Text(doc);
-        return doc.text();
+        return doc.toString(); //ritorna l'html con i suoi tag
+        //return doc.text(); //ritorna il testo senza i tag
     }
 
     private static String convert2Text(Document doc) {
@@ -77,18 +85,19 @@ public class HTMLFilter {
         }
     }
 
-    private static void loadContentRichSectionFromTemplate(String templateName, File contentRichTemplateInformation) throws HTMLTemplateNotFoundException, IOException {
+    private static XPaths loadXPaths(String templateName, File contentRichTemplateInformation) throws HTMLTemplateException, IOException {
         String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
         String[] contentRichTemplateLines = contentRichTemplate.split("\n");
+        XPaths xpaths = new XPaths(templateName, new ArrayList<String>());
         for (String line : contentRichTemplateLines) {
             if (line.startsWith(templateName)) {
                 String[] templateDetails = line.split("-");
-                contentRichSection.setStart(templateDetails[1]);
-                contentRichSection.setEnd(templateDetails[2]);
-                contentRichSection.setTemplateName(templateName);
-                return;
+                for(int i = 1; i<templateDetails.length-1; i++){
+                    xpaths.getXPaths().add(templateDetails[i]);
+                }
+                return xpaths;
             }
         }
-        throw new HTMLTemplateNotFoundException("Template '" + templateName + "'not found in contentRichTemplate.txt");
+        throw new HTMLTemplateException("Template '" + templateName + "'not found in contentRichTemplate.txt");
     }
 }

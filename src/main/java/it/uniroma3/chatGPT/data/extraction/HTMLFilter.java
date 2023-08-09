@@ -41,9 +41,10 @@ public class HTMLFilter {
             LocalTime nowTime = LocalTime.now();
             String fileName = templateName+now+ "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-error";
             FileSaver.saveFile("C:/Users/giovi/Desktop/errors", fileName + ".html", partialFilter);
+            System.out.println("File saved at: C:/Users/giovi/Desktop/errors/"+fileName+".html");
             throw new HTMLTemplateException("Unable to extract valid information from XPaths specified in the template: "+templateName);
         }
-        return result;
+        return result.trim();
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove) {

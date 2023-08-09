@@ -117,7 +117,7 @@ public class Main {
 
             System.out.println("Prompts size: " + prompts.size());
 
-            /*ChatGPT gpt = new ChatGPT(APIKEY);
+            ChatGPT gpt = new ChatGPT(APIKEY);
             List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
 
             //la prima metà dovrebbero essere tutti no
@@ -160,7 +160,7 @@ public class Main {
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
             String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
-            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);*/
+            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());

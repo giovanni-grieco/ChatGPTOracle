@@ -3,15 +3,14 @@ package it.uniroma3.chatGPT.data.extraction;
 import it.uniroma3.chatGPT.utils.FileRetriever;
 import it.uniroma3.chatGPT.utils.FileSaver;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
-
+import org.jsoup.select.NodeFilter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,18 +24,26 @@ public class HTMLFilter {
         String partialFilter = filter(html, tagsToRemove);
         // System.out.println("Template: "+templateName);
         //System.out.println("partialFilter: " + partialFilter);
-        FileSaver.saveFile("C:/Users/giovi/Desktop/","partialFilter.txt",partialFilter);
-        XPaths xPath = loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+        XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+        //System.out.println("xPath: " + xPath);
         int xPathIndex = 0;
+        String result = null;
         do{
-            XPathExtractor xPathExtractor = new XPathExtractor(xPath.getXPaths().get(xPathIndex), partialFilter);
-            String result = xPathExtractor.extract();
-            if(result!=null && result.length()>1){
-                return result;
+            XPathExtractor xPathExtractor = new XPathExtractor(xPaths.getXPaths().get(xPathIndex), partialFilter);
+            result = xPathExtractor.extract();
+            if(result != null && (result.isEmpty() || result.isBlank())) {
+                result = null;
             }
             xPathIndex++;
-        }while(xPathIndex<xPath.getXPaths().size());
-        return null;
+        }while(xPathIndex<xPaths.getXPaths().size() && result==null);
+        if(result==null){
+            LocalDate now = LocalDate.now();
+            LocalTime nowTime = LocalTime.now();
+            String fileName = templateName+now+ "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-error";
+            FileSaver.saveFile("C:/Users/giovi/Desktop/errors", fileName + ".html", partialFilter);
+            throw new HTMLTemplateException("Unable to extract valid information from XPaths specified in the template: "+templateName);
+        }
+        return result;
     }
 
     private static String filter(String html, Iterable<String> tagsToRemove) {
@@ -74,6 +81,7 @@ public class HTMLFilter {
         //rimuove tutti gli attributi dei tag HTML
         Elements el = doc.getAllElements();
         for (Element e : el) {
+            removeComments(e);
             List<String> attToRemove = new ArrayList<>();
             Attributes at = e.attributes();
             for (Attribute a : at) {
@@ -92,12 +100,32 @@ public class HTMLFilter {
         for (String line : contentRichTemplateLines) {
             if (line.startsWith(templateName)) {
                 String[] templateDetails = line.split("-");
-                for(int i = 1; i<templateDetails.length-1; i++){
+                for(int i = 1; i<templateDetails.length-2; i++){
                     xpaths.getXPaths().add(templateDetails[i]);
                 }
                 return xpaths;
             }
         }
         throw new HTMLTemplateException("Template '" + templateName + "'not found in contentRichTemplate.txt");
+    }
+
+    private static void removeComments(Element article) {
+        article.filter(new NodeFilter() {
+            @Override
+            public FilterResult tail(Node node, int depth) {
+                if (node instanceof Comment) {
+                    return FilterResult.REMOVE;
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            @Override
+            public FilterResult head(Node node, int depth) {
+                if (node instanceof Comment) {
+                    return FilterResult.REMOVE;
+                }
+                return FilterResult.CONTINUE;
+            }
+        });
     }
 }

@@ -34,7 +34,7 @@ public class Main {
             for (Entity e : entities) {
                 List<Data> ebayData = new ArrayList<>();
                 for (Data d : e.getData()) {
-                    if (d.getDomain().equals("www.ebay.com")) {
+                    if (d.getDomain().equals("www.ebay.com") || d.getDomain().equals("buy.net")) {
                         ebayData.add(d);
                     }
                 }
@@ -43,12 +43,11 @@ public class Main {
                     ebayEntities.add(e);
                 }
             }
-            System.out.println("Entities extracted: " + entities.size());
             System.out.println("Computing prompts...");
             List<Entity> entityList = new ArrayList<>(ebayEntities);
             List<String> prompts = new ArrayList<>();
-            int entitaDiverseFraLoro = 100;
-            int entitaUgualiFraLoro = 0;
+            int entitaDiverseFraLoro = 40;
+            int entitaUgualiFraLoro = 10;
 
             //entità diverse fra loro
             for (int i = 0; i < entitaDiverseFraLoro; i++) {
@@ -81,6 +80,7 @@ public class Main {
                     //Creiamo il prompt
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
+                    i--;
                     System.out.println("Exception: " + e.getMessage());
                 }
             }
@@ -110,6 +110,7 @@ public class Main {
                     System.out.println(pureDataE2);
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
+                    i--;
                     System.out.println("Exception: " + e.getMessage());
                 }
             }

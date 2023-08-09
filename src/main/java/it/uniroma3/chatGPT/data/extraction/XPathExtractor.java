@@ -37,9 +37,13 @@ public class XPathExtractor {
             XPathExpression expression = xPath.compile(this.xpath);
             // Evaluate the expression and get the result
             // Print the extracted text
-            return (String) expression.evaluate(document, XPathConstants.STRING);
+            String result = (String) expression.evaluate(document, XPathConstants.STRING);
+            if(result == null) System.out.println("result is null");
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error while extracting xpath: " + this.xpath);
+            System.err.println("Errore message: " + e.getMessage());
             return null;
         }
     }

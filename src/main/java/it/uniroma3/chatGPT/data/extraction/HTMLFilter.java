@@ -51,6 +51,7 @@ public class HTMLFilter {
         Document doc = Jsoup.parse(html);
         removeSpecifiedTags(doc, tagsToRemove);
         removeHTMLAttributes(doc);
+        removeHTMLComments(doc);
         removeEmptyTags(doc);
         return doc.toString(); //ritorna l'html con i suoi tag
         //return doc.text(); //ritorna il testo senza i tag
@@ -82,7 +83,6 @@ public class HTMLFilter {
         //rimuove tutti gli attributi dei tag HTML
         Elements el = doc.getAllElements();
         for (Element e : el) {
-            removeComments(e);
             List<String> attToRemove = new ArrayList<>();
             Attributes at = e.attributes();
             for (Attribute a : at) {
@@ -91,6 +91,13 @@ public class HTMLFilter {
             for (String att : attToRemove) {
                 e.removeAttr(att);
             }
+        }
+    }
+
+    private static void removeHTMLComments(Document doc){
+        Elements el = doc.getAllElements();
+        for (Element e : el) {
+            removeComments(e);
         }
     }
 

@@ -74,9 +74,8 @@ public class Main {
                     //Filtriamo le informazioni
                     String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                     String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TAGS, e2.getData().get(randomDataNumber2).getDomain());
-                    System.out.println(pureDataE1);
-                    System.out.println(pureDataE2);
-
+                    /*System.out.println(pureDataE1);
+                    System.out.println(pureDataE2);*/
                     //Creiamo il prompt
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
@@ -106,8 +105,8 @@ public class Main {
                     //Filtriamo le informazioni
                     String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                     String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber2).getDomain());
-                    System.out.println(pureDataE1);
-                    System.out.println(pureDataE2);
+                    /*System.out.println(pureDataE1);
+                    System.out.println(pureDataE2);*/
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
                     i--;

@@ -16,7 +16,7 @@ www.mypriceindia.com-/html/body/div[1]/div[2]/div/div[4]/div[2]/div/div[1]/div[2
 www.pcconnection.com-/html/body/form/div/div[1]/div[1]/div[3]/div/div/div/div[1]/h1/text()--
 www.pricedekho.com-/html/body/div/main/div/div/div[1]/div[1]/div/div/div/h1/text()-/html/body/div/main/div/div/div[1]/div[1]/div[2]/h1/text()--
 www.price-hunt.com-/html/body/div/div[3]/div[2]/div/div/h2/text()--
-www.priceme.co.nz-/html/body/form/div[2]/div[1]/table/tbody/tr/td[1]/div[1]/h1/text()--
+www.priceme.co.nz-/html/body/form/div[2]/div[1]/table/tbody/tr/td[1]/div[1]/h1/text()-/html/body/form/div[2]/div[1]/div[1]/table/tbody/tr/td/div[2]/h1--
 www.shopbot.com.au-/html/body/div/div[1]/div/div[1]/div/div/h1/text()--
 www.shopmania.in-/html/body/div[1]/div/div/div/div/div/div/div/div/div[3]/div/div/div[2]/div/div[1]/div[1]/div/h1/span[1]/text()-/html/body/div[1]/div/div/div/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div[1]/div/h1/span[1]/text()--
 www.ukdigitalcameras.co.uk-/html/body/div[1]/div/div[3]/div/div[2]/form/div/h1/text()-/html/body/div[1]/div/div[3]/div/div[1]/form/div/h1/text()--

@@ -30,25 +30,29 @@ public class Main {
             EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             System.out.println("Entities extracted: " + entities.size());
-            Set<Entity> ebayEntities = new HashSet<>();
+            /*Set<Entity> filteredEntitiesByDomain = new HashSet<>();
             for (Entity e : entities) {
                 List<Data> ebayData = new ArrayList<>();
                 for (Data d : e.getData()) {
-                    if (d.getDomain().equals("www.ebay.com") || d.getDomain().equals("buy.net")) {
+                    if (d.getDomain().equals("www.wexphotographic.com")) {
                         ebayData.add(d);
                     }
                 }
                 e.setData(ebayData);
-                if (ebayData.size() > 1) {
-                    ebayEntities.add(e);
+                if (!ebayData.isEmpty()) {
+                    filteredEntitiesByDomain.add(e);
                 }
-            }
-            System.out.println("Computing prompts...");
-            List<Entity> entityList = new ArrayList<>(ebayEntities);
+            }*/
+            List<Entity> entityList = new ArrayList<>(entities);
             List<String> prompts = new ArrayList<>();
-            int entitaDiverseFraLoro = 40;
-            int entitaUgualiFraLoro = 10;
 
+            Scanner keyboardScanner = new Scanner(System.in);
+            System.out.print("Inserisci il numero di prompt positivi: ");
+            int entitaUgualiFraLoro = keyboardScanner.nextInt();
+            int entitaDiverseFraLoro = funzioneDiRapporto(entityList.size())*entitaUgualiFraLoro;
+            System.out.println("Numero di prompt positivi: " + entitaUgualiFraLoro);
+            System.out.println("Numero di prompt negativi: " + entitaDiverseFraLoro);
+            System.out.println("Creazione dei prompt...");
             //entità diverse fra loro
             for (int i = 0; i < entitaDiverseFraLoro; i++) {
                 try {
@@ -59,9 +63,12 @@ public class Main {
                     Entity e1 = entityList.get(randomNumber);
                     int anotherRandomNumber = random.nextInt() % entityList.size();
                     anotherRandomNumber = Math.abs(anotherRandomNumber);
-                    while (anotherRandomNumber == randomNumber) {
+                    int maxRetries = 10;
+                    int retries = 0;
+                    while (anotherRandomNumber == randomNumber && retries < maxRetries) {
                         anotherRandomNumber = random.nextInt() % entityList.size();
                         anotherRandomNumber = Math.abs(anotherRandomNumber);
+                        retries++;
                     }
                     Entity e2 = entityList.get(anotherRandomNumber);
                     //estraiamo 2 informazioni a caso dalle entità
@@ -80,7 +87,8 @@ public class Main {
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
                     i--;
-                    System.out.println("Exception: " + e.getMessage());
+                    e.printStackTrace();
+                    System.out.println("Exception while creating prompt: " + e.getMessage());
                 }
             }
 
@@ -96,9 +104,12 @@ public class Main {
                     int randomDataNumber2 = random.nextInt() % e1.getData().size();
                     randomDataNumber1 = Math.abs(randomDataNumber1);
                     randomDataNumber2 = Math.abs(randomDataNumber2);
-                    while (randomDataNumber1 == randomDataNumber2) {
+                    int maxRetries = 3;
+                    int retries = 0;
+                    while (randomDataNumber1 == randomDataNumber2 && retries < maxRetries) {
                         randomDataNumber2 = random.nextInt() % e1.getData().size();
                         randomDataNumber2 = Math.abs(randomDataNumber2);
+                        retries++;
                     }
                     String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
                     String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
@@ -110,7 +121,8 @@ public class Main {
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
                     i--;
-                    System.out.println("Exception: " + e.getMessage());
+                    e.printStackTrace();
+                    System.out.println("Exception while creating prompt: " + e.getMessage());
                 }
             }
 
@@ -166,4 +178,7 @@ public class Main {
         }
     }
 
+    private static int funzioneDiRapporto(int n){
+        return Math.min(n, 10);
+    }
 }

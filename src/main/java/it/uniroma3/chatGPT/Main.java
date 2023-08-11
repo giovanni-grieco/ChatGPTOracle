@@ -66,10 +66,8 @@ public class Main {
                     String dataE1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
                     String dataE2 = Files.readString(e2.getData().get(randomDataNumber2).toFullPath());
                     //Filtriamo le informazioni
-                    String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                    String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TAGS, e2.getData().get(randomDataNumber2).getDomain());
-                    /*System.out.println(pureDataE1);
-                    System.out.println(pureDataE2);*/
+                    String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                    String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());
                     //Creiamo il prompt
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
                 } catch (Exception e) {
@@ -101,8 +99,8 @@ public class Main {
                     String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
                     String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
                     //Filtriamo le informazioni
-                    String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                    String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TAGS, e1.getData().get(randomDataNumber2).getDomain());
+                    String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                    String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());
                     /*System.out.println(pureDataE1);
                     System.out.println(pureDataE2);*/
                     prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));

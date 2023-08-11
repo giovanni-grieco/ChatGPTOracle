@@ -159,6 +159,7 @@ public class Main {
             LocalTime nowTime = LocalTime.now();
             String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
             FileSaver.saveFile("./results/", fileName + ".txt", results);
+            System.out.println("File saved as ./results/" + fileName + ".txt");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());

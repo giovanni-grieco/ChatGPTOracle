@@ -16,13 +16,12 @@ import java.util.List;
 
 public class HTMLFilter {
 
-    public static final Iterable<String> DEFAULT_TAGS = List.of("style", "script", "head", "meta", "img", "link", "br", "input","wbr","embed","area","param");
+    public static final Iterable<String> DEFAULT_TO_REMOVE_TAGS = List.of("style", "script", "head", "meta", "img", "link", "br", "input","wbr","embed","area","param");
 
 
     public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateException, IOException {
-        HTMLFilter.loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
         String partialFilter = filter(html, tagsToRemove);
-        XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
+        XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("./templates_xpaths.txt"));
         int xPathIndex = 0;
         String result = null;
         do{
@@ -37,8 +36,9 @@ public class HTMLFilter {
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
             String fileName = templateName+now+ "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-error";
-            FileSaver.saveFile("C:/Users/giovi/Desktop/errors", fileName + ".html", partialFilter);
-            System.out.println("File saved at: C:/Users/giovi/Desktop/errors/"+fileName+".html");
+            System.err.println("Unable to extract valid information from XPaths specified in the template: "+templateName);
+            System.err.println("Saving the html page at: ./errorCausingHtmlPages/"+fileName+".html");
+            FileSaver.saveFile("./errorCausingHtmlPages/", fileName + ".html", partialFilter);
             throw new HTMLTemplateException("Unable to extract valid information from XPaths specified in the template: "+templateName);
         }
         return result.trim();
@@ -131,6 +131,6 @@ public class HTMLFilter {
                 return xpaths;
             }
         }
-        throw new HTMLTemplateException("Template '" + templateName + "'not found in contentRichTemplate.txt");
+        throw new HTMLTemplateException("Template '" + templateName + "'not found in templates_xpaths.txt");
     }
 }

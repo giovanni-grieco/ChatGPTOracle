@@ -58,7 +58,7 @@ public class ChatGPT {
         data.put("model", model);
         data.put("prompt", text);
         data.put("max_tokens", 700); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
-        data.put("temperature", 0.2);
+        data.put("temperature", 0.15);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
 

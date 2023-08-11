@@ -15,7 +15,7 @@ public class AppProperties {
         try {
             properties.load(new FileInputStream(appPropertiesFile));
         } catch (IOException e) {
-            throw new IOException("App Properties file not found!");
+            throw new IOException("app.properties file not found! It must be placed at the root of classpath");
         }
     }
 
@@ -31,7 +31,7 @@ public class AppProperties {
     }
 
     public String getDatasetPath() {
-        return properties.getProperty("DATASET_PATH");
+        return properties.getProperty("DATASET_ROOT_PATH");
     }
 
     public String getDatasetFolder() {

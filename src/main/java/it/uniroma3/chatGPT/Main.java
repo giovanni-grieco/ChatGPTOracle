@@ -2,12 +2,10 @@ package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.GPT.ChatGPT;
 import it.uniroma3.chatGPT.GPT.GPTQuery;
-import it.uniroma3.chatGPT.data.Data;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import it.uniroma3.chatGPT.utils.FileSaver;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -27,25 +25,14 @@ public class Main {
             System.out.println("Dataset Path: " + datasetPath);
             System.out.println("Dataset Folder: " + datasetFolder);
             System.out.println("Ground Truth File Name: " + groundTruthFileName);
+
+
             EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
             System.out.println("Entities extracted: " + entities.size());
-            /*Set<Entity> filteredEntitiesByDomain = new HashSet<>();
-            for (Entity e : entities) {
-                List<Data> ebayData = new ArrayList<>();
-                for (Data d : e.getData()) {
-                    if (d.getDomain().equals("www.wexphotographic.com")) {
-                        ebayData.add(d);
-                    }
-                }
-                e.setData(ebayData);
-                if (!ebayData.isEmpty()) {
-                    filteredEntitiesByDomain.add(e);
-                }
-            }*/
             List<Entity> entityList = new ArrayList<>(entities);
-            List<String> prompts = new ArrayList<>();
 
+            List<String> prompts = new ArrayList<>();
             Scanner keyboardScanner = new Scanner(System.in);
             System.out.print("Inserisci il numero di prompt positivi: ");
             int entitaUgualiFraLoro = keyboardScanner.nextInt();
@@ -171,7 +158,7 @@ public class Main {
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
             String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
-            FileSaver.saveFile("C:/Users/giovi/Desktop", fileName + ".txt", results);
+            FileSaver.saveFile("./results/", fileName + ".txt", results);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());

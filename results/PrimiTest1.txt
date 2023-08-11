@@ -1,0 +1,4 @@
+Positive results: 31
+Negative results: 9
+Total results: 40
+Accuracy: 0.775

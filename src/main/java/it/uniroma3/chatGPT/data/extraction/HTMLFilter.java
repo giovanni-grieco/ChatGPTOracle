@@ -22,10 +22,7 @@ public class HTMLFilter {
     public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateException, IOException {
         HTMLFilter.loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
         String partialFilter = filter(html, tagsToRemove);
-        // System.out.println("Template: "+templateName);
-        //System.out.println("partialFilter: " + partialFilter);
         XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("contentRichTemplate.txt"));
-        //System.out.println("xPath: " + xPath);
         int xPathIndex = 0;
         String result = null;
         do{
@@ -101,22 +98,6 @@ public class HTMLFilter {
         }
     }
 
-    private static XPaths loadXPaths(String templateName, File contentRichTemplateInformation) throws HTMLTemplateException, IOException {
-        String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
-        String[] contentRichTemplateLines = contentRichTemplate.split("\n");
-        XPaths xpaths = new XPaths(templateName, new ArrayList<String>());
-        for (String line : contentRichTemplateLines) {
-            if (line.startsWith(templateName)) {
-                String[] templateDetails = line.split("-");
-                for(int i = 1; i<templateDetails.length-2; i++){
-                    xpaths.getXPaths().add(templateDetails[i]);
-                }
-                return xpaths;
-            }
-        }
-        throw new HTMLTemplateException("Template '" + templateName + "'not found in contentRichTemplate.txt");
-    }
-
     private static void removeComments(Element article) {
         article.filter(new NodeFilter() {
             @Override
@@ -135,5 +116,21 @@ public class HTMLFilter {
                 return FilterResult.CONTINUE;
             }
         });
+    }
+
+    private static XPaths loadXPaths(String templateName, File contentRichTemplateInformation) throws HTMLTemplateException, IOException {
+        String contentRichTemplate = Files.readString(contentRichTemplateInformation.toPath());
+        String[] contentRichTemplateLines = contentRichTemplate.split("\n");
+        XPaths xpaths = new XPaths(templateName, new ArrayList<String>());
+        for (String line : contentRichTemplateLines) {
+            if (line.startsWith(templateName)) {
+                String[] templateDetails = line.split("-");
+                for(int i = 1; i<templateDetails.length-2; i++){
+                    xpaths.getXPaths().add(templateDetails[i]);
+                }
+                return xpaths;
+            }
+        }
+        throw new HTMLTemplateException("Template '" + templateName + "'not found in contentRichTemplate.txt");
     }
 }

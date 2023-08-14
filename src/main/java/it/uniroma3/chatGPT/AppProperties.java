@@ -34,12 +34,18 @@ public class AppProperties {
         return properties.getProperty("DATASET_ROOT_PATH");
     }
 
-    public String getDatasetFolder() {
-        return properties.getProperty("DATASET_FOLDER_NAME");
+    public String[] getDatasetFolders() {
+        return properties.getProperty("DATASET_FOLDER_NAME").split(",");
     }
 
-    public String getGroundTruthFileName() {
-        return properties.getProperty("DATASET_GT_FILE_NAME");
+    public String[] getGroundTruthFileNames() {
+        return properties.getProperty("DATASET_GT_FILE_NAME").split(",");
+    }
+
+    public void validate() throws InvalidPropertiesException {
+        if(this.getAPIKey()==null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank()) throw new InvalidPropertiesException("OpenAI key null or empty");
+        if(this.getDatasetPath()==null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank()) throw new InvalidPropertiesException("Dataset folder not specified");
+        if(this.getDatasetFolders().length == 0 || this.getGroundTruthFileNames().length == 0) throw new InvalidPropertiesException("");
     }
 
 }

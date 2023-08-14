@@ -18,7 +18,6 @@ public class HTMLFilter {
 
     public static final Iterable<String> DEFAULT_TO_REMOVE_TAGS = List.of("style", "script", "head", "meta", "img", "link", "br", "input","wbr","embed","area","param");
 
-
     public static String filterTemplate(String html, Iterable<String> tagsToRemove, String templateName) throws HTMLTemplateException, IOException {
         String partialFilter = filter(html, tagsToRemove);
         XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("./templates_xpaths.txt"));

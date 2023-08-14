@@ -1,15 +1,17 @@
 package it.uniroma3.chatGPT.data;
 
 import it.uniroma3.chatGPT.AppProperties;
-
 import java.io.IOException;
 import java.nio.file.Path;
 
 public class Data {
+
+    private final Entity entity;
     private String domain;
     private String id;
 
-    public Data(String domain, String id) {
+    public Data(String domain, String id, Entity entity) {
+        this.entity = entity;
         this.domain = domain;
         this.id = id;
     }
@@ -31,7 +33,7 @@ public class Data {
     }
 
     public Path toFullPath() throws IOException {
-        return Path.of(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + domain + "/" + id + ".html");
+        return Path.of(AppProperties.getAppProperties().getDatasetPath()+ "/" + AppProperties.getAppProperties().getDatasetFolders()[this.entity.getType()] + "/" + domain + "/" + id + ".html");
     }
 
     @Override

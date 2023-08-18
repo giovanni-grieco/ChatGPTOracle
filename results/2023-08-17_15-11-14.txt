@@ -1,0 +1,8 @@
+True positive: 22
+True negative: 247
+False positive: 3
+False negative: 3
+Total answers: 275
+Precision: 0.88
+Recall: 0.88
+fscore: 0.88

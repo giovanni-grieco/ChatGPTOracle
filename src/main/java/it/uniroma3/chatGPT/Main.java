@@ -20,23 +20,24 @@ public class Main {
         String datasetPath = appProperties.getDatasetPath();
         String[] datasetFolders = appProperties.getDatasetFolders();
         String[] groundTruthFileNames = appProperties.getGroundTruthFileNames();
+
         System.out.println("API Key: " + APIKEY);
         System.out.println("Dataset Path: " + datasetPath);
         System.out.println("Dataset Folder: " + Arrays.toString(datasetFolders));
         System.out.println("Ground Truth File Name: " + Arrays.toString(groundTruthFileNames));
-        appProperties.validate();
-        //EntityExtractor cameraExtractor = new EntityExtractor("Camera_", Path.of(datasetPath + "/" + groundTruthFileName));
-        //EntityExtractor notebookExtractor = new EntityExtractor("Notebook_", Path.of(datasetPath + "/" + groundTruthFileName));
-        //EntityExtractor monitorExtractor = new EntityExtractor("Monitor_", Path.of(datasetPath + "/" + groundTruthFileName));
+        appProperties.validate(); //se la validazione fallisce, verranno sollevate eccezioni
+
         int entityTypes=datasetFolders.length;
         Set<Entity> entities = new HashSet<>();
-        for(int i = 0; i<entityTypes; i++){
-            EntityExtractor extractor = new EntityExtractor(i, Path.of(datasetPath+"/"+groundTruthFileNames[i]));
+        for(int type = 0; type<entityTypes; type++){
+            EntityExtractor extractor = new EntityExtractor(type, Path.of(datasetPath+"/"+groundTruthFileNames[type]));
             extractor.extractEntitiesFromGroundTruth(entities);
         }
+        //Stampiamo le entità per controllare
         for(Entity e:entities){
             System.out.println(e);
         }
+
         System.out.println("Entities extracted: " + entities.size());
         List<Entity> entityList = new ArrayList<>(entities);
         List<String> prompts = new ArrayList<>();
@@ -145,7 +146,6 @@ public class Main {
                 }
             }
         }
-
 
         double precision = (double) truePositive / (truePositive + falsePositive);
         double recall = (double) truePositive / (truePositive + falseNegative);

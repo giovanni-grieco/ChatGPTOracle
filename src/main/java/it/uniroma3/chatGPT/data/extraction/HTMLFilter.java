@@ -7,6 +7,7 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 import org.jsoup.select.NodeFilter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
@@ -23,18 +24,20 @@ public class HTMLFilter {
         XPaths xPaths = loadXPaths(templateName, FileRetriever.getFile("./templates_xpaths.txt"));
         int xPathIndex = 0;
         String result = null;
-        do{
-            XPathExtractor xPathExtractor = new XPathExtractor(xPaths.getXPaths().get(xPathIndex), partialFilter);
-            result = xPathExtractor.extract();
-            if(result != null && (result.isEmpty() || result.isBlank())) {
-                result = null;
-            }
-            xPathIndex++;
-        }while(xPathIndex<xPaths.getXPaths().size() && result==null);
+        if(!xPaths.getXPaths().isEmpty()) {
+            do {
+                XPathExtractor xPathExtractor = new XPathExtractor(xPaths.getXPaths().get(xPathIndex), partialFilter);
+                result = xPathExtractor.extract();
+                if (result != null && (result.isEmpty() || result.isBlank())) {
+                    result = null;
+                }
+                xPathIndex++;
+            } while (xPathIndex < xPaths.getXPaths().size() && result == null);
+        }
         if(result==null){
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
-            String fileName = templateName+now+ "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-error";
+            String fileName = templateName+now+ "_" + nowTime.getHour() +"-error";
             System.err.println("Unable to extract valid information from XPaths specified in the template: "+templateName);
             System.err.println("Saving the html page at: ./errorCausingHtmlPages/"+fileName+".html");
             FileSaver.saveFile("./errorCausingHtmlPages/", fileName + ".html", partialFilter);
@@ -130,6 +133,9 @@ public class HTMLFilter {
                 return xpaths;
             }
         }
-        throw new HTMLTemplateException("Template '" + templateName + "'not found in templates_xpaths.txt");
+        FileWriter fw = new FileWriter("templates_xpaths.txt",true);
+        fw.write("\n"+templateName+"---");
+        fw.close();
+        throw new HTMLTemplateException("Template '" + templateName + "'not found in templates_xpaths.txt\nAdding template to file.");
     }
 }

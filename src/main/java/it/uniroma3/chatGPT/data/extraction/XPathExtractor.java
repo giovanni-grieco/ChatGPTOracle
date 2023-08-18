@@ -2,7 +2,6 @@ package it.uniroma3.chatGPT.data.extraction;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -28,15 +27,10 @@ public class XPathExtractor {
             factory.setValidating(false);
             factory.setIgnoringElementContentWhitespace(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            // Parse the XML string into a Document object
             Document document = builder.parse(new InputSource(new StringReader(this.xml)));
-            // Create an XPathFactory
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xPath = xPathFactory.newXPath();
-            // Compile the XPath expression
             XPathExpression expression = xPath.compile(this.xpath);
-            // Evaluate the expression and get the result
-            // Print the extracted text
             String result = (String) expression.evaluate(document, XPathConstants.STRING);
             if(result == null) System.out.println("result is null");
             return result;

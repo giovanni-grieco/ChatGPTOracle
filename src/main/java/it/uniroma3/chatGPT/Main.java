@@ -44,6 +44,7 @@ public class Main {
         Scanner keyboardScanner = new Scanner(System.in);
         System.out.print("Inserisci il numero di prompt positivi: ");
         int entitaUgualiFraLoro = keyboardScanner.nextInt();
+        keyboardScanner.close();
         int entitaDiverseFraLoro = funzioneDiRapporto(entityList.size()) * entitaUgualiFraLoro;
         System.out.println("Numero di prompt positivi: " + entitaUgualiFraLoro);
         System.out.println("Numero di prompt negativi: " + entitaDiverseFraLoro);

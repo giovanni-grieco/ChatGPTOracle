@@ -42,4 +42,12 @@ public class AppProperties {
         return properties.getProperty("DATASET_GT_FILE_NAME");
     }
 
+    public void validate() throws InvalidPropertiesException {
+        if (this.getAPIKey() == null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank())
+            throw new InvalidPropertiesException("OpenAI key null or empty");
+        if (this.getDatasetPath() == null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank())
+            throw new InvalidPropertiesException("Dataset folder not specified");
+        if (this.getDatasetFolder() == null || this.getDatasetFolder().isEmpty() || this.getDatasetFolder().isBlank())
+            throw new InvalidPropertiesException("Dataset folder not specified");
+    }
 }

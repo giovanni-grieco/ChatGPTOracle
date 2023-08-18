@@ -25,7 +25,7 @@ public class Main {
             System.out.println("Dataset Path: " + datasetPath);
             System.out.println("Dataset Folder: " + datasetFolder);
             System.out.println("Ground Truth File Name: " + groundTruthFileName);
-
+            appProperties.validate();
 
             EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
             Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();

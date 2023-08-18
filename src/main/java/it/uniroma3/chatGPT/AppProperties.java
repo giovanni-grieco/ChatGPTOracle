@@ -46,8 +46,10 @@ public class AppProperties {
         if (this.getAPIKey() == null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank())
             throw new InvalidPropertiesException("OpenAI key null or empty");
         if (this.getDatasetPath() == null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank())
-            throw new InvalidPropertiesException("Dataset folder not specified");
+            throw new InvalidPropertiesException("Dataset Root Path not specified");
         if (this.getDatasetFolder() == null || this.getDatasetFolder().isEmpty() || this.getDatasetFolder().isBlank())
-            throw new InvalidPropertiesException("Dataset folder not specified");
+            throw new InvalidPropertiesException("Dataset Folder not specified");
+        if (this.getGroundTruthFileName() == null || this.getGroundTruthFileName().isEmpty() || this.getGroundTruthFileName().isBlank())
+            throw new InvalidPropertiesException("Ground Truth File Name not specified");
     }
 }

@@ -155,7 +155,7 @@ public class Main {
             System.out.println(results);
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
-            String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
+            String fileName = appProperties.getDatasetFolder()+"-"+now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
             FileSaver.saveFile("./results/", fileName + ".txt", results);
             System.out.println("File saved as ./results/" + fileName + ".txt");
         } catch (Exception e) {

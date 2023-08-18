@@ -45,7 +45,7 @@ public class Main {
         System.out.print("Inserisci il numero di prompt positivi: ");
         int entitaUgualiFraLoro = keyboardScanner.nextInt();
         keyboardScanner.close();
-        int entitaDiverseFraLoro = funzioneDiRapporto(entityList.size()) * entitaUgualiFraLoro;
+        int entitaDiverseFraLoro = entitaUgualiFraLoro; //funzioneDiRapporto(entityList.size()) * entitaUgualiFraLoro;
         System.out.println("Numero di prompt positivi: " + entitaUgualiFraLoro);
         System.out.println("Numero di prompt negativi: " + entitaDiverseFraLoro);
         System.out.println("Creazione dei prompt...");
@@ -121,8 +121,34 @@ public class Main {
         }
 
         System.out.println("Prompts size: " + prompts.size());
+        List<String>filteredPrompts = new ArrayList<>();
+        for(String prompt : prompts){
+            System.out.println(prompt);
+            filteredPrompts.add(prompt.replaceAll("\"","''"));
+        }
+        for(String prompt : filteredPrompts){
+            System.out.println(prompt);
+        }
+        prompts = filteredPrompts;
 
-        ChatGPT gpt = new ChatGPT(APIKEY);
+        System.out.println(prompts.get(prompts.size()/2));
+        System.out.println(prompts.get((prompts.size()/2)+1));
+        StringBuilder sb = new StringBuilder();
+        int iterator = 0;
+        for(String p:prompts){
+            sb.append("{");
+            sb.append("\"prompt\":\""+p+"\",");
+            if(iterator<=prompts.size()/2) {
+                sb.append(" \"completion\":\"no\"");
+            }else{
+                sb.append("\"completion\":\" yes\"");
+            }
+            sb.append("}\n");
+            iterator++;
+        }
+        System.out.println(sb.toString());
+        FileSaver.saveFile("C:/Users/giovi/Desktop/", "prompts.jsonl", sb.toString());
+        /*ChatGPT gpt = new ChatGPT(APIKEY);
         List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
 
         //la prima metà dovrebbero essere tutti no
@@ -165,7 +191,7 @@ public class Main {
         LocalTime nowTime = LocalTime.now();
         String fileName = now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
         FileSaver.saveFile("./results/", fileName + ".txt", results);
-        System.out.println("File saved as ./results/" + fileName + ".txt");
+        System.out.println("File saved as ./results/" + fileName + ".txt");*/
     }
 
     private static int funzioneDiRapporto(int n) {

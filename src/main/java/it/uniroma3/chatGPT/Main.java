@@ -114,7 +114,7 @@ public class Main {
             System.out.println("Prompts size: " + prompts.size());
 
             ChatGPT gpt = new ChatGPT(APIKEY);
-            List<GPTQuery> answers = gpt.processPrompts(prompts, "text-davinci-003", 20000);
+            List<GPTQuery> answers = gpt.processPrompts(prompts, "curie:ft-personal-2023-08-18-16-10-47", 1000);
 
             //la prima metà dovrebbero essere tutti no
             //la seconda metà dovrebbero essere tutti si

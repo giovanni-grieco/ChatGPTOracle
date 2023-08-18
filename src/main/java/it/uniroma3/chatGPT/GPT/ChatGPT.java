@@ -57,7 +57,7 @@ public class ChatGPT {
         JSONObject data = new JSONObject();
         data.put("model", model);
         data.put("prompt", text);
-        data.put("max_tokens", 700); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
+        data.put("max_tokens", 1); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
         data.put("temperature", 0.15);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
@@ -110,10 +110,9 @@ public class ChatGPT {
     public static class PromptBuilder {
 
         public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
-            String prompt = "You will be given 2 snippets of text talking about an entity, object or attribute.\n";
-            prompt += "First: " + webPageA + ".\n";
-            prompt += "Second: " + webPageB + ".\n";
-            prompt += "Are the 2 snippets talking about the same entity, object or attribute? Answer with 'yes' or 'no'";
+            String prompt = "";
+            prompt += "first: " + webPageA + "##";
+            prompt += "second: " + webPageB + "##";
             return prompt;
         }
 

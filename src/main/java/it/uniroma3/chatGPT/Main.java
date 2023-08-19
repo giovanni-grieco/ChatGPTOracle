@@ -7,9 +7,7 @@ import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
 import it.uniroma3.chatGPT.data.Score;
 import it.uniroma3.chatGPT.data.ScoreCalculator;
-import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import it.uniroma3.chatGPT.utils.FileSaver;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -45,9 +43,10 @@ public class Main {
             System.out.println("Creazione dei prompt...");
             //entità diverse fra loro
 
-            PromptBuilder.generateNonMatchingEntityPrompts(entityList,nonMatchingEntityPromptsAmount,prompts);
+            PromptBuilder pb = new PromptBuilder(entityList, matchingEntityPromptsAmount, nonMatchingEntityPromptsAmount);
 
-            PromptBuilder.generateMatchingEntityPrompts(entityList, matchingEntityPromptsAmount, prompts);
+            pb.generateNonMatchingEntityPrompts(prompts);
+            pb.generateMatchingEntityPrompts(prompts);
 
             System.out.println("Prompts size: " + prompts.size());
 

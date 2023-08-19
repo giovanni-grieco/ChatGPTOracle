@@ -2,11 +2,21 @@ package it.uniroma3.chatGPT.GPT;
 
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
-
 import java.util.List;
 import java.util.Random;
 
 public class PromptBuilder {
+
+    private final List<Entity> entities;
+    private final int amountOfPositivePrompts;
+    private final int amountOfNegativePrompts;
+
+
+    public PromptBuilder(List<Entity> entityList, int amountOfPositivePrompts, int amountOfNegativePrompts){
+        this.entities=entityList;
+        this.amountOfNegativePrompts=amountOfNegativePrompts;
+        this.amountOfPositivePrompts=amountOfPositivePrompts;
+    }
 
     public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
         String prompt = "";
@@ -15,24 +25,24 @@ public class PromptBuilder {
         return prompt;
     }
 
-    public static void generateNonMatchingEntityPrompts(List<Entity> entityList, int amountOfPrompts, List<String> outputPrompts) {
-        for (int i = 0; i < amountOfPrompts; i++) {
+    public void generateNonMatchingEntityPrompts(List<String> outputPrompts) {
+        for (int i = 0; i < this.amountOfNegativePrompts; i++) {
             try {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
                 randomNumber = Math.abs(randomNumber);
-                randomNumber = randomNumber % entityList.size();
-                Entity e1 = entityList.get(randomNumber);
-                int anotherRandomNumber = random.nextInt() % entityList.size();
+                randomNumber = randomNumber % this.entities.size();
+                Entity e1 = this.entities.get(randomNumber);
+                int anotherRandomNumber = random.nextInt() % this.entities.size();
                 anotherRandomNumber = Math.abs(anotherRandomNumber);
                 int maxRetries = 10;
                 int retries = 0;
                 while (anotherRandomNumber == randomNumber && retries < maxRetries) {
-                    anotherRandomNumber = random.nextInt() % entityList.size();
+                    anotherRandomNumber = random.nextInt() % this.entities.size();
                     anotherRandomNumber = Math.abs(anotherRandomNumber);
                     retries++;
                 }
-                Entity e2 = entityList.get(anotherRandomNumber);
+                Entity e2 = this.entities.get(anotherRandomNumber);
                 //estraiamo 2 informazioni a caso dalle entità
                 int randomDataNumber1 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);
@@ -53,14 +63,14 @@ public class PromptBuilder {
         }
     }
 
-    public static void generateMatchingEntityPrompts(List<Entity> entityList, int amountOfPrompts, List<String> outputPrompts) {
-        for (int i = 0; i < amountOfPrompts; i++) {
+    public void generateMatchingEntityPrompts(List<String> outputPrompts) {
+        for (int i = 0; i < this.amountOfPositivePrompts; i++) {
             try {
                 Random random = new Random();
                 int randomNumber = random.nextInt();
-                randomNumber = randomNumber % entityList.size();
+                randomNumber = randomNumber % this.entities.size();
                 randomNumber = Math.abs(randomNumber);
-                Entity e1 = entityList.get(randomNumber);
+                Entity e1 = this.entities.get(randomNumber);
                 int randomDataNumber1 = random.nextInt() % e1.getData().size();
                 int randomDataNumber2 = random.nextInt() % e1.getData().size();
                 randomDataNumber1 = Math.abs(randomDataNumber1);

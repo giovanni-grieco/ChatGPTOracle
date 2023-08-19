@@ -1,5 +1,7 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class ChatGPT {
@@ -105,16 +108,5 @@ public class ChatGPT {
             Thread.sleep(millisDelay);
         }
         return outputs;
-    }
-
-    public static class PromptBuilder {
-
-        public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
-            String prompt = "";
-            prompt += "first: " + webPageA + "##";
-            prompt += "second: " + webPageB + "##";
-            return prompt;
-        }
-
     }
 }

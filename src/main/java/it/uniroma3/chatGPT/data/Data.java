@@ -1,8 +1,11 @@
 package it.uniroma3.chatGPT.data;
 
 import it.uniroma3.chatGPT.AppProperties;
+import it.uniroma3.chatGPT.utils.FileRetriever;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Data {
@@ -32,6 +35,10 @@ public class Data {
 
     public Path toFullPath() throws IOException {
         return Path.of(AppProperties.getAppProperties().getDatasetPath() + "/" + AppProperties.getAppProperties().getDatasetFolder() + "/" + domain + "/" + id + ".html");
+    }
+
+    public String getTextData() throws IOException {
+        return Files.readString(this.toFullPath());
     }
 
     @Override

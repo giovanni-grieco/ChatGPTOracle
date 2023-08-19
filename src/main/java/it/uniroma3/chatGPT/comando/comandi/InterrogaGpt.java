@@ -71,8 +71,4 @@ public class InterrogaGpt implements Comando {
         FileSaver.saveFile("./results/", fileName + ".txt", results);
         System.out.println("File saved as ./results/" + fileName + ".txt");
     }
-
-    private int funzioneDiRapporto(int size) {
-        return 1;
-    }
 }

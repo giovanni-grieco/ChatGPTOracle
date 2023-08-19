@@ -47,8 +47,4 @@ public class CreaFineTuneData implements Comando {
         System.out.println(JSONLines);
         FileSaver.saveFile("C:/Users/giovi/Desktop/", "prompts.jsonl", JSONLines);
     }
-
-    private int funzioneDiRapporto(int size) {
-        return 0;
-    }
 }

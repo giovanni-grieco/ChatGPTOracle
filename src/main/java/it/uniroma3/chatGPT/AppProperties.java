@@ -45,17 +45,7 @@ public class AppProperties {
     public void validate() throws InvalidPropertiesException {
         if(this.getAPIKey()==null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank()) throw new InvalidPropertiesException("OpenAI key null or empty");
         if(this.getDatasetPath()==null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank()) throw new InvalidPropertiesException("Dataset folder not specified");
-        if(this.getDatasetFolders().length == 0 || this.getGroundTruthFileNames().length == 0) throw new InvalidPropertiesException("");
-    }
-
-    public void validate() throws InvalidPropertiesException {
-        if (this.getAPIKey() == null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank())
-            throw new InvalidPropertiesException("OpenAI key null or empty");
-        if (this.getDatasetPath() == null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank())
-            throw new InvalidPropertiesException("Dataset Root Path not specified");
-        if (this.getDatasetFolder() == null || this.getDatasetFolder().isEmpty() || this.getDatasetFolder().isBlank())
-            throw new InvalidPropertiesException("Dataset Folder not specified");
-        if (this.getGroundTruthFileName() == null || this.getGroundTruthFileName().isEmpty() || this.getGroundTruthFileName().isBlank())
-            throw new InvalidPropertiesException("Ground Truth File Name not specified");
+        if(this.getDatasetFolders().length == 0 || this.getGroundTruthFileNames().length == 0) throw new InvalidPropertiesException("Missing data or ground truths");
+        if(this.getDatasetFolders().length!=this.getGroundTruthFileNames().length) throw new InvalidPropertiesException("Number of data folders and ground truths must be the same");
     }
 }

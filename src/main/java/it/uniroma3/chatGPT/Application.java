@@ -3,7 +3,6 @@ package it.uniroma3.chatGPT;
 import it.uniroma3.chatGPT.comando.ComandiFactory;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityExtractor;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;

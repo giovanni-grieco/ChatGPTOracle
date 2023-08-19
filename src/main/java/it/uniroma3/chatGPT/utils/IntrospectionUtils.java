@@ -15,6 +15,7 @@ public class IntrospectionUtils {
             File packageDirectory = new File(packageUrl.getFile());
             if (packageDirectory.exists()) {
                 String[] files = packageDirectory.list();
+                assert files != null;
                 for (String fileName : files) {
                     if (fileName.endsWith(".class")) {
                         try {

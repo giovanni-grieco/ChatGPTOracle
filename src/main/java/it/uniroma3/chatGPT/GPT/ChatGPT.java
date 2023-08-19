@@ -1,5 +1,7 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class ChatGPT {
@@ -57,7 +60,7 @@ public class ChatGPT {
         JSONObject data = new JSONObject();
         data.put("model", model);
         data.put("prompt", text);
-        data.put("max_tokens", 700); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
+        data.put("max_tokens", 1); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
         data.put("temperature", 0.15);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());
@@ -105,16 +108,5 @@ public class ChatGPT {
             Thread.sleep(millisDelay);
         }
         return outputs;
-    }
-
-    public static class PromptBuilder {
-
-        public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
-            String prompt = "";
-            prompt += "First: " + webPageA + "##";
-            prompt += "Second: " + webPageB + "##";
-            return prompt;
-        }
-
     }
 }

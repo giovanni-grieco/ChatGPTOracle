@@ -38,87 +38,25 @@ public class Main {
             System.out.println(e);
         }
 
-        System.out.println("Entities extracted: " + entities.size());
-        List<Entity> entityList = new ArrayList<>(entities);
-        List<String> prompts = new ArrayList<>();
-        Scanner keyboardScanner = new Scanner(System.in);
-        System.out.print("Inserisci il numero di prompt positivi: ");
-        int entitaUgualiFraLoro = keyboardScanner.nextInt();
-        keyboardScanner.close();
-        int entitaDiverseFraLoro = entitaUgualiFraLoro; //funzioneDiRapporto(entityList.size()) * entitaUgualiFraLoro;
-        System.out.println("Numero di prompt positivi: " + entitaUgualiFraLoro);
-        System.out.println("Numero di prompt negativi: " + entitaDiverseFraLoro);
-        System.out.println("Creazione dei prompt...");
-        //entità diverse fra loro
-        for (int i = 0; i < entitaDiverseFraLoro; i++) {
-            try {
-                Random random = new Random();
-                int randomNumber = random.nextInt();
-                randomNumber = Math.abs(randomNumber);
-                randomNumber = randomNumber % entityList.size();
-                Entity e1 = entityList.get(randomNumber);
-                int anotherRandomNumber = random.nextInt() % entityList.size();
-                anotherRandomNumber = Math.abs(anotherRandomNumber);
-                int maxRetries = 10;
-                int retries = 0;
-                while (anotherRandomNumber == randomNumber && retries < maxRetries) {
-                    anotherRandomNumber = random.nextInt() % entityList.size();
-                    anotherRandomNumber = Math.abs(anotherRandomNumber);
-                    retries++;
-                }
-                Entity e2 = entityList.get(anotherRandomNumber);
-                //estraiamo 2 informazioni a caso dalle entità
-                int randomDataNumber1 = random.nextInt() % e1.getData().size();
-                randomDataNumber1 = Math.abs(randomDataNumber1);
-                int randomDataNumber2 = random.nextInt() % e2.getData().size();
-                randomDataNumber2 = Math.abs(randomDataNumber2);
-                String dataE1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
-                String dataE2 = Files.readString(e2.getData().get(randomDataNumber2).toFullPath());
-                //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());
-                //Creiamo il prompt
-                prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
-            } catch (Exception e) {
-                i--;
-                e.printStackTrace();
-                System.out.println("Exception while creating prompt: " + e.getMessage());
-            }
-        }
+            EntityExtractor extractor = new EntityExtractor(Path.of(datasetPath + "/" + groundTruthFileName));
+            Set<Entity> entities = extractor.extractEntitiesFromGroundTruth();
+            System.out.println("amount of entities extracted: " + entities.size());
+            List<Entity> entityList = entities.stream().toList();
 
-        //entità uguali fra loro
-        for (int i = 0; i < entitaUgualiFraLoro; i++) {
-            try {
-                Random random = new Random();
-                int randomNumber = random.nextInt();
-                randomNumber = randomNumber % entityList.size();
-                randomNumber = Math.abs(randomNumber);
-                Entity e1 = entityList.get(randomNumber);
-                int randomDataNumber1 = random.nextInt() % e1.getData().size();
-                int randomDataNumber2 = random.nextInt() % e1.getData().size();
-                randomDataNumber1 = Math.abs(randomDataNumber1);
-                randomDataNumber2 = Math.abs(randomDataNumber2);
-                int maxRetries = 3;
-                int retries = 0;
-                while (randomDataNumber1 == randomDataNumber2 && retries < maxRetries) {
-                    randomDataNumber2 = random.nextInt() % e1.getData().size();
-                    randomDataNumber2 = Math.abs(randomDataNumber2);
-                    retries++;
-                }
-                String data1 = Files.readString(e1.getData().get(randomDataNumber1).toFullPath());
-                String data2 = Files.readString(e1.getData().get(randomDataNumber2).toFullPath());
-                //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());
-                    /*System.out.println(pureDataE1);
-                    System.out.println(pureDataE2);*/
-                prompts.add(ChatGPT.PromptBuilder.buildPromptTwoSnippets(pureDataE1, pureDataE2));
-            } catch (Exception e) {
-                i--;
-                e.printStackTrace();
-                System.out.println("Exception while creating prompt: " + e.getMessage());
-            }
-        }
+            List<String> prompts = new ArrayList<>();
+            Scanner keyboardScanner = new Scanner(System.in);
+            System.out.print("Inserisci il numero di prompt positivi: ");
+            int matchingEntityPromptsAmount = keyboardScanner.nextInt();
+            int nonMatchingEntityPromptsAmount = funzioneDiRapporto(entityList.size())*matchingEntityPromptsAmount;
+            System.out.println("Numero di prompt positivi: " + matchingEntityPromptsAmount);
+            System.out.println("Numero di prompt negativi: " + nonMatchingEntityPromptsAmount);
+            System.out.println("Creazione dei prompt...");
+            //entità diverse fra loro
+
+            PromptBuilder pb = new PromptBuilder(entityList, matchingEntityPromptsAmount, nonMatchingEntityPromptsAmount);
+
+            pb.generateNonMatchingEntityPrompts(prompts);
+            pb.generateMatchingEntityPrompts(prompts);
 
         System.out.println("Prompts size: " + prompts.size());
         List<String>filteredPrompts = new ArrayList<>();

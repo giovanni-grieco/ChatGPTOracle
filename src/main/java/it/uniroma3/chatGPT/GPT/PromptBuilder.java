@@ -21,8 +21,8 @@ public class PromptBuilder {
     public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
         String prompt = "";
         prompt += "first: " + webPageA;
+        prompt += ", ";
         prompt += "second: " + webPageB;
-        prompt += "\\n\\n###\\n\\n";
         return prompt;
     }
 

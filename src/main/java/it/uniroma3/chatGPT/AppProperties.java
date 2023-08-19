@@ -8,12 +8,23 @@ public class AppProperties {
 
     private static AppProperties appProperties;
     private static final String appPropertiesFile = "app.properties";
-    private final Properties properties;
+
+    private final String APIKey;
+
+    private final String datasetPath;
+
+    private final String[] datasetFolders;
+
+    private final String[] groundTruthFileNames;
 
     private AppProperties() throws IOException {
-        properties = new Properties();
+        Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(appPropertiesFile));
+            this.APIKey=properties.getProperty("OpenAI_API_KEY");
+            this.datasetPath=properties.getProperty("DATASET_ROOT_PATH");
+            this.datasetFolders=properties.getProperty("DATASET_FOLDER_NAME").split(",");
+            this.groundTruthFileNames=properties.getProperty("DATASET_GT_FILE_NAME").split(",");
         } catch (IOException e) {
             throw new IOException("app.properties file not found! It must be placed at the root of classpath");
         }
@@ -27,19 +38,19 @@ public class AppProperties {
     }
 
     public String getAPIKey() {
-        return properties.getProperty("OpenAI_API_KEY");
+        return this.APIKey;
     }
 
     public String getDatasetPath() {
-        return properties.getProperty("DATASET_ROOT_PATH");
+        return this.datasetPath;
     }
 
     public String[] getDatasetFolders() {
-        return properties.getProperty("DATASET_FOLDER_NAME").split(",");
+        return this.datasetFolders;
     }
 
     public String[] getGroundTruthFileNames() {
-        return properties.getProperty("DATASET_GT_FILE_NAME").split(",");
+        return this.groundTruthFileNames;
     }
 
     public void validate() throws InvalidPropertiesException {

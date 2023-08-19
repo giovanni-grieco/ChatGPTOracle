@@ -10,19 +10,22 @@ public class PromptBuilder {
     private final List<Entity> entities;
     private final int amountOfPositivePrompts;
     private final int amountOfNegativePrompts;
+    public static boolean appendEndmarker = true;
 
-
-    public PromptBuilder(List<Entity> entityList, int amountOfPositivePrompts, int amountOfNegativePrompts){
+    public PromptBuilder(List<Entity> entityList, int amountOfPositivePrompts, int amountOfNegativePrompts, boolean endMarker){
         this.entities=entityList;
         this.amountOfNegativePrompts=amountOfNegativePrompts;
         this.amountOfPositivePrompts=amountOfPositivePrompts;
+        appendEndmarker = endMarker;
     }
+
 
     public static String buildPromptTwoSnippets(String webPageA, String webPageB) {
         String prompt = "";
-        prompt += "first: " + webPageA;
-        prompt += ", ";
+        prompt += "first: " + webPageA+", ";
         prompt += "second: " + webPageB;
+        if(appendEndmarker)
+            prompt += "###";
         return prompt;
     }
 

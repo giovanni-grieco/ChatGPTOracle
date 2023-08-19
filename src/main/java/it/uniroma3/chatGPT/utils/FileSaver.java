@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileSaver {
-    public static void saveFile(String path, String filename, String content) throws IOException {
+    public static void saveFile(String path, String filename, String content){
         File directory = new File(path);
         if(!directory.exists()){
             boolean folderCreated = directory.mkdir();
@@ -15,8 +15,14 @@ public class FileSaver {
             }
         }
         File newFile = new File(path + "/" + filename);
-        java.io.FileWriter myWriter = new java.io.FileWriter(newFile);
-        myWriter.write(content);
-        myWriter.close();
+        try {
+            java.io.FileWriter myWriter = new java.io.FileWriter(newFile);
+            myWriter.write(content);
+            System.out.println("File creato "+path+filename);
+            myWriter.close();
+        }catch(IOException e){
+            System.err.println("Impossibile salvare file");
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -45,6 +45,6 @@ public class CreaFineTuneData implements Comando {
 
         String JSONLines = JSONLineGenerator.generateJSONLines(filteredPrompts);
         System.out.println(JSONLines);
-        FileSaver.saveFile("C:/Users/giovi/Desktop/", "prompts.jsonl", JSONLines);
+        FileSaver.saveFile("./ftDataSet/", "prompts.jsonl", JSONLines);
     }
 }

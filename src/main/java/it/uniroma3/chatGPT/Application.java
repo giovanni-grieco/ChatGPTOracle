@@ -9,12 +9,12 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class Application {
-    private final AppProperties appProperties;
+    public static AppProperties appProperties = null;
     private final Set<Entity> entities;
     private int entityTypes;
 
     public Application(AppProperties appProperties) {
-        this.appProperties = appProperties;
+        Application.appProperties = appProperties;
         this.entities = new HashSet<>();
     }
 
@@ -77,7 +77,6 @@ public class Application {
         System.out.println("Dataset Path: " + datasetPath);
         System.out.println("Dataset Folder: " + Arrays.toString(datasetFolders));
         System.out.println("Ground Truth File Name: " + Arrays.toString(groundTruthFileNames));
-        appProperties.validate(); //se la validazione fallisce, verranno sollevate eccezioni
 
         Application app = new Application(appProperties);
         app.run();

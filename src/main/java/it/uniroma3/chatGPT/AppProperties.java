@@ -13,24 +13,32 @@ public class AppProperties {
 
     private final String datasetPath;
 
-    private final String[] datasetFolders;
+    private String[] datasetFolders;
 
-    private final String[] groundTruthFileNames;
+    private String[] groundTruthFileNames;
 
-    private AppProperties() throws IOException {
+    private final String datasetFoldersRaw;
+
+    private final String groundTruthFileNamesRaw;
+
+    private AppProperties() throws IOException, InvalidPropertiesException {
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(appPropertiesFile));
             this.APIKey=properties.getProperty("OpenAI_API_KEY");
             this.datasetPath=properties.getProperty("DATASET_ROOT_PATH");
-            this.datasetFolders=properties.getProperty("DATASET_FOLDER_NAME").split(",");
-            this.groundTruthFileNames=properties.getProperty("DATASET_GT_FILE_NAME").split(",");
+            this.datasetFoldersRaw=properties.getProperty("DATASET_FOLDER_NAME");
+            this.groundTruthFileNamesRaw=properties.getProperty("DATASET_GT_FILE_NAME");
+            this.validate();
+            this.parseDatasetFolders();
+            this.parseGroundTruthFileNames();
+            this.validateSecondStage();
         } catch (IOException e) {
             throw new IOException("app.properties file not found! It must be placed at the root of classpath");
         }
     }
 
-    public static AppProperties getAppProperties() throws IOException {
+    public static AppProperties getAppProperties() throws IOException, InvalidPropertiesException {
         if (appProperties == null) {
             appProperties = new AppProperties();
         }
@@ -53,10 +61,22 @@ public class AppProperties {
         return this.groundTruthFileNames;
     }
 
+    public void parseDatasetFolders(){
+        this.datasetFolders=this.datasetFoldersRaw.split(",");
+    }
+
+    public void parseGroundTruthFileNames(){
+        this.groundTruthFileNames=this.groundTruthFileNamesRaw.split(",");
+    }
+
     public void validate() throws InvalidPropertiesException {
-        if(this.getAPIKey()==null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank()) throw new InvalidPropertiesException("OpenAI key null or empty");
+        if(this.getAPIKey()==null || this.getAPIKey().isEmpty() || this.getAPIKey().isBlank()) throw new InvalidPropertiesException("OpenAI_API_KEY field missing or empty");
         if(this.getDatasetPath()==null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank()) throw new InvalidPropertiesException("Dataset folder not specified");
-        if(this.getDatasetFolders().length == 0 || this.getGroundTruthFileNames().length == 0) throw new InvalidPropertiesException("Missing data or ground truths");
-        if(this.getDatasetFolders().length!=this.getGroundTruthFileNames().length) throw new InvalidPropertiesException("Number of data folders and ground truths must be the same");
+        if(this.datasetFoldersRaw==null || this.datasetFoldersRaw.isEmpty() || this.datasetFoldersRaw.isBlank()) throw new InvalidPropertiesException("Dataset folders not specified");
+        if(this.groundTruthFileNamesRaw==null || this.groundTruthFileNamesRaw.isEmpty() || this.groundTruthFileNamesRaw.isBlank()) throw new InvalidPropertiesException("Ground truth files not specified");
+    }
+
+    public void validateSecondStage() throws InvalidPropertiesException {
+        if(this.getDatasetFolders().length!=this.getGroundTruthFileNames().length) throw new InvalidPropertiesException("Dataset folders and ground truth files number mismatch");
     }
 }

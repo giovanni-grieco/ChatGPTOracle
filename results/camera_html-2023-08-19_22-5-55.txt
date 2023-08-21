@@ -1,0 +1,7 @@
+True Positive: 0
+True Negative: 9
+False Positive: 1
+False Negative: 10
+Precision: 0.0
+Recall: 0.0
+F-Score: NaN

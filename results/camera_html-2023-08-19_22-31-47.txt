@@ -1,0 +1,7 @@
+True Positive: 1
+True Negative: 2
+False Positive: 0
+False Negative: 1
+Precision: 1.0
+Recall: 0.5
+F-Score: 0.6666666666666666

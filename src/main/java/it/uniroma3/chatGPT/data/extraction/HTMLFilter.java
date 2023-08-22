@@ -46,6 +46,11 @@ public class HTMLFilter {
         return result.trim();
     }
 
+    public static String getTitle(String html) {
+        Document doc = Jsoup.parse(html);
+        return doc.title();
+    }
+
     private static String filter(String html, Iterable<String> tagsToRemove) {
         Document doc = Jsoup.parse(html);
         removeSpecifiedTags(doc, tagsToRemove);

@@ -58,7 +58,8 @@ public class InterrogaGpt implements Comando {
         System.out.println("Prompts size: " + prompts.size());
 
         ChatGPT gpt = new ChatGPT(application.getAppProperties().getAPIKey());
-        List<GPTQuery> answers = gpt.processPrompts(prompts, "curie:ft-personal-2023-08-19-19-36-38", 10);
+        String modello = "curie:ft-personal-2023-08-19-19-36-38";
+        List<GPTQuery> answers = gpt.processPrompts(prompts, modello, 10);
 
         Score score = ScoreCalculator.calculateScore(answers, nonMatchingEntityPromptsAmount);
 
@@ -68,7 +69,7 @@ public class InterrogaGpt implements Comando {
         LocalDate now = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
         String fileName = application.getAppProperties().getDatasetFolders()[entityType] + "-" + now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
-        FileSaver.saveFile("./results/", fileName + ".txt", results);
+        FileSaver.saveFile("./results/", fileName + ".txt", results+"\n\n"+modello);
         System.out.println("File saved as ./results/" + fileName + ".txt");
     }
 }

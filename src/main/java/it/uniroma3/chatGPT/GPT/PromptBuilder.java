@@ -55,8 +55,13 @@ public class PromptBuilder {
                 String dataE1 = e1.getData().get(randomDataNumber1).getTextData();
                 String dataE2 = e2.getData().get(randomDataNumber2).getTextData();
                 //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());
+/*                String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());*/
+                String pureDataE1 = HTMLFilter.getTitle(dataE1);
+                String pureDataE2 = HTMLFilter.getTitle(dataE2);
+                if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
+                    throw new Exception("Empty data");
+                }
                 //Creiamo il prompt
                 outputPrompts.add(buildPromptTwoSnippets(pureDataE1, pureDataE2));
             } catch (Exception e) {
@@ -89,10 +94,13 @@ public class PromptBuilder {
                 String data1 = e1.getData().get(randomDataNumber1).getTextData();
                 String data2 = e1.getData().get(randomDataNumber2).getTextData();
                 //Filtriamo le informazioni
-                String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
-                String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());
-                    /*System.out.println(pureDataE1);
-                    System.out.println(pureDataE2);*/
+                /*String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());*/
+                String pureDataE1 = HTMLFilter.getTitle(data1);
+                String pureDataE2 = HTMLFilter.getTitle(data2);
+                if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
+                    throw new Exception("Empty data");
+                }
                 outputPrompts.add(buildPromptTwoSnippets(pureDataE1, pureDataE2));
             } catch (Exception e) {
                 i--;

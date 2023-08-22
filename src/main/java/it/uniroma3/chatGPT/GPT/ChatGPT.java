@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class ChatGPT {
 
-    //public static String[] models ={"text-davinci-003", "text-davinci-002", "text-davinci-001", "text-curie-001", "text-babbage-001", "text-ada-001", "davinci", "curie", "babbage", "ada"};
+    public static String[] models ={"text-davinci-003","curie:ft-personal-2023-08-22-20-39-20","curie:ft-personal-2023-08-22-20-10-51" ,"curie:ft-personal-2023-08-22-19-32-20", "curie:ft-personal-2023-08-19-19-36-38"};
     private final static String COMPLETION_URL_API = "https://api.openai.com/v1/completions";
 
     private final static String CHAT_URL_API = "https://api.openai.com/v1/chat/completions";

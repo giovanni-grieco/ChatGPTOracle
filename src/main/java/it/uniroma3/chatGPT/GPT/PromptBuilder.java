@@ -20,12 +20,20 @@ public class PromptBuilder {
     }
 
 
-    public String buildPromptTwoSnippets(String webPageA, String webPageB) {
+    public String buildPromptTwoSnippetsCustom(String webPageA, String webPageB) {
         String prompt = "";
         prompt += "first: " + webPageA+", ";
         prompt += "second: " + webPageB;
         if(appendEndMarker)
             prompt += "###";
+        return prompt;
+    }
+
+    public String buildPromptTwoSnippetsStandard(String webPageA, String webPageB) {
+        String prompt = "are the following 2 texts talking about, citing or describing the same entity, object or subject? \n";
+        prompt += "first: " + webPageA+"\n";
+        prompt += "second: " + webPageB+"\n";
+        prompt += "answer with yes or no";
         return prompt;
     }
 
@@ -55,19 +63,22 @@ public class PromptBuilder {
                 String dataE1 = e1.getData().get(randomDataNumber1).getTextData();
                 String dataE2 = e2.getData().get(randomDataNumber2).getTextData();
                 //Filtriamo le informazioni
-/*                String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
+                //qua usiamo gli xpath
+                /*String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());*/
+                //Qua usiamo i campi title
                 String pureDataE1 = HTMLFilter.getTitle(dataE1);
                 String pureDataE2 = HTMLFilter.getTitle(dataE2);
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }
                 //Creiamo il prompt
-                outputPrompts.add(buildPromptTwoSnippets(pureDataE1, pureDataE2));
+                outputPrompts.add(buildPromptTwoSnippetsStandard(pureDataE1, pureDataE2));
             } catch (Exception e) {
                 i--;
                 e.printStackTrace();
                 System.out.println("Exception while creating prompt: " + e.getMessage());
+                System.out.println("Resuming...");
             }
         }
     }
@@ -94,14 +105,16 @@ public class PromptBuilder {
                 String data1 = e1.getData().get(randomDataNumber1).getTextData();
                 String data2 = e1.getData().get(randomDataNumber2).getTextData();
                 //Filtriamo le informazioni
+                //qua usiamo gli xpath
                 /*String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());*/
+                //Qua usiamo i campi title
                 String pureDataE1 = HTMLFilter.getTitle(data1);
                 String pureDataE2 = HTMLFilter.getTitle(data2);
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }
-                outputPrompts.add(buildPromptTwoSnippets(pureDataE1, pureDataE2));
+                outputPrompts.add(buildPromptTwoSnippetsStandard(pureDataE1, pureDataE2));
             } catch (Exception e) {
                 i--;
                 e.printStackTrace();

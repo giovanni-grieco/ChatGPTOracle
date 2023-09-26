@@ -51,7 +51,7 @@ public class HTMLFilter {
         return doc.title();
     }
 
-    private static String filter(String html, Iterable<String> tagsToRemove) {
+    public static String filter(String html, Iterable<String> tagsToRemove) {
         Document doc = Jsoup.parse(html);
         removeSpecifiedTags(doc, tagsToRemove);
         removeHTMLAttributes(doc);

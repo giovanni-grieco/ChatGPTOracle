@@ -35,10 +35,12 @@ public class CreaFineTuneData implements Comando {
 
         System.out.println("Prompts size: " + prompts.size());
         List<String> filteredPrompts = new ArrayList<>();
+
         for (String prompt : prompts) {
             System.out.println(prompt);
             filteredPrompts.add(prompt.replaceAll("\"", "''"));
         }
+
         for (String prompt : filteredPrompts) {
             System.out.println(prompt);
         }

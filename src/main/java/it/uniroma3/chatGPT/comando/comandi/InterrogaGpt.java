@@ -1,10 +1,7 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.LLM;
-import it.uniroma3.chatGPT.GPT.TextCompletionGPT;
-import it.uniroma3.chatGPT.GPT.GPTQuery;
-import it.uniroma3.chatGPT.GPT.PromptBuilder;
+import it.uniroma3.chatGPT.GPT.*;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.Score;
@@ -58,8 +55,10 @@ public class InterrogaGpt implements Comando {
 
         System.out.println("Prompts size: " + prompts.size());
 
-        LLM gpt = new TextCompletionGPT(application.getAppProperties().getAPIKey());
-        String modello = "curie:ft-personal-2023-08-19-19-36-38";
+        LLM gpt = new ChatGPT(application.getAppProperties().getAPIKey());
+        //String modello = "curie:ft-personal-2023-08-19-19-36-38";
+        //String modello = "text-davinci-003";
+        String modello = "gpt-3.5-turbo";
         List<GPTQuery> answers = gpt.processPrompts(prompts, modello, 10);
 
         Score score = ScoreCalculator.calculateScore(answers, nonMatchingEntityPromptsAmount);

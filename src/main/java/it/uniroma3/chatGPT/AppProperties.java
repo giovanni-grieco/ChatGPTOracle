@@ -20,6 +20,7 @@ public class AppProperties {
     private final String datasetFoldersRaw;
 
     private final String groundTruthFileNamesRaw;
+    private final String filteredDataSetFolder;
 
     private AppProperties() throws IOException, InvalidPropertiesException {
         Properties properties = new Properties();
@@ -29,6 +30,7 @@ public class AppProperties {
             this.datasetPath=properties.getProperty("DATASET_ROOT_PATH");
             this.datasetFoldersRaw=properties.getProperty("DATASET_FOLDER_NAME");
             this.groundTruthFileNamesRaw=properties.getProperty("DATASET_GT_FILE_NAME");
+            this.filteredDataSetFolder = properties.getProperty("FILTERED_DATASET_FOLDER");
             this.validate();
             this.parseDatasetFolders();
             this.parseGroundTruthFileNames();
@@ -61,6 +63,10 @@ public class AppProperties {
         return this.groundTruthFileNames;
     }
 
+    public String getFilteredDataSetFolder(){
+        return this.filteredDataSetFolder;
+    }
+
     public void parseDatasetFolders(){
         this.datasetFolders=this.datasetFoldersRaw.split(",");
     }
@@ -74,6 +80,7 @@ public class AppProperties {
         if(this.getDatasetPath()==null || this.getDatasetPath().isEmpty() || this.getDatasetPath().isBlank()) throw new InvalidPropertiesException("Dataset folder not specified");
         if(this.datasetFoldersRaw==null || this.datasetFoldersRaw.isEmpty() || this.datasetFoldersRaw.isBlank()) throw new InvalidPropertiesException("Dataset folders not specified");
         if(this.groundTruthFileNamesRaw==null || this.groundTruthFileNamesRaw.isEmpty() || this.groundTruthFileNamesRaw.isBlank()) throw new InvalidPropertiesException("Ground truth files not specified");
+        if(this.filteredDataSetFolder == null || this.filteredDataSetFolder.isEmpty() || this.filteredDataSetFolder.isBlank()) throw new InvalidPropertiesException("Filtered dataset folder not specified");
     }
 
     public void validateSecondStage() throws InvalidPropertiesException {

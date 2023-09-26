@@ -14,19 +14,10 @@ import java.util.List;
 /**
  * Questa classe implementa l'interfaccia LLM e permette di interrogare il modello di OpenAI per ottenere una risposta a un prompt. Utilizza l'API legacy di OpenAI.
  */
-public class TextCompletionGPT implements LLM{
-
-    public static String[] models ={"text-davinci-003","curie:ft-personal-2023-08-22-20-39-20","curie:ft-personal-2023-08-22-20-10-51" ,"curie:ft-personal-2023-08-22-19-32-20", "curie:ft-personal-2023-08-19-19-36-38"};
-    private final static String COMPLETION_URL_API = "https://api.openai.com/v1/completions";
-
-    private final static String CHAT_URL_API = "https://api.openai.com/v1/chat/completions";
-
-    private final static String URL_AVAILABLE_MODELS = "https://api.openai.com/v1/models";
-    //private static String model= "text-babbage-001";
-    private static String privateKey = null;
+public class TextCompletionGPT extends LLM{
 
     public TextCompletionGPT(String apiKey) {
-        TextCompletionGPT.privateKey = apiKey;
+        super(apiKey);
     }
 
     public List<String> availableOpenAiModels() throws IOException {
@@ -59,7 +50,7 @@ public class TextCompletionGPT implements LLM{
         JSONObject data = new JSONObject();
         data.put("model", model);
         data.put("prompt", text);
-        data.put("max_tokens", 1); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
+        data.put("max_tokens", 10); // andrebbero diminuiti i max tokens, tanto deve dire solo si o no e rischieremmo di meno
         data.put("temperature", 0.15);
         conn.setDoOutput(true);
         conn.getOutputStream().write(data.toString().getBytes());

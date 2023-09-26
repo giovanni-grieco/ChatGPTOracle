@@ -1,0 +1,4 @@
+-(FATTO) creare sistema di filtraggio che converta il dataset in una versione filtrata dell'html per poi chiedere a chat gpt di estrarre la content rich section
+-(Fatto sembra funzionicchiare) fare test sul linkage usando title su text-davinci-003 (senza usare XPATH) (sostituzione in toto)
+-fare test di linkage sul dataset di roger (custom model, text-davinci-003, chatGPT)
+-(parzialmente fatto, capire come far proseguire una chat... probabilmente bisogna continuare a fornire lo stesso id.)implementare l'interfaccia per parlare con chatGPT

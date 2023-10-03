@@ -1,12 +1,14 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.data.Prompt;
+
 public class GPTQuery {
-    private String prompt;
+    private Prompt prompt;
     private String risposta;
     private String modello;
     private int tempoDiRisposta;
 
-    public GPTQuery(String risposta, String modello, String prompt, int tempoDiRisposta) {
+    public GPTQuery(String risposta, String modello, Prompt prompt, int tempoDiRisposta) {
         this.risposta = risposta;
         this.modello = modello;
         this.prompt = prompt;
@@ -29,11 +31,11 @@ public class GPTQuery {
         this.modello = modello;
     }
 
-    public String getPrompt() {
+    public Prompt getPrompt() {
         return prompt;
     }
 
-    public void setPrompt(String prompt) {
+    public void setPrompt(Prompt prompt) {
         this.prompt = prompt;
     }
 

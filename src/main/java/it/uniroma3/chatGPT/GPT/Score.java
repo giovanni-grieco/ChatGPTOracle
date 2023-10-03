@@ -1,4 +1,4 @@
-package it.uniroma3.chatGPT.data;
+package it.uniroma3.chatGPT.GPT;
 
 public class Score {
     int truePositive = 0;

@@ -4,8 +4,9 @@ import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.*;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.data.Score;
-import it.uniroma3.chatGPT.data.ScoreCalculator;
+import it.uniroma3.chatGPT.GPT.Score;
+import it.uniroma3.chatGPT.GPT.ScoreCalculator;
+import it.uniroma3.chatGPT.data.Prompt;
 import it.uniroma3.chatGPT.utils.FileSaver;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +20,7 @@ public class InterrogaGpt implements Comando {
     public void esegui(Application application) throws InterruptedException {
 
         List<Entity> entityList = new ArrayList<>(application.getEntities());
-        List<String> prompts = new ArrayList<>();
+        List<Prompt> prompts = new ArrayList<>();
 
         Scanner keyboardScanner = new Scanner(System.in);
 
@@ -33,7 +34,7 @@ public class InterrogaGpt implements Comando {
         } while (entityType < 0 || entityType > application.getEntityTypes());
 
         System.out.println("Selezionato il tipo di entità: " + application.getAppProperties().getDatasetFolders()[entityType]);
-        // ECCO L'ERRORE, rimuovo un elemento dalla lista mentre viene usato un iteratore!!!!
+
         List<Entity> filteredEntityList = new ArrayList<>();
         for (Entity e : entityList) {
             if (e.getType() == entityType)
@@ -45,6 +46,9 @@ public class InterrogaGpt implements Comando {
         int nonMatchingEntityPromptsAmount = keyboardScanner.nextInt();
         System.out.println("Numero di prompt positivi: " + matchingEntityPromptsAmount);
         System.out.println("Numero di prompt negativi: " + nonMatchingEntityPromptsAmount);
+        System.out.print("Inserire tempo di attesa tra una query e l'altra in millisecondi: ");
+        int tempoAttesa = keyboardScanner.nextInt();
+        System.out.println("Tempo di attesa tra una query e l'altra in millisecondi: " + tempoAttesa);
         System.out.println("Creazione dei prompt...");
         //entità diverse fra loro
 
@@ -54,14 +58,15 @@ public class InterrogaGpt implements Comando {
         pb.generateMatchingEntityPrompts(prompts);
 
         System.out.println("Prompts size: " + prompts.size());
-
-        LLM gpt = new ChatGPT(application.getAppProperties().getAPIKey());
+        System.out.println("Inizio interrogazione...");
+        System.out.println("Tempo attesa stimato: " + (tempoAttesa * (matchingEntityPromptsAmount + nonMatchingEntityPromptsAmount)) / 1000 + " secondi");
+        LLM gpt = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.");
         //String modello = "curie:ft-personal-2023-08-19-19-36-38";
         //String modello = "text-davinci-003";
         String modello = "gpt-3.5-turbo";
-        List<GPTQuery> answers = gpt.processPrompts(prompts, modello, 10);
+        List<GPTQuery> answers = gpt.processPrompts(prompts, modello, tempoAttesa);
 
-        Score score = ScoreCalculator.calculateScore(answers, nonMatchingEntityPromptsAmount);
+        Score score = ScoreCalculator.calculateScore(answers);
 
         String results = score.toString();
         System.out.println(results);

@@ -1,6 +1,7 @@
 package it.uniroma3.chatGPT.GPT;
 
 import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.Prompt;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import java.util.List;
 import java.util.Random;
@@ -37,7 +38,14 @@ public class PromptBuilder {
         return prompt;
     }
 
-    public void generateNonMatchingEntityPrompts(List<String> outputPrompts) {
+    public Prompt buildPromptTwoSnippetsStandardChatGPT(String webPageA, String webPageB, boolean expectedAnswer) {
+        String prompt = "";
+        prompt += "first: " + webPageA+". ";
+        prompt += "second: " + webPageB+". ";
+        return new Prompt(prompt, expectedAnswer);
+    }
+
+    public void generateNonMatchingEntityPrompts(List<Prompt> outputPrompts) {
         for (int i = 0; i < this.amountOfNegativePrompts; i++) {
             try {
                 Random random = new Random();
@@ -67,13 +75,13 @@ public class PromptBuilder {
                 /*String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());*/
                 //Qua usiamo i campi title
-                String pureDataE1 = HTMLFilter.getTitle(dataE1);
-                String pureDataE2 = HTMLFilter.getTitle(dataE2);
+                String pureDataE1 = replaceWith("\"", "''" ,HTMLFilter.getTitle(dataE1));
+                String pureDataE2 = replaceWith("\"", "''" ,HTMLFilter.getTitle(dataE2));
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }
                 //Creiamo il prompt
-                outputPrompts.add(buildPromptTwoSnippetsStandard(pureDataE1, pureDataE2));
+                outputPrompts.add(buildPromptTwoSnippetsStandardChatGPT(pureDataE1, pureDataE2, false));
             } catch (Exception e) {
                 i--;
                 e.printStackTrace();
@@ -83,7 +91,11 @@ public class PromptBuilder {
         }
     }
 
-    public void generateMatchingEntityPrompts(List<String> outputPrompts) {
+    public static String replaceWith(String toBeReplaced, String replacement, String text) {
+        return text.replace(toBeReplaced, replacement);
+    }
+
+    public void generateMatchingEntityPrompts(List<Prompt> outputPrompts) {
         for (int i = 0; i < this.amountOfPositivePrompts; i++) {
             try {
                 Random random = new Random();
@@ -109,12 +121,12 @@ public class PromptBuilder {
                 /*String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());*/
                 //Qua usiamo i campi title
-                String pureDataE1 = HTMLFilter.getTitle(data1);
-                String pureDataE2 = HTMLFilter.getTitle(data2);
+                String pureDataE1 = replaceWith("\"", "''" ,HTMLFilter.getTitle(data1));
+                String pureDataE2 = replaceWith("\"", "''" ,HTMLFilter.getTitle(data2));
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }
-                outputPrompts.add(buildPromptTwoSnippetsStandard(pureDataE1, pureDataE2));
+                outputPrompts.add(buildPromptTwoSnippetsStandardChatGPT(pureDataE1, pureDataE2, true));
             } catch (Exception e) {
                 i--;
                 e.printStackTrace();

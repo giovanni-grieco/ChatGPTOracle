@@ -1,0 +1,9 @@
+True Positive: 7
+True Negative: 20
+False Positive: 0
+False Negative: 3
+Precision: 1.0
+Recall: 0.7
+F-Score: 0.8235294117647058
+
+text-davinci-003

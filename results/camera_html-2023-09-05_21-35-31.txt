@@ -1,0 +1,9 @@
+True Positive: 10
+True Negative: 10
+False Positive: 0
+False Negative: 0
+Precision: 1.0
+Recall: 1.0
+F-Score: 1.0
+
+curie:ft-personal-2023-08-19-19-36-38

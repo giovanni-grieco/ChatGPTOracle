@@ -1,0 +1,9 @@
+True Positive: 1
+True Negative: 9
+False Positive: 1
+False Negative: 1
+Precision: 0.5
+Recall: 0.5
+F-Score: 0.5
+
+gpt-3.5-turbo

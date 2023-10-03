@@ -1,0 +1,9 @@
+True Positive: 0
+True Negative: 88
+False Positive: 11
+False Negative: 0
+Precision: 0.0
+Recall: NaN
+F-Score: NaN
+
+gpt-3.5-turbo

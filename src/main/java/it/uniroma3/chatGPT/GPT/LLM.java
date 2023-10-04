@@ -22,7 +22,7 @@ public abstract class LLM {
         LLM.privateKey = apiKey;
     }
 
-    protected abstract String answerQuestionCompletion(String prompt, String modelName) throws GPTException, IOException;
+    public abstract String answerQuestionCompletion(String prompt, String modelName) throws GPTException, IOException;
 
     public List<GPTQuery> processPrompts(List<Prompt> prompts, String modelName, int millisDelay) throws InterruptedException{
         List<GPTQuery> outputs = new ArrayList<>();

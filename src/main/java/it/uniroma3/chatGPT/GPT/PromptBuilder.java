@@ -75,6 +75,7 @@ public class PromptBuilder {
                 /*String pureDataE1 = HTMLFilter.filterTemplate(dataE1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());*/
                 //Qua usiamo i campi title
+                //Rimpiazziamo le virgolette con due apici singoli per evitare problemi con l'API di chat GPT
                 String pureDataE1 = replaceWith("\"", "''" ,HTMLFilter.getTitle(dataE1));
                 String pureDataE2 = replaceWith("\"", "''" ,HTMLFilter.getTitle(dataE2));
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){

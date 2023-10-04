@@ -17,7 +17,7 @@ public class ChatGPT extends LLM {
         this.assistantContent = assistantContent;
     }
 
-    protected String answerQuestionCompletion(String prompt, String modelName) throws IOException {
+    public String answerQuestionCompletion(String prompt, String modelName) throws IOException {
         String myToken = "Bearer " + " " + privateKey;
         HttpURLConnection conn = (HttpURLConnection) new URL(CHAT_URL_API).openConnection();
         conn.setRequestMethod("POST");

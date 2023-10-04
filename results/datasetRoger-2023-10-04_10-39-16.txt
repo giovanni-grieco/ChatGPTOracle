@@ -1,0 +1,9 @@
+True Positive: 269
+True Negative: 449
+False Positive: 164
+False Negative: 67
+Precision: 0.6212471131639723
+Recall: 0.8005952380952381
+F-Score: 0.6996098829648895
+
+gpt-3.5-turbo

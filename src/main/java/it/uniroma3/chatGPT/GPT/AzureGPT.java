@@ -8,19 +8,30 @@ import java.net.URL;
 
 public class AzureGPT extends ChatGPT{
 
-    String endpoint = System.getenv("AZURE_ENDPOINT")+"/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-05-15";
+    private final String endpoint = System.getenv("AZURE_ENDPOINT")+"/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-05-15";
+
+    private String initChat = null;
+
     public AzureGPT(String assistantContent) {
         super(System.getenv("AZURE_GPT_API_KEY"), assistantContent);
     }
+    public AzureGPT(String assistantContent, String chat) {
+        super(System.getenv("AZURE_GPT_API_KEY"), assistantContent);
+        this.initChat = chat;
+    }
 
     @Override
-    protected String answerQuestionCompletion(String prompt, String modelName) throws IOException {
+    public String answerQuestionCompletion(String prompt, String modelName) throws IOException {
         try{
             HttpURLConnection conn = (HttpURLConnection) new URL(endpoint).openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("api-key", privateKey);
             conn.setRequestProperty("Content-Type", "application/json");
-            String jsonBody = "{\"model\": \""+modelName+"\",\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"},{ \"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+            String jsonBody = "{\"model\": \""+modelName+"\",\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}";
+            if(this.initChat!=null){
+                jsonBody += ","+initChat;
+            }
+            jsonBody+= ",{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
             conn.setDoOutput(true);
             conn.getOutputStream().write(jsonBody.getBytes());
             // Response from AzureGPT
@@ -30,5 +41,4 @@ public class AzureGPT extends ChatGPT{
             throw new RuntimeException(e);
         }
     }
-
 }

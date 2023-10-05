@@ -25,7 +25,6 @@ public class FiltraDataset implements Comando {
                 }catch(Exception ex){
                     ex.printStackTrace();
                     System.out.println("File not found: "+d.toFullPath());
-                    continue;
                 }
             }
         }

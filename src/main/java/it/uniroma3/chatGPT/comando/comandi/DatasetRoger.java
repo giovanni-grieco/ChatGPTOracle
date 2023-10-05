@@ -23,7 +23,6 @@ public class DatasetRoger implements Comando {
         try {
             File datasetFile = FileRetriever.getFile(pathToRogerDataset);
             String dataset = Files.readString(datasetFile.toPath());
-            LLM contentRichExtractorLLM = new AzureGPT("You will be given a text. You will have to extract the main subject, object or entity discussed in the text. The answer can contain only the name of the entity, object or subject.");
             String[] lines = dataset.split("\n");
             List<Prompt> prompts = new ArrayList<>();
             System.out.print("Inserire numero dei primi n prompt da usare: ");
@@ -33,10 +32,6 @@ public class DatasetRoger implements Comando {
                 String line = lines[i];
                 try {
                     String[] splitLine = line.split(";");
-                    /*String entityString1 = contentRichExtractorLLM.answerQuestionCompletion(splitLine[0], modello);
-                    String entityString2 = contentRichExtractorLLM.answerQuestionCompletion(splitLine[1], modello);
-                    System.out.println("Original: " + splitLine[0] + ".\nExtracted: " + entityString1);
-                    System.out.println("Original: " + splitLine[1] + ".\nExtracted: " + entityString2);*/
                     String entityString1 = splitLine[0];
                     String entityString2 = splitLine[1];
                     String expectedAnswer = splitLine[2];

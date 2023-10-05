@@ -8,8 +8,6 @@ import it.uniroma3.chatGPT.GPT.Score;
 import it.uniroma3.chatGPT.GPT.ScoreCalculator;
 import it.uniroma3.chatGPT.data.Prompt;
 import it.uniroma3.chatGPT.utils.FileSaver;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ import java.util.Scanner;
 public class InterrogaGpt implements Comando {
 
     @Override
-    public void esegui(Application application) throws InterruptedException, IOException {
+    public void esegui(Application application) throws InterruptedException{
 
         List<Entity> entityList = new ArrayList<>(application.getEntities());
         List<Prompt> prompts = new ArrayList<>();
@@ -64,7 +62,6 @@ public class InterrogaGpt implements Comando {
         System.out.println("Tempo attesa stimato: " + (tempoAttesa * (matchingEntityPromptsAmount + nonMatchingEntityPromptsAmount)) / 1000 + " secondi");
         LLM gpt = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.");
         //String modello = "curie:ft-personal-2023-08-19-19-36-38";
-        //String modello = "text-davinci-003";
         String modello = "gpt-3.5-turbo";
         List<GPTQuery> answers = gpt.processPrompts(prompts, modello, tempoAttesa);
 

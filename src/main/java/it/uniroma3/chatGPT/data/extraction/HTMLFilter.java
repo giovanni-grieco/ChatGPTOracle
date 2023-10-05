@@ -61,6 +61,16 @@ public class HTMLFilter {
         //return doc.text(); //ritorna il testo senza i tag
     }
 
+    public static String filterText(String html, Iterable<String> tagsToRemove) {
+        Document doc = Jsoup.parse(html);
+        removeSpecifiedTags(doc, tagsToRemove);
+        removeHTMLAttributes(doc);
+        removeHTMLComments(doc);
+        removeEmptyTags(doc);
+        //return doc.toString(); //ritorna l'html con i suoi tag
+        return doc.text(); //ritorna il testo senza i tag
+    }
+
     private static String convert2Text(Document doc) {
         //sostituisce i div con \n
         doc.select("div").append("\\n");

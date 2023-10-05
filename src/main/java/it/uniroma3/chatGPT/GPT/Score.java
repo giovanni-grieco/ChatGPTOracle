@@ -17,6 +17,10 @@ public class Score {
         return 2 * ((this.getPrecision()* this.getRecall()) / (this.getPrecision() + this.getRecall()));
     }
 
+    public double getMCC(){
+        return ((double)(truePositive*trueNegative)-(falsePositive*falseNegative))/(Math.sqrt((double)(truePositive+falsePositive)*(truePositive+falseNegative)*(trueNegative+falsePositive)*(trueNegative+falseNegative)));
+    }
+
     public double getPrecision(){
         return (double) truePositive / (truePositive + falsePositive);
     }
@@ -33,8 +37,9 @@ public class Score {
                 "False Negative: " + this.falseNegative + "\n" +
                 "Precision: " + this.getPrecision() + "\n" +
                 "Recall: " + this.getRecall() + "\n" +
-                "F-Score: " + this.getFScore();
+                "F-Score: " + this.getFScore()+"\n"+
+                "MCC [-1, 1]: " + this.getMCC()+"\n"+
+                "Percentage MCC [0, 1]: "+ ((this.getMCC()+1)/2);
     }
-
 
 }

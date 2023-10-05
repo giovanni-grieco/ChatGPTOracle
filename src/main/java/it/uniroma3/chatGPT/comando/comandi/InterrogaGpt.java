@@ -8,6 +8,8 @@ import it.uniroma3.chatGPT.GPT.Score;
 import it.uniroma3.chatGPT.GPT.ScoreCalculator;
 import it.uniroma3.chatGPT.data.Prompt;
 import it.uniroma3.chatGPT.utils.FileSaver;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ import java.util.Scanner;
 public class InterrogaGpt implements Comando {
 
     @Override
-    public void esegui(Application application) throws InterruptedException {
+    public void esegui(Application application) throws InterruptedException, IOException {
 
         List<Entity> entityList = new ArrayList<>(application.getEntities());
         List<Prompt> prompts = new ArrayList<>();

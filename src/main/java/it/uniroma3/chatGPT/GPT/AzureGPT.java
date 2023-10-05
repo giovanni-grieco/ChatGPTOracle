@@ -27,7 +27,7 @@ public class AzureGPT extends ChatGPT{
             conn.setRequestMethod("POST");
             conn.setRequestProperty("api-key", privateKey);
             conn.setRequestProperty("Content-Type", "application/json");
-            String jsonBody = "{\"model\": \""+modelName+"\",\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}";
+            String jsonBody = "{\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}";
             if(this.initChat!=null){
                 jsonBody += ","+initChat;
             }

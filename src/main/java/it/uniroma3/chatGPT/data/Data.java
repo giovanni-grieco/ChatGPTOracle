@@ -2,6 +2,7 @@ package it.uniroma3.chatGPT.data;
 
 import it.uniroma3.chatGPT.AppProperties;
 import it.uniroma3.chatGPT.Application;
+import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -48,4 +49,7 @@ public class Data {
         return this.domain + "/" + this.id;
     }
 
+    public String getTitle() throws IOException {
+        return HTMLFilter.getTitle(this.getTextData());
+    }
 }

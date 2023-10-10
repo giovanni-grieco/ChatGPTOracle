@@ -1,10 +1,6 @@
 package it.uniroma3.chatGPT.GPT;
 
-import it.uniroma3.chatGPT.data.Prompt;
-
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -3,7 +3,7 @@ package it.uniroma3.chatGPT.comando.comandi;
 import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.*;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.data.Prompt;
+import it.uniroma3.chatGPT.GPT.Prompt;
 import it.uniroma3.chatGPT.utils.FileRetriever;
 import it.uniroma3.chatGPT.utils.FileSaver;
 

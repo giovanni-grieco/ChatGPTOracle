@@ -1,7 +1,6 @@
 package it.uniroma3.chatGPT.GPT;
 
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.data.Prompt;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +10,7 @@ public class PromptBuilder {
     private final List<Entity> entities;
     private final int amountOfPositivePrompts;
     private final int amountOfNegativePrompts;
-    public boolean appendEndMarker;
+    public static boolean appendEndMarker=false;
 
     public PromptBuilder(List<Entity> entityList, int amountOfPositivePrompts, int amountOfNegativePrompts, boolean endMarker){
         this.entities=entityList;
@@ -21,7 +20,7 @@ public class PromptBuilder {
     }
 
 
-    public String buildPromptTwoSnippetsCustom(String webPageA, String webPageB) {
+    public static String buildPromptTwoSnippetsCustom(String webPageA, String webPageB) {
         String prompt = "";
         prompt += "first: " + webPageA+", ";
         prompt += "second: " + webPageB;
@@ -30,7 +29,7 @@ public class PromptBuilder {
         return prompt;
     }
 
-    public String buildPromptTwoSnippetsStandard(String webPageA, String webPageB) {
+    public static String buildPromptTwoSnippetsStandard(String webPageA, String webPageB) {
         String prompt = "are the following 2 texts talking about, citing or describing the same entity, object or subject? \n";
         prompt += "first: " + webPageA+"\n";
         prompt += "second: " + webPageB+"\n";
@@ -38,7 +37,7 @@ public class PromptBuilder {
         return prompt;
     }
 
-    public Prompt buildPromptTwoSnippetsStandardChatGPT(String webPageA, String webPageB, boolean expectedAnswer) {
+    public static Prompt buildPromptTwoSnippetsStandardChatGPT(String webPageA, String webPageB, boolean expectedAnswer) {
         String prompt = "";
         prompt += "first: " + webPageA+". ";
         prompt += "second: " + webPageB+". ";

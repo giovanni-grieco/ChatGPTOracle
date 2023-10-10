@@ -5,7 +5,7 @@ import it.uniroma3.chatGPT.GPT.PromptBuilder;
 import it.uniroma3.chatGPT.GPT.fineTuning.JSONLineGenerator;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.data.Prompt;
+import it.uniroma3.chatGPT.GPT.Prompt;
 import it.uniroma3.chatGPT.utils.FileSaver;
 
 import java.util.ArrayList;

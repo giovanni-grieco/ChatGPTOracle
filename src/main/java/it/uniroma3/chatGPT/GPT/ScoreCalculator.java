@@ -11,13 +11,13 @@ public class ScoreCalculator {
         int falseNegative = 0;
 
         for (GPTQuery answer : answers) {
-            if (answer.isYes() && answer.getPrompt().isPositive()) {
+            if (answer.isYes() && ((ClassificationPrompt)answer.getPrompt()).isPositive()) {
                 truePositive++;
-            } else if (answer.isYes() && !answer.getPrompt().isPositive()) {
+            } else if (answer.isYes() && !((ClassificationPrompt)answer.getPrompt()).isPositive()) {
                 falsePositive++;
-            } else if (!answer.isYes() && answer.getPrompt().isPositive()) {
+            } else if (!answer.isYes() &&((ClassificationPrompt)answer.getPrompt()).isPositive()) {
                 falseNegative++;
-            } else if (!answer.isYes() && !answer.getPrompt().isPositive()) {
+            } else if (!answer.isYes() && !((ClassificationPrompt)answer.getPrompt()).isPositive()) {
                 trueNegative++;
             }
         }

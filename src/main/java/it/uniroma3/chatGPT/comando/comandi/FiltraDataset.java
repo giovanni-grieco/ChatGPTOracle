@@ -16,6 +16,11 @@ public class FiltraDataset implements Comando {
     public void esegui(Application application) throws InterruptedException {
         String path = application.getAppProperties().getDatasetPath()+"/"+application.getAppProperties().getFilteredDataSetFolder();
         System.out.println("Files will be saved at: "+path);
+        int filesAmount = 0;
+        for(Entity e: application.getEntities()){
+            filesAmount += e.getData().size();
+        }
+        System.out.println("Files to filter: "+filesAmount);
         for(Entity e : application.getEntities()){
             for(Data d : e.getData()){
                 try {

@@ -36,7 +36,7 @@ public class DatasetRoger implements Comando {
                     String entityString2 = splitLine[1];
                     String expectedAnswer = splitLine[2];
                     String promptString = "first: " + entityString1 + ". second: " + entityString2;
-                    Prompt p = new Prompt(promptString, Boolean.parseBoolean(expectedAnswer));
+                    Prompt p = new ClassificationPrompt(promptString, Boolean.parseBoolean(expectedAnswer));
                     prompts.add(p);
                 }catch(Exception e){
                     System.out.println("Error: "+e.getMessage());

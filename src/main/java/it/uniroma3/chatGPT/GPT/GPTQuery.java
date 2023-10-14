@@ -51,6 +51,6 @@ public class GPTQuery {
 
     @Override
     public String toString() {
-        return "Prompt: " + prompt + "\n" + "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms";
+        return "---\nGPTQUERY-> " + prompt + "\n" + "Risposta: " + risposta + "\n" + "Modello: " + modello + "\n" + "Tempo di risposta: " + tempoDiRisposta + "ms\n---\n";
     }
 }

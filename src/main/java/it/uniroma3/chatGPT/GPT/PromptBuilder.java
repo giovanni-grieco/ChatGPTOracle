@@ -41,7 +41,7 @@ public class PromptBuilder {
         String prompt = "";
         prompt += "first: " + webPageA+". ";
         prompt += "second: " + webPageB+". ";
-        return new Prompt(prompt, expectedAnswer);
+        return new ClassificationPrompt(prompt, expectedAnswer);
     }
 
     public void generateNonMatchingEntityPrompts(List<Prompt> outputPrompts) {

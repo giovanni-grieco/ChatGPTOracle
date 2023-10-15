@@ -68,6 +68,10 @@ public class InterrogaGpt implements Comando {
         Score score = ScoreCalculator.calculateScore(answers);
 
         String results = score.toString();
+        results += "positive prompts: " + matchingEntityPromptsAmount + "\n";
+        results += "negative prompts: " + nonMatchingEntityPromptsAmount + "\n";
+        results += "percentage of positive prompts: "+ matchingEntityPromptsAmount*100/(matchingEntityPromptsAmount+nonMatchingEntityPromptsAmount)+"\n";
+        results += "model: "+modello+"\n";
         System.out.println(results);
 
         LocalDate now = LocalDate.now();

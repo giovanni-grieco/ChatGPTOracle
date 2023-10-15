@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static it.uniroma3.chatGPT.comando.comandi.BloccoCanon.putPairInMap;
 
-public class WorkerThread extends Thread {
+public class BloccoCanonWorkerThread extends Thread {
 
     private final int id;
 
@@ -19,7 +19,7 @@ public class WorkerThread extends Thread {
     private final Map<Entity, List<Pair<Data, Data>>> entity2PairOfData;
 
 
-    public WorkerThread(int id, List<Entity> assignedEntity, Map<Entity, List<Pair<Data, Data>>> entity2PairOfData) {
+    public BloccoCanonWorkerThread(int id, List<Entity> assignedEntity, Map<Entity, List<Pair<Data, Data>>> entity2PairOfData) {
         this.id = id;
         this.assignedEntity = assignedEntity;
         this.entity2PairOfData = entity2PairOfData;

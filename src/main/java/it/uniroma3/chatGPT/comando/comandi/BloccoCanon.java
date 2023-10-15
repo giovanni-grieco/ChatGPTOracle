@@ -2,7 +2,7 @@ package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.comando.WorkerThread;
+import it.uniroma3.chatGPT.comando.BloccoCanonWorkerThread;
 import it.uniroma3.chatGPT.data.Data;
 import it.uniroma3.chatGPT.data.Entity;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +54,7 @@ public class BloccoCanon implements Comando {
         Thread[] workers = new Thread[numThread];
         for (int i = 0; i < numThread; i++) {
             System.out.println("Thread " + i + " started");
-            workers[i] = new WorkerThread(i, entityList.subList(i * entityList.size() / numThread, (i + 1) * entityList.size() / numThread), entity2PairOfData);
+            workers[i] = new BloccoCanonWorkerThread(i, entityList.subList(i * entityList.size() / numThread, (i + 1) * entityList.size() / numThread), entity2PairOfData);
             System.out.println(entityList.subList(i * entityList.size() / numThread, (i + 1) * entityList.size() / numThread));
             workers[i].start();
         }

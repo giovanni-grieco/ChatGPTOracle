@@ -100,7 +100,7 @@ public class Data {
 
         private static final Semaphore textSemaphore = new Semaphore(1);
 
-        private static final int maxCacheSize = 1000;
+        private static final int maxCacheSize = 10000;
 
         private static final int maxTitleCacheSize = maxCacheSize*100;
 

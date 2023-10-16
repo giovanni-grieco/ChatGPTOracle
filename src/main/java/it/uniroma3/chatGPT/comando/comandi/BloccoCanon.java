@@ -68,8 +68,7 @@ public class BloccoCanon implements Comando {
             }
         }
 
-        System.out.print("Inserisci il numero di prompt totali: ");
-        int numeroDiPromptTotali = new Scanner(System.in).nextInt();
+        int numeroDiPromptTotali = 2000;
         int percentualePositivi = 0;
 
         List<Thread> workerThreads = new ArrayList<>();

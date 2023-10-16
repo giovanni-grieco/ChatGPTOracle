@@ -57,7 +57,7 @@ public class AnalisiCompletaWorkerThread extends Thread {
             Score score = ScoreCalculator.calculateScore(answers);
 
             String results = score.toString();
-            results += "positive prompts: " + numeroPositivi + "\n";
+            results += "\n"+"positive prompts: " + numeroPositivi + "\n";
             results += "negative prompts: " + numeroNegativi + "\n";
             results += "percentage of positive prompts: " + percentualePositivi + "\n";
             results += "model: " + modello + "\n";

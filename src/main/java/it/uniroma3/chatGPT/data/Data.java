@@ -62,9 +62,8 @@ public class Data {
     /**
      * Returns the title field of a specified html page referenced by this data object
      * @return title field string
-     * @throws IOException
      */
-    public String getTitle() throws IOException {
+    public String getTitle(){
         return Cache.getTitle(this);
     }
 
@@ -121,7 +120,7 @@ public class Data {
         private static final AtomicLong textmisses = new AtomicLong(0);
 
 
-        private static String getTitle(Data d) throws IOException {
+        private static String getTitle(Data d){
             try {
                 titleSemaphore.acquire();
                 if (data2Title.containsKey(d)) {

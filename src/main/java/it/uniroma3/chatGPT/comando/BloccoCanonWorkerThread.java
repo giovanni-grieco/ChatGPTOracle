@@ -31,12 +31,8 @@ public class BloccoCanonWorkerThread extends Thread {
             List<Data> dataList = e.getData();
             for (int i = 0; i < dataList.size(); i++) {
                 for (int j = i + 1; j < dataList.size(); j++) {
-                    try {
-                        if (isCanon(dataList.get(i).getTitle()) && isCanon(dataList.get(j).getTitle())) {
-                            putPairInMap(entity2PairOfData, e, Pair.of(dataList.get(i), dataList.get(j)));
-                        }
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                    if (isCanon(dataList.get(i).getTitle()) && isCanon(dataList.get(j).getTitle())) {
+                        putPairInMap(entity2PairOfData, e, Pair.of(dataList.get(i), dataList.get(j)));
                     }
                 }
             }

@@ -4,7 +4,6 @@ import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.comando.AnalisiCompletaWorkerThread;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

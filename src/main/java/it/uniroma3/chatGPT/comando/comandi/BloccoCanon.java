@@ -1,7 +1,7 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.comando.AnalisiCompletaWorkerThread;
+import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Data;
 import it.uniroma3.chatGPT.data.Entity;
@@ -53,7 +53,7 @@ public class BloccoCanon implements Comando {
             List<Thread> workerThreads = new ArrayList<>();
             while (percentualePositivi != 100) {
                 System.out.println("Creazione thread");
-                Thread t = new AnalisiCompletaWorkerThread(application, 0, percentualePositivi, numeroDiPromptTotali, inBlockEntities);
+                Thread t = new InterrogatoreGPTThread(application, 0, percentualePositivi, numeroDiPromptTotali, inBlockEntities);
                 workerThreads.add(t);
                 percentualePositivi += 5;
                 t.start();

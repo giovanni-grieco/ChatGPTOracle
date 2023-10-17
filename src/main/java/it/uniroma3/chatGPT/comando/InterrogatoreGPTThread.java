@@ -2,7 +2,6 @@ package it.uniroma3.chatGPT.comando;
 
 import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.*;
-import it.uniroma3.chatGPT.comando.comandi.AnalisiCompleta;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.utils.FileSaver;
 
@@ -11,7 +10,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnalisiCompletaWorkerThread extends Thread {
+public class InterrogatoreGPTThread extends Thread {
 
     private final Application application;
 
@@ -24,7 +23,7 @@ public class AnalisiCompletaWorkerThread extends Thread {
     private final int numeroDiPromptTotali;
 
 
-    public AnalisiCompletaWorkerThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList) {
+    public InterrogatoreGPTThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList) {
         this.entityIndex = entityIndex;
         this.percentualePositivi = percentageOfPositive;
         this.numeroDiPromptTotali = numeroDiPromptTotali;

@@ -1,7 +1,7 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.comando.AnalisiCompletaWorkerThread;
+import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class AnalisiCompleta implements Comando {
         for(int i = 0; i<entityTypes; i++){
             while(percentualePositivi != 100) {
                 System.out.println("Creazione thread");
-                workerThreads.add(new AnalisiCompletaWorkerThread(application, i, percentualePositivi, numeroDiPromptTotali, entityList));
+                workerThreads.add(new InterrogatoreGPTThread(application, i, percentualePositivi, numeroDiPromptTotali, entityList));
                 percentualePositivi += 5;
             }
             percentualePositivi = 0;

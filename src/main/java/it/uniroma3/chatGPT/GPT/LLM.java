@@ -33,7 +33,7 @@ public abstract class LLM {
                 System.out.println("Skipping to next prompt...");
             }
             System.out.println("Waiting " + millisDelay + "ms\n");
-            Thread.sleep(millisDelay);
+            //Thread.sleep(millisDelay);
         }
         return outputs;
     }

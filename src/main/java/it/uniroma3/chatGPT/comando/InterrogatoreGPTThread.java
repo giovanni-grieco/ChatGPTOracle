@@ -22,6 +22,9 @@ public class InterrogatoreGPTThread extends Thread {
 
     private final int numeroDiPromptTotali;
 
+    private Score finalScore;
+
+    private String blocco;
 
     public InterrogatoreGPTThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList) {
         this.entityIndex = entityIndex;
@@ -29,6 +32,12 @@ public class InterrogatoreGPTThread extends Thread {
         this.numeroDiPromptTotali = numeroDiPromptTotali;
         this.entityList = entityList;
         this.application = application;
+        this.blocco = null;
+    }
+
+    public InterrogatoreGPTThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList, String blocco){
+        this(application, entityIndex, percentageOfPositive, numeroDiPromptTotali, entityList);
+        this.blocco = blocco;
     }
 
     @Override
@@ -53,9 +62,9 @@ public class InterrogatoreGPTThread extends Thread {
             List<GPTQuery> answers = null;
             answers = gpt.processPrompts(prompts, modello, 0);
 
-            Score score = ScoreCalculator.calculateScore(answers);
+            this.finalScore = ScoreCalculator.calculateScore(answers);
 
-            String results = score.toString();
+            String results = this.finalScore.toString();
             results += "\n"+"positive prompts: " + numeroPositivi + "\n";
             results += "negative prompts: " + numeroNegativi + "\n";
             results += "percentage of positive prompts: " + percentualePositivi + "\n";
@@ -70,5 +79,21 @@ public class InterrogatoreGPTThread extends Thread {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Score getScore(){
+        return this.finalScore;
+    }
+
+    public String getBlocco(){
+        return this.blocco;
+    }
+
+    public Score getFinalScore() {
+        return this.getScore();
+    }
+
+    public int getPercentualePositivi() {
+        return this.percentualePositivi;
     }
 }

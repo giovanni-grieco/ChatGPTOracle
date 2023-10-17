@@ -13,6 +13,22 @@ public class Score {
         this.falseNegative = falseNegative;
     }
 
+    public int getTP(){
+        return this.truePositive;
+    }
+
+    public int getTN(){
+        return this.trueNegative;
+    }
+
+    public int getFP(){
+        return this.falsePositive;
+    }
+
+    public int getFN(){
+        return this.falseNegative;
+    }
+
     public double getFScore(){
         return 2 * ((this.getPrecision()* this.getRecall()) / (this.getPrecision() + this.getRecall()));
     }

@@ -4,7 +4,7 @@ import it.uniroma3.chatGPT.Application;
 
 import java.nio.file.Path;
 
-public class BlockData extends AbstractData{
+public class BlockData extends Data {
 
     private final Blocco blocco;
 

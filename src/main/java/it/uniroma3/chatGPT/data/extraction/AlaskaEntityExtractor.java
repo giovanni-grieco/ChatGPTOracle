@@ -1,5 +1,7 @@
-package it.uniroma3.chatGPT.data;
+package it.uniroma3.chatGPT.data.extraction;
 
+import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.EntityType;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -8,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
-public class AlaskaEntityExtractor implements EntityExtractor{
+public class AlaskaEntityExtractor implements EntityExtractor {
 
     private final EntityType typeOfEntityToBeExtracted;
     private final Path groundTruthPath;

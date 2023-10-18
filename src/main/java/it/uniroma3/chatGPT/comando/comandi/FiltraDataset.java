@@ -2,10 +2,10 @@ package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.data.AbstractData;
+import it.uniroma3.chatGPT.data.Data;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
-import it.uniroma3.chatGPT.utils.FileSaver;
+import it.uniroma3.chatGPT.utils.file.FileSaver;
 
 public class FiltraDataset implements Comando {
 
@@ -19,7 +19,7 @@ public class FiltraDataset implements Comando {
         }
         System.out.println("Files to filter: "+filesAmount);
         for(Entity e : application.getEntities()){
-            for(AbstractData d : e.getData()){
+            for(Data d : e.getData()){
                 try {
                     String unfilteredText = d.getTextData();
                     String filteredText = HTMLFilter.filter(unfilteredText, HTMLFilter.DEFAULT_TO_REMOVE_TAGS);

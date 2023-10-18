@@ -2,8 +2,8 @@ package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.comando.ComandiFactory;
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.data.AlaskaEntityExtractor;
-import it.uniroma3.chatGPT.data.EntityExtractor;
+import it.uniroma3.chatGPT.data.extraction.AlaskaEntityExtractor;
+import it.uniroma3.chatGPT.data.extraction.EntityExtractor;
 import it.uniroma3.chatGPT.data.EntityType;
 
 import java.io.IOException;

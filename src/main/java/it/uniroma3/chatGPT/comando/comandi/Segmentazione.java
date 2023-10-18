@@ -1,18 +1,15 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
-import com.didalgo.gpt3.Encoding;
-import com.didalgo.gpt3.GPT3Tokenizer;
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.AzureGPT;
+import it.uniroma3.chatGPT.GPT.chatCompletion.AzureGPT;
 import it.uniroma3.chatGPT.GPT.GPTQuery;
 import it.uniroma3.chatGPT.GPT.LLM;
 import it.uniroma3.chatGPT.GPT.segmentazione.Segmenter;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.GPT.Prompt;
+import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.data.extraction.HTMLFilter;
 
-import javax.swing.text.html.HTML;
 import java.util.ArrayList;
 import java.util.List;
 

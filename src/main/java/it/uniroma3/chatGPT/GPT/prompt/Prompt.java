@@ -1,4 +1,4 @@
-package it.uniroma3.chatGPT.GPT;
+package it.uniroma3.chatGPT.GPT.prompt;
 
 public class Prompt {
     private final String prompt;

@@ -1,4 +1,7 @@
-package it.uniroma3.chatGPT.GPT;
+package it.uniroma3.chatGPT.GPT.score;
+
+import it.uniroma3.chatGPT.GPT.GPTQuery;
+import it.uniroma3.chatGPT.GPT.prompt.ClassificationPrompt;
 
 import java.util.List;
 

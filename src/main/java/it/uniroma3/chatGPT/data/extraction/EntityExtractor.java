@@ -1,4 +1,6 @@
-package it.uniroma3.chatGPT.data;
+package it.uniroma3.chatGPT.data.extraction;
+
+import it.uniroma3.chatGPT.data.Entity;
 
 import java.io.IOException;
 import java.util.Set;

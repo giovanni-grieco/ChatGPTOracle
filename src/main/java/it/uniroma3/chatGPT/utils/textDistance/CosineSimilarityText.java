@@ -1,4 +1,4 @@
-package it.uniroma3.chatGPT.utils;
+package it.uniroma3.chatGPT.utils.textDistance;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -1,5 +1,7 @@
-package it.uniroma3.chatGPT.data;
+package it.uniroma3.chatGPT.data.extraction;
 
+import it.uniroma3.chatGPT.data.Blocco;
+import it.uniroma3.chatGPT.data.EntityType;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 

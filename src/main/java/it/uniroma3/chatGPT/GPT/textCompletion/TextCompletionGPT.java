@@ -1,5 +1,6 @@
-package it.uniroma3.chatGPT.GPT;
+package it.uniroma3.chatGPT.GPT.textCompletion;
 
+import it.uniroma3.chatGPT.GPT.LLM;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * Questa classe implementa l'interfaccia LLM e permette di interrogare il modello di OpenAI per ottenere una risposta a un prompt. Utilizza l'API legacy di OpenAI.
  */
-public class TextCompletionGPT extends LLM{
+public class TextCompletionGPT extends LLM {
 
     public TextCompletionGPT(String apiKey) {
         super(apiKey);

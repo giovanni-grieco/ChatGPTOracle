@@ -1,5 +1,7 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.GPT.prompt.Prompt;
+
 public class GPTQuery {
     private Prompt prompt;
     private String risposta;

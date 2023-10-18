@@ -8,7 +8,7 @@ public class Entity {
 
     private final EntityType type;
     private String name;
-    private List<AbstractData> data;
+    private List<Data> data;
 
     public Entity(EntityType type, String name) {
         this.type = type;
@@ -24,17 +24,17 @@ public class Entity {
         this.name = name;
     }
 
-    public List<AbstractData> getData() {
+    public List<Data> getData() {
         return data;
     }
 
-    public void setData(List<AbstractData> data) {
+    public void setData(List<Data> data) {
         this.data = data;
     }
 
     public void addHtmlLocation(String htmlLocation) {
         String[] split = htmlLocation.split("//");
-        this.data.add(new Data(split[0], split[1], this));
+        this.data.add(new EntityData(split[0], split[1], this));
     }
 
     public EntityType getType() {

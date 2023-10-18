@@ -1,5 +1,7 @@
 package it.uniroma3.chatGPT.GPT;
 
+import it.uniroma3.chatGPT.GPT.prompt.Prompt;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

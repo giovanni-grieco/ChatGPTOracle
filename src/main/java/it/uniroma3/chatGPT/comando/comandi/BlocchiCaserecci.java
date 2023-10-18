@@ -1,10 +1,10 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.Score;
+import it.uniroma3.chatGPT.GPT.score.Score;
 import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.data.AbstractData;
+import it.uniroma3.chatGPT.data.Data;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityType;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -47,7 +47,7 @@ public class BlocchiCaserecci implements Comando {
         //filtriamo tutte le entità che hanno nel campo title il discriminante del blocco che vogliamo analizzare
         for (String blockDiscriminant : blocksDiscriminants) {
             for (Entity e : entityList) {
-                for (AbstractData d : e.getData()) {
+                for (Data d : e.getData()) {
                     if (belongToBlock(d.getTitle(), blockDiscriminant)) {
                         this.blocksDiscriminantsMap.get(blockDiscriminant).add(e);
                         break;

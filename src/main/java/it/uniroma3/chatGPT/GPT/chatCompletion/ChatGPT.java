@@ -1,4 +1,6 @@
-package it.uniroma3.chatGPT.GPT;
+package it.uniroma3.chatGPT.GPT.chatCompletion;
+import it.uniroma3.chatGPT.GPT.LLM;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

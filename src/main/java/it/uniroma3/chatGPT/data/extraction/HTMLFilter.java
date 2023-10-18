@@ -1,7 +1,7 @@
 package it.uniroma3.chatGPT.data.extraction;
 
-import it.uniroma3.chatGPT.utils.FileRetriever;
-import it.uniroma3.chatGPT.utils.FileSaver;
+import it.uniroma3.chatGPT.utils.file.FileRetriever;
+import it.uniroma3.chatGPT.utils.file.FileSaver;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;

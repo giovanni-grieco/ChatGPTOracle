@@ -19,7 +19,7 @@ import java.util.*;
 
 public class BlocchiCaserecci implements Comando {
 
-    private static final String[] blocksDiscriminants = {"Nikon", "Panasonic"};
+    private static final String[] blocksDiscriminants = {"Canon", "Nikon", "Panasonic"};
     //private static final String[] blocksDiscriminants = {"Nikon"};
     private final Map<String, Set<Entity>> blocksDiscriminantsMap;
 

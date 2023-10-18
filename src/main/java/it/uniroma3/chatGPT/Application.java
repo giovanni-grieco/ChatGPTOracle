@@ -2,7 +2,10 @@ package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.comando.ComandiFactory;
 import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.AlaskaEntityExtractor;
 import it.uniroma3.chatGPT.data.EntityExtractor;
+import it.uniroma3.chatGPT.data.EntityType;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
@@ -22,8 +25,8 @@ public class Application {
         this.entityTypes = appProperties.getDatasetFolders().length;
 
         System.out.println("Extracting entities");
-        for (int type = 0; type < entityTypes; type++) {
-            EntityExtractor extractor = new EntityExtractor(type, Path.of(appProperties.getDatasetPath() + "/" + appProperties.getGroundTruthFileNames()[type]));
+        for (EntityType type : EntityType.values()) {
+            EntityExtractor extractor = new AlaskaEntityExtractor(type, Path.of(appProperties.getDatasetPath() + "/" + appProperties.getGroundTruthFileNames()[type.getTypeIndex()]));
             extractor.extractEntitiesFromGroundTruth(entities);
         }
         //Stampiamo le entità per controllare

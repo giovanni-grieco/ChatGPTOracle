@@ -4,8 +4,9 @@ import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.Score;
 import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.data.Data;
+import it.uniroma3.chatGPT.data.AbstractData;
 import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.EntityType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -16,13 +17,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-public class AnalisiABlocchi implements Comando {
+public class BlocchiCaserecci implements Comando {
 
     private static final String[] blocksDiscriminants = {"Nikon", "Panasonic"};
     //private static final String[] blocksDiscriminants = {"Nikon"};
     private final Map<String, Set<Entity>> blocksDiscriminantsMap;
 
-    public AnalisiABlocchi(){
+    public BlocchiCaserecci(){
         this.blocksDiscriminantsMap = new HashMap<>();
         for(String discriminant : blocksDiscriminants){
             this.blocksDiscriminantsMap.put(discriminant, new HashSet<>());
@@ -38,7 +39,7 @@ public class AnalisiABlocchi implements Comando {
         //filtriamo quelli di tipo 0 (fotocamere)
 
         for (Entity e : entityListAllTypes) {
-            if (e.getType() == 0) {
+            if (e.getType() == EntityType.CAMERA) {
                 entityList.add(e);
             }
         }
@@ -46,7 +47,7 @@ public class AnalisiABlocchi implements Comando {
         //filtriamo tutte le entità che hanno nel campo title il discriminante del blocco che vogliamo analizzare
         for (String blockDiscriminant : blocksDiscriminants) {
             for (Entity e : entityList) {
-                for (Data d : e.getData()) {
+                for (AbstractData d : e.getData()) {
                     if (belongToBlock(d.getTitle(), blockDiscriminant)) {
                         this.blocksDiscriminantsMap.get(blockDiscriminant).add(e);
                         break;
@@ -59,10 +60,16 @@ public class AnalisiABlocchi implements Comando {
         for(String blockDiscriminant : blocksDiscriminants){
             Sheet sheet = workbook.createSheet(blockDiscriminant);
             List<Entity> inBlockEntities = new ArrayList<>(this.blocksDiscriminantsMap.get(blockDiscriminant));
+            XSSFRow topRow = (XSSFRow) sheet.createRow(0);
             XSSFRow tpRow = (XSSFRow) sheet.createRow(1);
             XSSFRow tnRow = (XSSFRow) sheet.createRow(2);
             XSSFRow fpRow = (XSSFRow) sheet.createRow(3);
             XSSFRow fnRow = (XSSFRow) sheet.createRow(4);
+            topRow.createCell(0).setCellValue("Percentuale positivi");
+            tpRow.createCell(0).setCellValue("TP");
+            tnRow.createCell(0).setCellValue("TN");
+            fpRow.createCell(0).setCellValue("FP");
+            fnRow.createCell(0).setCellValue("FN");
             //Stampa di prova
             System.out.println(blockDiscriminant +" entities: "+ inBlockEntities);
 
@@ -71,10 +78,11 @@ public class AnalisiABlocchi implements Comando {
             //Ho tentato di multithreaddare ma non funziona perché l'endpoint di Azure non riesce a gestire richieste concorrenti
             while (percentualePositivi != 100) {
                 System.out.println("Creazione thread");
-                InterrogatoreGPTThread t1 = new InterrogatoreGPTThread(application, 0, percentualePositivi, numeroDiPromptTotali, inBlockEntities, blockDiscriminant);
+                InterrogatoreGPTThread t1 = new InterrogatoreGPTThread(application, EntityType.CAMERA, percentualePositivi, numeroDiPromptTotali, inBlockEntities, blockDiscriminant);
                 t1.start();
                 t1.join();
                 Score score1 = t1.getFinalScore();
+                topRow.createCell(t1.getPercentualePositivi()/5).setCellValue(t1.getPercentualePositivi() + "%");
                 tpRow.createCell(t1.getPercentualePositivi()/5).setCellValue(score1.getTP());
                 tnRow.createCell(t1.getPercentualePositivi()/5).setCellValue(score1.getTN());
                 fpRow.createCell(t1.getPercentualePositivi()/5).setCellValue(score1.getFP());

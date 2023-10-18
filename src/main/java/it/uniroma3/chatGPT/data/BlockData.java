@@ -16,12 +16,12 @@ public class BlockData extends Data {
         super(domain, id);
         this.blocco = blocco;
         this.type = type;
-        this.path = Application.appProperties.getDatasetPath()+Application.appProperties.getDatasetFolders()[this.type.getTypeIndex()];
+        this.path = Application.appProperties.getDatasetPath()+"/"+Application.appProperties.getDatasetFolders()[this.type.getTypeIndex()];
     }
 
     @Override
     public Path toFullPath() {
-        return Path.of(this.path+"/"+this.getDomain()+"/"+this.getId()+".html");
+        return Path.of(this.path+"/"+this.getDomain()+"/"+this.getId());
     }
 
     public Blocco getBlocco(){
@@ -30,6 +30,6 @@ public class BlockData extends Data {
 
     @Override
     public String toString(){
-        return "BlockData: "+this.getDomain()+"/"+this.getId()+".html";
+        return "BlockData: "+this.getDomain()+"/"+this.getId();
     }
 }

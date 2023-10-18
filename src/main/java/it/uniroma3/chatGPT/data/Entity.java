@@ -56,6 +56,6 @@ public class Entity {
 
     @Override
     public String toString() {
-        return "Entity: " + name +"(Type"+type+")";
+        return "Entity: " + name +"(Type: "+type+")";
     }
 }

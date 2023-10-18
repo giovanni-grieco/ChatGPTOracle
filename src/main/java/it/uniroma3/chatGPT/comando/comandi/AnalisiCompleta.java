@@ -1,8 +1,8 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.comando.Comando;
+import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityType;
 

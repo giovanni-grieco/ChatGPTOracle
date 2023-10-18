@@ -7,7 +7,10 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BlockDataExtractor {
 
@@ -32,7 +35,7 @@ public class BlockDataExtractor {
 
     public Blocco nextBlock(){
         String block = block2PathList.keySet().iterator().next();
-        return new Blocco(this.nextBlockName(), block2PathList.remove(block), this.EType.getTypeIndex());
+        return new Blocco(this.nextBlockName(), block2PathList.remove(block), this.EType);
     }
 
     public boolean hasNextBlock(){

@@ -1,11 +1,11 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.prompt.PromptBuilder;
 import it.uniroma3.chatGPT.GPT.fineTuning.JSONLineGenerator;
+import it.uniroma3.chatGPT.GPT.prompt.Prompt;
+import it.uniroma3.chatGPT.GPT.prompt.PromptBuilder;
 import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.data.Entity;
-import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.utils.file.FileSaver;
 
 import java.util.ArrayList;

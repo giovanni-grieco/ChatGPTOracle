@@ -1,8 +1,6 @@
 package it.uniroma3.chatGPT.GPT.segmentazione;
 
-import it.uniroma3.chatGPT.GPT.segmentazione.Segmenter;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SegmenterTest {
 

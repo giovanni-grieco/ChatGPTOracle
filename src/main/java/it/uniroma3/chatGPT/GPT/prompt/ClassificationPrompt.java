@@ -1,7 +1,5 @@
 package it.uniroma3.chatGPT.GPT.prompt;
 
-import it.uniroma3.chatGPT.GPT.prompt.Prompt;
-
 public class ClassificationPrompt extends Prompt {
 
     private final boolean isPositive;

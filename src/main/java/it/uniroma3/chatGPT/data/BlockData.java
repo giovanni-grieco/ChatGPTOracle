@@ -10,10 +10,13 @@ public class BlockData extends Data {
 
     private final String path;
 
-    public BlockData(Blocco blocco, String domain, String id, int type) {
+    private final EntityType type;
+
+    public BlockData(Blocco blocco, String domain, String id, EntityType type){
         super(domain, id);
         this.blocco = blocco;
-        this.path = Application.appProperties.getDatasetPath()+Application.appProperties.getDatasetFolders()[type];
+        this.type = type;
+        this.path = Application.appProperties.getDatasetPath()+Application.appProperties.getDatasetFolders()[this.type.getTypeIndex()];
     }
 
     @Override
@@ -23,5 +26,10 @@ public class BlockData extends Data {
 
     public Blocco getBlocco(){
         return this.blocco;
+    }
+
+    @Override
+    public String toString(){
+        return "BlockData: "+this.getDomain()+"/"+this.getId()+".html";
     }
 }

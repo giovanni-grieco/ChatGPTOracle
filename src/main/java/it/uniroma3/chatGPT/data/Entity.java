@@ -6,11 +6,11 @@ import java.util.Objects;
 
 public class Entity {
 
-    private final int type;
+    private final EntityType type;
     private String name;
-    private List<Data> data;
+    private List<AbstractData> data;
 
-    public Entity(int type, String name) {
+    public Entity(EntityType type, String name) {
         this.type = type;
         this.name = name;
         this.data = new ArrayList<>();
@@ -24,11 +24,11 @@ public class Entity {
         this.name = name;
     }
 
-    public List<Data> getData() {
+    public List<AbstractData> getData() {
         return data;
     }
 
-    public void setData(List<Data> data) {
+    public void setData(List<AbstractData> data) {
         this.data = data;
     }
 
@@ -37,7 +37,7 @@ public class Entity {
         this.data.add(new Data(split[0], split[1], this));
     }
 
-    public int getType() {
+    public EntityType getType() {
         return this.type;
     }
 

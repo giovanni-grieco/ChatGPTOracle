@@ -7,6 +7,7 @@ import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.GPT.Score;
 import it.uniroma3.chatGPT.GPT.ScoreCalculator;
 import it.uniroma3.chatGPT.GPT.Prompt;
+import it.uniroma3.chatGPT.data.EntityType;
 import it.uniroma3.chatGPT.utils.FileSaver;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,7 +38,7 @@ public class InterrogaGpt implements Comando {
 
         List<Entity> filteredEntityList = new ArrayList<>();
         for (Entity e : entityList) {
-            if (e.getType() == entityType)
+            if (e.getType() == EntityType.values()[entityType])
                 filteredEntityList.add(e);
         }
         System.out.print("Inserisci il numero di prompt positivi: ");

@@ -3,6 +3,7 @@ package it.uniroma3.chatGPT.comando;
 import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.*;
 import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.EntityType;
 import it.uniroma3.chatGPT.utils.FileSaver;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ public class InterrogatoreGPTThread extends Thread {
 
     private final List<Entity> entityList;
 
-    private final int entityIndex;
+    private final EntityType EType;
 
     private final int percentualePositivi;
 
@@ -26,8 +27,8 @@ public class InterrogatoreGPTThread extends Thread {
 
     private String blocco;
 
-    public InterrogatoreGPTThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList) {
-        this.entityIndex = entityIndex;
+    public InterrogatoreGPTThread(Application application, EntityType Etype, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList) {
+        this.EType = Etype;
         this.percentualePositivi = percentageOfPositive;
         this.numeroDiPromptTotali = numeroDiPromptTotali;
         this.entityList = entityList;
@@ -35,8 +36,8 @@ public class InterrogatoreGPTThread extends Thread {
         this.blocco = null;
     }
 
-    public InterrogatoreGPTThread(Application application, int entityIndex, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList, String blocco){
-        this(application, entityIndex, percentageOfPositive, numeroDiPromptTotali, entityList);
+    public InterrogatoreGPTThread(Application application, EntityType EType, int percentageOfPositive, int numeroDiPromptTotali, List<Entity> entityList, String blocco){
+        this(application, EType, percentageOfPositive, numeroDiPromptTotali, entityList);
         this.blocco = blocco;
     }
 
@@ -47,7 +48,7 @@ public class InterrogatoreGPTThread extends Thread {
             int numeroNegativi = numeroDiPromptTotali - numeroPositivi;
             List<Entity> filteredEntityList = new ArrayList<>();
             for (Entity e : entityList) {
-                if (e.getType() == entityIndex)
+                if (e.getType() == EType)
                     filteredEntityList.add(e);
             }
             PromptBuilder pb = new PromptBuilder(filteredEntityList, numeroPositivi, numeroNegativi, false);
@@ -73,7 +74,7 @@ public class InterrogatoreGPTThread extends Thread {
 
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
-            String fileName = application.getAppProperties().getDatasetFolders()[entityIndex] + "-" + now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-"+blocco+percentualePositivi+"%";
+            String fileName = application.getAppProperties().getDatasetFolders()[EType.getTypeIndex()] + "-" + now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-"+blocco+percentualePositivi+"%";
             FileSaver.saveFile("./results/", fileName + ".txt", results + "\n\n" + modello);
             System.out.println("File saved as ./results/" + fileName + ".txt");
         } catch (InterruptedException e) {

@@ -1,0 +1,16 @@
+True Positive: 298
+True Negative: 1603
+False Positive: 97
+False Negative: 2
+Precision: 0.7544303797468355
+Recall: 0.9933333333333333
+F-Score: 0.8575539568345325
+MCC [-1, 1]: 0.8397542716593803
+Percentage MCC [0, 1]: 0.9198771358296902
+positive prompts: 300
+negative prompts: 1700
+percentage of positive prompts: 15
+model: gpt-3.5-turbo
+
+
+gpt-3.5-turbo

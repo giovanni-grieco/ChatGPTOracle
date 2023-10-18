@@ -73,7 +73,7 @@ public class InterrogatoreGPTThread extends Thread {
 
             LocalDate now = LocalDate.now();
             LocalTime nowTime = LocalTime.now();
-            String fileName = application.getAppProperties().getDatasetFolders()[entityIndex] + "-" + now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond();
+            String fileName = application.getAppProperties().getDatasetFolders()[entityIndex] + "-" + now + "_" + nowTime.getHour() + "-" + nowTime.getMinute() + "-" + nowTime.getSecond()+"-"+blocco+percentualePositivi+"%";
             FileSaver.saveFile("./results/", fileName + ".txt", results + "\n\n" + modello);
             System.out.println("File saved as ./results/" + fileName + ".txt");
         } catch (InterruptedException e) {

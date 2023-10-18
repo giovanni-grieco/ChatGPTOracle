@@ -18,8 +18,8 @@ import java.util.*;
 
 public class AnalisiABlocchi implements Comando {
 
-    //private static final String[] blocksDiscriminants = {"Nikon", "Panasonic"};
-    private static final String[] blocksDiscriminants = {"Nikon"};
+    private static final String[] blocksDiscriminants = {"Nikon", "Panasonic"};
+    //private static final String[] blocksDiscriminants = {"Nikon"};
     private final Map<String, Set<Entity>> blocksDiscriminantsMap;
 
     public AnalisiABlocchi(){
@@ -67,11 +67,11 @@ public class AnalisiABlocchi implements Comando {
             System.out.println(blockDiscriminant +" entities: "+ inBlockEntities);
 
             int numeroDiPromptTotali = 2000;
-            int percentualePositivi = 30;
+            int percentualePositivi = 5;
             //Ho tentato di multithreaddare ma non funziona perché l'endpoint di Azure non riesce a gestire richieste concorrenti
             while (percentualePositivi != 100) {
                 System.out.println("Creazione thread");
-                InterrogatoreGPTThread t1 = new InterrogatoreGPTThread(application, 0, percentualePositivi, numeroDiPromptTotali, inBlockEntities);
+                InterrogatoreGPTThread t1 = new InterrogatoreGPTThread(application, 0, percentualePositivi, numeroDiPromptTotali, inBlockEntities, blockDiscriminant);
                 t1.start();
                 t1.join();
                 Score score1 = t1.getFinalScore();

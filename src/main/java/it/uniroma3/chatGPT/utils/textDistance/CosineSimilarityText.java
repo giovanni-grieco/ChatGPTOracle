@@ -1,9 +1,10 @@
 package it.uniroma3.chatGPT.utils.textDistance;
 
+import org.apache.commons.text.similarity.CosineSimilarity;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.text.similarity.CosineSimilarity;
 
 public class CosineSimilarityText {
 

@@ -1,12 +1,13 @@
 package it.uniroma3.chatGPT.comando.comandi;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.*;
+import it.uniroma3.chatGPT.GPT.GPTQuery;
+import it.uniroma3.chatGPT.GPT.LLM;
 import it.uniroma3.chatGPT.GPT.chatCompletion.AzureGPT;
 import it.uniroma3.chatGPT.GPT.prompt.ClassificationPrompt;
+import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.GPT.score.ScoreCalculator;
 import it.uniroma3.chatGPT.comando.Comando;
-import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.utils.file.FileRetriever;
 import it.uniroma3.chatGPT.utils.file.FileSaver;
 

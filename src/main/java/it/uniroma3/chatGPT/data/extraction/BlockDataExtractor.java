@@ -4,17 +4,18 @@ import it.uniroma3.chatGPT.data.Blocco;
 import it.uniroma3.chatGPT.data.EntityType;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BlockDataExtractor {
 
     private final String groundTruthPath;
 
-    private Map<String, List<String>> block2PathList;
-    private long enumerator;
+    private final Map<String, List<String>> block2PathList;
 
     private final EntityType EType;
 
@@ -22,7 +23,6 @@ public class BlockDataExtractor {
         this.groundTruthPath = groundTruthPath;
         this.block2PathList = new HashMap<>();
         this.extractBlocks();
-        this.enumerator = 0L;
         this.EType = type;
     }
 
@@ -32,7 +32,7 @@ public class BlockDataExtractor {
 
     public Blocco nextBlock(){
         String block = block2PathList.keySet().iterator().next();
-        return new Blocco(this.nextBlockName(), block2PathList.remove(block), this.EType.getTypeIndex());
+        return new Blocco(this.nextBlockName(), block2PathList.remove(block), this.EType);
     }
 
     public boolean hasNextBlock(){

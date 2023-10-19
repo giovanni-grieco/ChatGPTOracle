@@ -1,6 +1,7 @@
 package it.uniroma3.chatGPT.data;
 
 import it.uniroma3.chatGPT.Application;
+
 import java.nio.file.Path;
 
 public class EntityData extends Data {

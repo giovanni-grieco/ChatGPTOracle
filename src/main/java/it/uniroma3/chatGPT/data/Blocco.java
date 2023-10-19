@@ -11,9 +11,9 @@ public class Blocco {
 
     private List<BlockData> blockData = null;
 
-    private final int type;
+    private final EntityType type;
 
-    public Blocco(String id, List<String> paths, int type){
+    public Blocco(String id, List<String> paths, EntityType type){
         this.id = id;
         this.paths = paths;
         this.type = type;
@@ -37,7 +37,7 @@ public class Blocco {
             this.blockData = new ArrayList<>();
             for(String path : this.paths){
                 String[] split = path.split("/");
-                this.blockData.add(new BlockData(this, split[0], split[1], this.type));
+                this.blockData.add(new BlockData(this, split[0], split[1], type));
             }
         }
         return this.blockData;

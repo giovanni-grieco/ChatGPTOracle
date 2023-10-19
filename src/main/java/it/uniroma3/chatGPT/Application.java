@@ -2,14 +2,17 @@ package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.comando.ComandiFactory;
 import it.uniroma3.chatGPT.data.Entity;
+import it.uniroma3.chatGPT.data.EntityType;
 import it.uniroma3.chatGPT.data.extraction.AlaskaEntityExtractor;
 import it.uniroma3.chatGPT.data.extraction.EntityExtractor;
-import it.uniroma3.chatGPT.data.EntityType;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 
 public class Application {
     public static AppProperties appProperties = null;

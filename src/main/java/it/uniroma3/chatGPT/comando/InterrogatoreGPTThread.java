@@ -1,7 +1,8 @@
 package it.uniroma3.chatGPT.comando;
 
 import it.uniroma3.chatGPT.Application;
-import it.uniroma3.chatGPT.GPT.*;
+import it.uniroma3.chatGPT.GPT.GPTQuery;
+import it.uniroma3.chatGPT.GPT.LLM;
 import it.uniroma3.chatGPT.GPT.chatCompletion.AzureGPT;
 import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.GPT.prompt.PromptBuilder;

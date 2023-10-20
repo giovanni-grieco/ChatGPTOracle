@@ -17,7 +17,7 @@ public class Segmentazione implements Comando {
     @Override
     public void esegui(Application application) throws InterruptedException {
         try {
-            List<Entity> entityList = new ArrayList<>(application.getEntities());
+            List<Entity> entityList = new ArrayList<>(application.getDataset().getEntities());
             List<Prompt> prompts = new ArrayList<>();
             Entity e = entityList.get(1);
             String initialPrompt = "You are an entity extractor. You are given a text and you have to extract the entity from it. Try a find a specific person, object, place, in general entity.";

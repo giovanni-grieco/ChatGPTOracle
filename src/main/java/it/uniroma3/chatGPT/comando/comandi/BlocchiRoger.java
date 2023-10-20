@@ -17,10 +17,6 @@ import java.util.Map;
 
 public class BlocchiRoger implements Comando {
 
-    Map<BlockData, Entity> blockDataEntityMap = new HashMap<>();
-
-
-
     @Override
     public void esegui(Application application) throws InterruptedException, IOException {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();

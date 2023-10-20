@@ -18,7 +18,7 @@ public class AnalisiCompleta implements Comando {
         int numeroDiPromptTotali = new Scanner(System.in).nextInt();
         int percentualePositivi = 0;
         int entityTypes = application.getEntityTypes();
-        List<Entity> entityList = new ArrayList<>(application.getEntities());
+        List<Entity> entityList = new ArrayList<>(application.getDataset().getEntities());
         List<Thread> workerThreads = new ArrayList<>();
         for(EntityType i : EntityType.values()) {
             while(percentualePositivi != 100) {

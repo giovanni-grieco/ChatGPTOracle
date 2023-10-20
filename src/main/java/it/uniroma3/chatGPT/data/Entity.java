@@ -58,4 +58,8 @@ public class Entity {
     public String toString() {
         return "Entity: " + name +"(Type: "+type+")";
     }
+
+    public boolean contains(Data data) {
+        return this.data.contains(data);
+    }
 }

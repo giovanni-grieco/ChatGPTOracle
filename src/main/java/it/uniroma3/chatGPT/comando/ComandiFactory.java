@@ -14,6 +14,7 @@ public class ComandiFactory {
     }
 
     private static String convertiStringToComando(String input){
+        if(input.isBlank() || input.isEmpty()) return "";
         String[] inputSplitted = input.split(" ");
         StringBuilder comando = new StringBuilder(inputSplitted[0].substring(0, 1).toUpperCase() + inputSplitted[0].substring(1));
         for(int i = 1; i < inputSplitted.length; i++){

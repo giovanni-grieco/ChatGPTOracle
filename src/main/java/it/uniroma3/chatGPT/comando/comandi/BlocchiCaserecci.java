@@ -34,7 +34,7 @@ public class BlocchiCaserecci implements Comando {
     @Override
     public void esegui(Application application) throws InterruptedException, IOException {
 
-        List<Entity> entityListAllTypes = new ArrayList<>(application.getEntities());
+        List<Entity> entityListAllTypes = new ArrayList<>(application.getDataset().getEntities());
         List<Entity> entityList = new ArrayList<>();
 
         //filtriamo quelli di tipo 0 (fotocamere)

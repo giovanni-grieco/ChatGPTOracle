@@ -24,7 +24,7 @@ public class InterrogaGpt implements Comando {
     @Override
     public void esegui(Application application) throws InterruptedException{
 
-        List<Entity> entityList = new ArrayList<>(application.getEntities());
+        List<Entity> entityList = new ArrayList<>(application.getDataset().getEntities());
         List<Prompt> prompts = new ArrayList<>();
 
         Scanner keyboardScanner = new Scanner(System.in);

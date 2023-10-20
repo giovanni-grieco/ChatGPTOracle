@@ -14,11 +14,11 @@ public class FiltraDataset implements Comando {
         String path = application.getAppProperties().getDatasetPath()+"/"+application.getAppProperties().getFilteredDataSetFolder();
         System.out.println("Files will be saved at: "+path);
         int filesAmount = 0;
-        for(Entity e: application.getEntities()){
+        for(Entity e: application.getDataset().getEntities()){
             filesAmount += e.getData().size();
         }
         System.out.println("Files to filter: "+filesAmount);
-        for(Entity e : application.getEntities()){
+        for(Entity e : application.getDataset().getEntities()){
             for(Data d : e.getData()){
                 try {
                     String unfilteredText = d.getTextData();

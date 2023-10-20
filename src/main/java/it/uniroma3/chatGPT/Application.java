@@ -1,6 +1,8 @@
 package it.uniroma3.chatGPT;
 
 import it.uniroma3.chatGPT.comando.ComandiFactory;
+import it.uniroma3.chatGPT.data.AlaskaDataset;
+import it.uniroma3.chatGPT.data.Dataset;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityType;
 import it.uniroma3.chatGPT.data.extraction.AlaskaEntityExtractor;
@@ -16,27 +18,17 @@ import java.util.Set;
 
 public class Application {
     public static AppProperties appProperties = null;
-    private final Set<Entity> entities;
+
+    private Dataset dataset;
     private int entityTypes;
 
-    public Application(AppProperties appProperties) {
+    public Application(AppProperties appProperties) throws IOException {
         Application.appProperties = appProperties;
-        this.entities = new HashSet<>();
+        this.dataset = new AlaskaDataset();
     }
 
     public void run() throws IOException {
         this.entityTypes = appProperties.getDatasetFolders().length;
-
-        System.out.println("Extracting entities");
-        for (EntityType type : EntityType.values()) {
-            EntityExtractor extractor = new AlaskaEntityExtractor(type, Path.of(appProperties.getDatasetPath() + "/" + appProperties.getGroundTruthFileNames()[type.getTypeIndex()]));
-            extractor.extractEntitiesFromGroundTruth(entities);
-        }
-        //Stampiamo le entità per controllare
-        for (Entity e : entities) {
-            System.out.println(e);
-        }
-        System.out.println("Entities extracted: " + entities.size());
 
         ComandiFactory comandiFactory = new ComandiFactory();
         String input = "";
@@ -64,12 +56,12 @@ public class Application {
         return appProperties;
     }
 
-    public Set<Entity> getEntities() {
-        return entities;
-    }
-
     public int getEntityTypes() {
         return entityTypes;
+    }
+
+    public Dataset getDataset() {
+        return dataset;
     }
 
     public static void main(String[] args) throws Exception {

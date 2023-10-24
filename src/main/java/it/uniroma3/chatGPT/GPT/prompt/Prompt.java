@@ -7,7 +7,7 @@ public class Prompt {
         this.prompt = prompt;
     }
 
-    public String getPrompt() {
+    public String getTextPrompt() {
         return this.prompt;
     }
 

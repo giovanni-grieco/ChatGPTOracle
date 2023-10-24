@@ -1,7 +1,6 @@
 package it.uniroma3.chatGPT.GPT;
 
 import it.uniroma3.chatGPT.GPT.prompt.Prompt;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,7 @@ public abstract class LLM {
             String answer;
             System.out.println("Answering...");
             int initTime = (int) System.currentTimeMillis();
-            answer = answerQuestionCompletion(prompt.getPrompt(), modelName);
+            answer = answerQuestionCompletion(prompt.getTextPrompt(), modelName);
             int endTime = (int) System.currentTimeMillis();
             return new GPTQuery(answer, modelName, prompt, endTime - initTime);
         } catch (Exception e) {

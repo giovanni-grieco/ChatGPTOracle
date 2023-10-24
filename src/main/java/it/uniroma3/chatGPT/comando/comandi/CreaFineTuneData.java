@@ -39,7 +39,7 @@ public class CreaFineTuneData implements Comando {
 
         for (Prompt prompt : prompts) {
             System.out.println(prompt);
-            filteredPrompts.add(prompt.getPrompt().replaceAll("\"", "''"));
+            filteredPrompts.add(prompt.getTextPrompt().replaceAll("\"", "''"));
         }
 
         for (String prompt : filteredPrompts) {

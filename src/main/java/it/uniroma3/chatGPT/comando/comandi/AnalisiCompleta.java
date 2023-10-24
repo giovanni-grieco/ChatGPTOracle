@@ -5,7 +5,6 @@ import it.uniroma3.chatGPT.comando.Comando;
 import it.uniroma3.chatGPT.comando.InterrogatoreGPTThread;
 import it.uniroma3.chatGPT.data.Entity;
 import it.uniroma3.chatGPT.data.EntityType;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

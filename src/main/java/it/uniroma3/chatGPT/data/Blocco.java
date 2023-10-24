@@ -29,7 +29,7 @@ public class Blocco {
 
     @Override
     public String toString(){
-        return this.id+": "+this.paths.toString();
+        return this.id;
     }
 
     public List<BlockData> makeDataList() {

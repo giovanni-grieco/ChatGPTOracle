@@ -77,6 +77,6 @@ public class BlockDataExtractor {
     }
 
     public String filtraPath(String string){
-        return string.split("/file:/Users/rvoyat/git/weir/dataset/alaska/camera/")[1].replaceAll(".json",".html");
+        return string.split("/file:/Users/rvoyat/git/weir/dataset/alaska/camera/")[1].replaceAll(".json","");
     }
 }

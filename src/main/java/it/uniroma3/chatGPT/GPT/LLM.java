@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class LLM {
-    protected static String[] models ={"text-davinci-003","curie:ft-personal-2023-08-22-20-39-20","curie:ft-personal-2023-08-22-20-10-51" ,"curie:ft-personal-2023-08-22-19-32-20", "curie:ft-personal-2023-08-19-19-36-38"};
+
+    public static final String STANDARD_INITIALIZATION_PROMPT = "You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.";
     protected final static String COMPLETION_URL_API = "https://api.openai.com/v1/completions";
 
     protected final static String CHAT_URL_API = "https://api.openai.com/v1/chat/completions";

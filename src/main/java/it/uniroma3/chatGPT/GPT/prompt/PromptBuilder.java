@@ -1,7 +1,6 @@
 package it.uniroma3.chatGPT.GPT.prompt;
 
 import it.uniroma3.chatGPT.data.Entity;
-
 import java.util.List;
 import java.util.Random;
 

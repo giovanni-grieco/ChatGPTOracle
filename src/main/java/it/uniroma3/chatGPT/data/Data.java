@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,7 +41,7 @@ public abstract class Data {
     public abstract Path toFullPath();
 
     public String getTitle(){
-        return Cache.getTitle(this);
+        return Cache.getTitle(this).replaceAll("\""," inches");
     }
 
     public String getTextData() throws IOException {
@@ -68,6 +69,22 @@ public abstract class Data {
     @Override
     public String toString(){
         return "Abstract Data: "+this.getDomain()+"/"+this.getId();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Data data)) return false;
+
+        if (!domain.equals(data.domain)) return false;
+        return id.equals(data.id);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = domain.hashCode();
+        result = 31 * result + id.hashCode();
+        return result;
     }
 
     public static class Cache {

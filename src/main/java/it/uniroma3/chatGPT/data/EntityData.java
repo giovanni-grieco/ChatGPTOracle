@@ -21,7 +21,7 @@ public class EntityData extends Data {
 
     @Override
     public String toString() {
-        return "Data: "+this.getDomain() + "/" + this.getId();
+        return "Entity data: "+this.getDomain() + "/" + this.getId();
     }
 
 }

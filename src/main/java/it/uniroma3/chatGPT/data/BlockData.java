@@ -21,7 +21,7 @@ public class BlockData extends Data {
 
     @Override
     public Path toFullPath() {
-        return Path.of(this.path+"/"+this.getDomain()+"/"+this.getId());
+        return Path.of(this.path+"/"+this.getDomain()+"/"+this.getId()+".html");
     }
 
     public Blocco getBlocco(){

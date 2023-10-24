@@ -15,7 +15,7 @@ public class ClassificationPrompt extends Prompt {
 
     @Override
     public String toString(){
-        String output =  "Prompt: "+this.getPrompt()+"\n"+" Expected result: ";
+        String output =  "Prompt: "+this.getTextPrompt()+"\n"+" Expected result: ";
         if(isPositive){
             output += "yes";
         }else{

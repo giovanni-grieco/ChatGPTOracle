@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class AzureGPT extends ChatGPT {
+public class AzureGPT extends GPT {
 
     private final String endpoint = System.getenv("AZURE_ENDPOINT")+"/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-05-15";
 
@@ -36,9 +36,19 @@ public class AzureGPT extends ChatGPT {
             conn.getOutputStream().write(jsonBody.getBytes());
             // Response from AzureGPT
             String outputRaw = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).orElse("");
-            return extractMessageFromJSONResponse(outputRaw,10);
+            return this.extractMessageFromJSONResponse(outputRaw);
         }catch (Exception e){
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    protected String extractMessageFromJSONResponse(String response) {
+        int startIndex = 10;
+        int start = response.indexOf("content") + startIndex;
+        int end = response.indexOf("\"", start);
+        return response.substring(start, end);
+    }
+
+
 }

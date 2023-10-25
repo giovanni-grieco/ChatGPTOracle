@@ -10,15 +10,13 @@ import java.net.URL;
 /**
  * Questa classe è l'implementazione dell'interfaccia LLM che permette di processare una lista di prompt usando l'API di ChatGPT di OpenAI.
  */
-public class ChatGPT extends LLM {
-
-    final String assistantContent;
+public class ChatGPT extends GPT {
 
     public ChatGPT(String apiKey, String assistantContent) {
-        super(apiKey);
-        this.assistantContent = assistantContent;
+        super(apiKey, assistantContent);
     }
 
+    @Override
     public String answerQuestionCompletion(String prompt, String modelName) throws IOException {
         String myToken = "Bearer " + " " + privateKey;
         HttpURLConnection conn = (HttpURLConnection) new URL(CHAT_URL_API).openConnection();
@@ -31,10 +29,12 @@ public class ChatGPT extends LLM {
         conn.getOutputStream().write(jsonBody.getBytes());
         // Response from ChatGPT
         String output = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).orElse("");
-        return extractMessageFromJSONResponse(output,11);
+        return extractMessageFromJSONResponse(output);
     }
 
-    static String extractMessageFromJSONResponse(String response, int startIndex) {
+    @Override
+    protected String extractMessageFromJSONResponse(String response) {
+        int startIndex = 11;
         int start = response.indexOf("content") + startIndex;
         int end = response.indexOf("\"", start);
         return response.substring(start, end);

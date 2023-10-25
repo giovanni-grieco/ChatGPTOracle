@@ -4,6 +4,7 @@ import it.uniroma3.chatGPT.Application;
 import it.uniroma3.chatGPT.GPT.GPTQuery;
 import it.uniroma3.chatGPT.GPT.LLM;
 import it.uniroma3.chatGPT.GPT.chatCompletion.AzureGPT;
+import it.uniroma3.chatGPT.GPT.prompt.ClassificationPrompt;
 import it.uniroma3.chatGPT.GPT.prompt.Prompt;
 import it.uniroma3.chatGPT.GPT.prompt.PromptBuilder;
 import it.uniroma3.chatGPT.GPT.score.Score;
@@ -93,6 +94,17 @@ public class BlockingOpentriage implements Comando {
             LLM llm = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
             List<GPTQuery> answers = llm.processPrompts(this.blockPromptMap.get(b), "gpt-35-turbo", 0);
             this.blockQueryMap.put(b, answers);
+            XSSFSheet promptSheet = (XSSFSheet) workbook.createSheet("Blocco "+b.getId());
+            XSSFRow row0Prompt = promptSheet.createRow(0);
+            row0Prompt.createCell(0).setCellValue("Prompt");
+            row0Prompt.createCell(1).setCellValue("Risposta");
+            row0Prompt.createCell(2).setCellValue("Ground Truth Linkage");
+            for(GPTQuery query : answers){
+                XSSFRow promptRow = promptSheet.createRow(promptSheet.getLastRowNum()+1);
+                promptRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
+                promptRow.createCell(1).setCellValue(query.getRisposta());
+                promptRow.createCell(2).setCellValue(((ClassificationPrompt)query.getPrompt()).isPositive());
+            }
             Score score = ScoreCalculator.calculateScore(answers);
             this.blockScoreMap.put(b, score);
             nextRow.createCell(0).setCellValue(b.getId());
@@ -110,9 +122,5 @@ public class BlockingOpentriage implements Comando {
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
-        /*LLM llm = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
-        var answers = llm.processPrompts(prompts, "gpt-35-turbo", 0);
-        Score score = ScoreCalculator.calculateScore(answers);
-        System.out.println(score);*/
     }
 }

@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -29,9 +28,9 @@ import java.util.Map;
 
 public class BlockingOpentriage implements Comando {
 
-    private Map<Blocco, List<Prompt>> blockPromptMap;
-    private Map<Blocco, List<GPTQuery>> blockQueryMap;
-    private Map<Blocco, Score> blockScoreMap;
+    private final Map<Blocco, List<Prompt>> blockPromptMap;
+    private final Map<Blocco, List<GPTQuery>> blockQueryMap;
+    private final Map<Blocco, Score> blockScoreMap;
 
     public BlockingOpentriage(){
         this.blockPromptMap = new HashMap<>();
@@ -41,7 +40,6 @@ public class BlockingOpentriage implements Comando {
 
     @Override
     public void esegui(Application application) throws InterruptedException, IOException {
-
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
         String datasetPath = datasetFolderPath + "/" + "blockpages_camera0_15.csv";
         BlockDataExtractor blockEE = new BlockDataExtractor(datasetPath, EntityType.CAMERA);

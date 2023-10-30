@@ -1,5 +1,9 @@
 1)[FATTO] fare segmentazione della pagina e chiedere di estrarre l'entità [NON FUNZIONA BENE]
 2)[FATTO] fare test al variare delle percentuali di casi positivi e negativi (Su title o su segmentazione della pagina? xpath non desiderato) [FINITO e FUNZIONA]
 3)[PROVATO] Fare blocchi con distanza testuale nel campo title, e poi fare l'interrogazione su di essi. [NON FUNZIONA, USERO' I BLOCCHI DATI DA ROGER]
-4) Aspettare il dataset di roger su informazioni che vengono ritenute blocchi
+4)[FATTO] Aspettare il dataset di roger su informazioni che vengono ritenute blocchi
 5) Aspettare il dataset di roger e fare varie iterazioni sui diversi pesi
+
+
+6) Trovare relazione tra distanza testuale media e Fscore di chatGPT
+7) Aspettare il dataset di roger e fare varie iterazioni sui diversi pesi e sui blocchi (attendere roger)

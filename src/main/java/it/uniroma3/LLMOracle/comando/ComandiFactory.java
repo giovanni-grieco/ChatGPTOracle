@@ -1,14 +1,16 @@
 package it.uniroma3.LLMOracle.comando;
 
 import it.uniroma3.LLMOracle.utils.IntrospectionUtils;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class ComandiFactory {
+
+    private final String comandiPackage = "it.uniroma3.LLMOracle.comando.comandi";
+
     public Comando makeComando(String comando) throws ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Class<?> classeComando =  Class.forName("it.uniroma3.chatGPT.comando.comandi."+convertiStringToComando(comando));
+        Class<?> classeComando =  Class.forName(comandiPackage+"."+convertiStringToComando(comando));
         Constructor<?> costruttoreComando = classeComando.getConstructors()[0];
         return (Comando) costruttoreComando.newInstance();
     }
@@ -33,7 +35,8 @@ public class ComandiFactory {
     }
 
     public String getComandi() {
-        List<Class<?>> classiComando = IntrospectionUtils.getClassesInPackage("it.uniroma3.chatGPT.comando.comandi");
+
+        List<Class<?>> classiComando = IntrospectionUtils.getClassesInPackage(comandiPackage);
         StringBuilder sb = new StringBuilder();
         for(int i =0;i<classiComando.size()-1;i++){
             Class<?> c = classiComando.get(i);

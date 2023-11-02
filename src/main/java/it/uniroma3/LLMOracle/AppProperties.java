@@ -84,6 +84,7 @@ public class AppProperties {
         if(this.datasetFoldersRaw==null || this.datasetFoldersRaw.isEmpty() || this.datasetFoldersRaw.isBlank()) throw new InvalidPropertiesException("Dataset folders not specified");
         if(this.groundTruthFileNamesRaw==null || this.groundTruthFileNamesRaw.isEmpty() || this.groundTruthFileNamesRaw.isBlank()) throw new InvalidPropertiesException("Ground truth files not specified");
         if(this.filteredDataSetFolder == null || this.filteredDataSetFolder.isEmpty() || this.filteredDataSetFolder.isBlank()) throw new InvalidPropertiesException("Filtered dataset folder not specified");
+        if(this.LLMImplementationClassName == null || this.LLMImplementationClassName.isEmpty() || this.LLMImplementationClassName.isBlank()) throw new InvalidPropertiesException("LLM implementation class name not specified.\nTo fix this issue add the LLM_IMPLEMENTATION_CLASS_NAME field to the app.properties file\nFor example: LLM_IMPLEMENTATION_CLASS_NAME=it.uniroma3.LLMOracle.GPT.chatCompletion.AzureGPT");
     }
 
     public void validateSecondStage() throws InvalidPropertiesException {

@@ -10,13 +10,10 @@ public class BlockData extends Data {
 
     private final String path;
 
-    private final EntityType type;
-
     public BlockData(Blocco blocco, String domain, String id, EntityType type){
         super(domain, id);
         this.blocco = blocco;
-        this.type = type;
-        this.path = Application.appProperties.getDatasetPath()+"/"+Application.appProperties.getDatasetFolders()[this.type.getTypeIndex()];
+        this.path = Application.appProperties.getDatasetPath()+"/"+Application.appProperties.getDatasetFolders()[type.getTypeIndex()];
     }
 
     @Override

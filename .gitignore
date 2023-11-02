@@ -37,3 +37,5 @@ build/
 ### Mac OS ###
 .DS_Store
 /out/artifacts/
+/out/artifacts/Tirocinio_jar/
+/out/artifacts/Tirocinio_jar/

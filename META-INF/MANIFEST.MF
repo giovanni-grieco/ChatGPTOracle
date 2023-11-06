@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: it.uniroma3.LLMOracle.Application
+Class-Path: .
 

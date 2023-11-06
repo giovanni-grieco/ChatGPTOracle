@@ -94,7 +94,7 @@ public class BlockingOpentriage implements Comando {
                     }
                 }
             }
-            List<Prompt> sampledPrompts = new Sampler<>(5, prompts).sampleCollection();
+            List<Prompt> sampledPrompts = new Sampler<>(1000, prompts).sampleCollection();
             this.blockPromptMap.put(blocco, sampledPrompts);
         }
         //calcolo le distanze e similarità medie

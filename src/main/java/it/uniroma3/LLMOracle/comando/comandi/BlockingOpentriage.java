@@ -98,19 +98,7 @@ public class BlockingOpentriage implements Comando {
             this.blockPromptMap.put(blocco, sampledPrompts);
         }
         //calcolo le distanze e similarità medie
-        for(Blocco b: this.blockPromptMap.keySet()){
-            List<Prompt> prompts = this.blockPromptMap.get(b);
-            int levenshteinSum = 0;
-            double sum = 0;
-            for(Prompt p: prompts){
-                sum += this.promptSimilarityMap.get(p);
-                levenshteinSum += this.promptLevenshteinDistanceMap.get(p);
-            }
-            double levenshteinAverage = (double) levenshteinSum /prompts.size();
-            double average = sum/prompts.size();
-            this.blockAverageTextCosineSimilarityMap.put(b, average);
-            this.blockLevenshteinDistanceMap.put(b, levenshteinAverage);
-        }
+        this.initialiseTextDistanceMaps();
         System.out.println("Inizio interrogazione...");
         Workbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = (XSSFSheet) workbook.createSheet("OpenTriage blocking");
@@ -160,5 +148,21 @@ public class BlockingOpentriage implements Comando {
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
+    }
+
+    public void initialiseTextDistanceMaps(){
+        for(Blocco b: this.blockPromptMap.keySet()){
+            List<Prompt> prompts = this.blockPromptMap.get(b);
+            int levenshteinSum = 0;
+            double sum = 0;
+            for(Prompt p: prompts){
+                sum += this.promptSimilarityMap.get(p);
+                levenshteinSum += this.promptLevenshteinDistanceMap.get(p);
+            }
+            double levenshteinAverage = (double) levenshteinSum /prompts.size();
+            double average = sum/prompts.size();
+            this.blockAverageTextCosineSimilarityMap.put(b, average);
+            this.blockLevenshteinDistanceMap.put(b, levenshteinAverage);
+        }
     }
 }

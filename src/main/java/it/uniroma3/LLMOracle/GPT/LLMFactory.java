@@ -13,7 +13,7 @@ public class LLMFactory {
         try{
             return (LLM) Class.forName(LLMImplementationClassName).getConstructor(String.class).newInstance(STANDARD_ASSISTANT_CONTENT);
         }catch(Exception e){
-            throw new GPTException(e.getMessage(), e.getCause());
+            throw new GPTException("LLM Class implementation is located in a different package or is named differently, check program properties to correct the class name.", e.getCause());
         }
     }
 

@@ -14,6 +14,8 @@ import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
 import it.uniroma3.LLMOracle.data.extraction.BlockDataExtractor;
 import it.uniroma3.LLMOracle.utils.Sampler;
+import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
+import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -29,14 +31,27 @@ import java.util.Map;
 
 public class BlockingOpentriage implements Comando {
 
+
+    //Si, sembra soffrire di mappite però non posso assegnare questa responsabilità a una specifica classe esistente
     private final Map<Blocco, List<Prompt>> blockPromptMap;
     private final Map<Blocco, List<GPTQuery>> blockQueryMap;
     private final Map<Blocco, Score> blockScoreMap;
+    private final Map<Prompt, Double> promptSimilarityMap;
+
+    private final Map<Prompt, Integer> promptLevenshteinDistanceMap;
+
+    private final Map<Blocco, Double> blockAverageTextCosineSimilarityMap;
+
+    private final Map<Blocco, Double> blockLevenshteinDistanceMap;
 
     public BlockingOpentriage(){
         this.blockPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
         this.blockScoreMap = new HashMap<>();
+        this.promptSimilarityMap = new HashMap<>();
+        this.promptLevenshteinDistanceMap = new HashMap<>();
+        this.blockAverageTextCosineSimilarityMap = new HashMap<>();
+        this.blockLevenshteinDistanceMap = new HashMap<>();
     }
 
     @Override
@@ -51,13 +66,11 @@ public class BlockingOpentriage implements Comando {
             List<Prompt> prompts = new ArrayList<>();
             Blocco blocco = blockEE.nextBlock();
             blockData = blocco.makeDataList();
-            //System.out.println(blockData);
             for (int i = 0; i < blockData.size(); i++) {
                 if(blockData.get(i).getTitle().isEmpty() || blockData.get(i).getTitle().isBlank()){
                     continue;
                 }
                 Entity e1 = dataset.getEntityByData(blockData.get(i));
-                //System.out.println(e1);
                 for (int j = i; j < blockData.size(); j++) {
                     if(blockData.get(j).getTitle().isEmpty() || blockData.get(j).getTitle().isBlank()){
                         continue;
@@ -65,16 +78,38 @@ public class BlockingOpentriage implements Comando {
                     Entity e2 = dataset.getEntityByData(blockData.get(j));
                     //System.out.println(e2);
                     if (e1 != null && e2 != null) {
+                        Prompt prompt = null;
+                        String title1 = blockData.get(i).getTitle();
+                        String title2 = blockData.get(j).getTitle();
+                        Double titleTextDistance = CosineSimilarityText.apply(title1, title2);
+                        Integer titleLevenshteinDistance = LevenshteinDistance.calculate(title1, title2);
                         if (e1.equals(e2)) {
-                            prompts.add(PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(blockData.get(i).getTitle(), blockData.get(j).getTitle(), true));
+                            prompt = PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(title1, title2, true);
                         } else {
-                            prompts.add(PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(blockData.get(i).getTitle(), blockData.get(j).getTitle(), false));
+                            prompt = PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(title1, title2, false);
                         }
+                        prompts.add(prompt);
+                        this.promptSimilarityMap.put(prompt, titleTextDistance);
+                        this.promptLevenshteinDistanceMap.put(prompt, titleLevenshteinDistance);
                     }
                 }
             }
-            List<Prompt> sampledPrompts = new Sampler<Prompt>(1000, prompts).sampleCollection();
+            List<Prompt> sampledPrompts = new Sampler<>(5, prompts).sampleCollection();
             this.blockPromptMap.put(blocco, sampledPrompts);
+        }
+        //calcolo le distanze e similarità medie
+        for(Blocco b: this.blockPromptMap.keySet()){
+            List<Prompt> prompts = this.blockPromptMap.get(b);
+            int levenshteinSum = 0;
+            double sum = 0;
+            for(Prompt p: prompts){
+                sum += this.promptSimilarityMap.get(p);
+                levenshteinSum += this.promptLevenshteinDistanceMap.get(p);
+            }
+            double levenshteinAverage = (double) levenshteinSum /prompts.size();
+            double average = sum/prompts.size();
+            this.blockAverageTextCosineSimilarityMap.put(b, average);
+            this.blockLevenshteinDistanceMap.put(b, levenshteinAverage);
         }
         System.out.println("Inizio interrogazione...");
         Workbook workbook = new XSSFWorkbook();
@@ -85,6 +120,8 @@ public class BlockingOpentriage implements Comando {
         row0.createCell(2).setCellValue("TN");
         row0.createCell(3).setCellValue("FP");
         row0.createCell(4).setCellValue("FN");
+        row0.createCell(5).setCellValue("average text cosine similarity");
+        row0.createCell(6).setCellValue("Levenshtein distance");
         for(Blocco b: this.blockPromptMap.keySet()){
             XSSFRow nextRow = sheet.createRow(sheet.getLastRowNum()+1);
             System.out.print(b+": ");
@@ -111,6 +148,8 @@ public class BlockingOpentriage implements Comando {
             nextRow.createCell(2).setCellValue(score.getTN());
             nextRow.createCell(3).setCellValue(score.getFP());
             nextRow.createCell(4).setCellValue(score.getFN());
+            nextRow.createCell(5).setCellValue(this.blockAverageTextCosineSimilarityMap.get(b));
+            nextRow.createCell(6).setCellValue(this.blockLevenshteinDistanceMap.get(b));
             System.out.println(score);
         }
         System.out.println("Interrogazione finita.");

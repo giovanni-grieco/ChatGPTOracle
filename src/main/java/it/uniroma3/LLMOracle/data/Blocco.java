@@ -2,16 +2,21 @@ package it.uniroma3.LLMOracle.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Blocco {
 
     private final String id;
 
-    private final List<String> paths;
+    private  List<String> paths;
 
     private List<BlockData> blockData = null;
 
-    private final EntityType type;
+    private  EntityType type;
+
+    public Blocco(String id){
+        this.id = id;
+    }
 
     public Blocco(String id, List<String> paths, EntityType type){
         this.id = id;
@@ -41,5 +46,21 @@ public class Blocco {
             }
         }
         return this.blockData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Blocco blocco)) return false;
+
+        if (!Objects.equals(id, blocco.id)) return false;
+        return type == blocco.type;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
     }
 }

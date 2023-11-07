@@ -3,119 +3,137 @@ package it.uniroma3.LLMOracle.comando.comandi;
 import it.uniroma3.LLMOracle.Application;
 import it.uniroma3.LLMOracle.GPT.GPTQuery;
 import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
+import it.uniroma3.LLMOracle.GPT.prompt.PromptBuilder;
 import it.uniroma3.LLMOracle.GPT.score.Score;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
-import it.uniroma3.LLMOracle.data.extraction.BlockDataExtractor;
+import it.uniroma3.LLMOracle.utils.AddToMapList;
+import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
+import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public class FewShotsBlocking implements Comando {
 
+    //Si, sembra soffrire di mappite però non posso assegnare questa responsabilità a una specifica classe esistente
     private final Map<Blocco, List<Prompt>> blockPromptMap;
+
+    private final Map<Blocco, List<Prompt>> blockTrainPromptMap;
+
     private final Map<Blocco, List<GPTQuery>> blockQueryMap;
     private final Map<Blocco, Score> blockScoreMap;
+    private final Map<Prompt, Double> promptSimilarityMap;
 
-    public FewShotsBlocking(){
+    private final Map<Prompt, Integer> promptLevenshteinDistanceMap;
+
+    private final Map<Blocco, Double> blockAverageTextCosineSimilarityMap;
+
+    private final Map<Blocco, Double> blockLevenshteinDistanceMap;
+
+    public FewShotsBlocking() {
         this.blockPromptMap = new HashMap<>();
+        this.blockTrainPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
         this.blockScoreMap = new HashMap<>();
+        this.promptSimilarityMap = new HashMap<>();
+        this.promptLevenshteinDistanceMap = new HashMap<>();
+        this.blockAverageTextCosineSimilarityMap = new HashMap<>();
+        this.blockLevenshteinDistanceMap = new HashMap<>();
     }
 
     @Override
     public void esegui(Application application) throws IOException {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
-        String datasetPath = datasetFolderPath + "/" + "blockpages_camera0_15.csv";
-        BlockDataExtractor blockEE = new BlockDataExtractor(datasetPath, EntityType.CAMERA);
-        Dataset dataset = application.getDataset();
-        List<BlockData> blockDataList;
+        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
+        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";
+        BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
+        BufferedReader trainsetReader = new BufferedReader(new FileReader(trainsetPath));
+        this.populatePromptMaps(datasetReader, this.blockPromptMap);
+        this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
+        datasetReader.close();
+        trainsetReader.close();
+        //System.out.println(blockPromptMap);
+        //System.out.println(blockTrainPromptMap);
+        //Chiediamo all'utente se vuole fare few shot learning su tutto il dominio o per blocco
+        Scanner keyboardScanner = new Scanner(System.in);
+        System.out.println("Vuoi fare few shot learning su tutto il dominio (0) o per blocco(1)?");
+        int choice = keyboardScanner.nextInt();
+        while (choice != 0 && choice != 1) {
+            System.out.println("Inserisci un valore valido");
+            System.out.println("Vuoi fare few shot learning su tutto il dominio (0) o per blocco(1)?");
+            choice = keyboardScanner.nextInt();
+        }
+        if (choice == 0) {
+            this.domainFewShotPrompting();
+        } else {
+            this.blockFewShotPrompting();
+        }
+
     }
 
+    private void domainFewShotPrompting() {
+        List<Prompt> learningPromptList = new ArrayList<>();
+        //Estraiamo a caso 5 blocchi e da questi 5 blocchi estraiamo a caso 1 prompt per blocco
+        Random random = new Random();
+        List<Blocco> blockList = new ArrayList<>(this.blockPromptMap.keySet());
+        for (int i = 0; i < 5; i++) {
+            int randomNumber = random.nextInt();
+            randomNumber = Math.abs(randomNumber);
+            randomNumber = randomNumber % this.blockPromptMap.size();
+            Blocco b = blockList.get(randomNumber);
+            List<Prompt> promptList = this.blockPromptMap.get(b);
+            int anotherRandomNumber = random.nextInt();
+            anotherRandomNumber = Math.abs(anotherRandomNumber);
+            anotherRandomNumber = anotherRandomNumber % promptList.size();
+            Prompt p = promptList.get(anotherRandomNumber);
+            learningPromptList.add(p);
+        }
+        System.out.println(learningPromptList);
+    }
 
-    /*@Override
-    public void esegui(Application application) throws InterruptedException, IOException {
-        String datasetFolderPath = application.getAppProperties().getDatasetPath();
-        String datasetPath = datasetFolderPath + "/" + "blockpages_camera0_15.csv";
-        BlockDataExtractor blockEE = new BlockDataExtractor(datasetPath, EntityType.CAMERA);
-        Dataset dataset = application.getDataset();
-        List<BlockData> blockData;
-        System.out.println("Carico i blocchi...");
-        while (blockEE.hasNextBlock()) {
-            List<Prompt> prompts = new ArrayList<>();
-            Blocco blocco = blockEE.nextBlock();
-            blockData = blocco.makeDataList();
-            //System.out.println(blockData);
-            for (int i = 0; i < blockData.size(); i++) {
-                if(blockData.get(i).getTitle().isEmpty() || blockData.get(i).getTitle().isBlank()){
-                    continue;
-                }
-                Entity e1 = dataset.getEntityByData(blockData.get(i));
-                //System.out.println(e1);
-                for (int j = i; j < blockData.size(); j++) {
-                    if(blockData.get(j).getTitle().isEmpty() || blockData.get(j).getTitle().isBlank()){
-                        continue;
-                    }
-                    Entity e2 = dataset.getEntityByData(blockData.get(j));
-                    //System.out.println(e2);
-                    if (e1 != null && e2 != null) {
-                        if (e1.equals(e2)) {
-                            prompts.add(PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(blockData.get(i).getTitle(), blockData.get(j).getTitle(), true));
-                        } else {
-                            prompts.add(PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(blockData.get(i).getTitle(), blockData.get(j).getTitle(), false));
-                        }
-                    }
-                }
-            }
-            List<Prompt> sampledPrompts = new Sampler<Prompt>(1000, prompts).sampleCollection();
-            this.blockPromptMap.put(blocco, sampledPrompts);
+    private void blockFewShotPrompting() {
+
+        for(Blocco block : this.blockPromptMap.keySet()){
+            //Calcoliamo la media della similarità tra i testi dei prompt del blocco
+            double averageTextCosineSimilarity = this.calculateAverageBlockCosineSimilarity(block);
+            this.blockAverageTextCosineSimilarityMap.put(block, averageTextCosineSimilarity);
+            //Calcoliamo la media della similarità tra i testi dei prompt del blocco
+            double averageLevenshteinDistance = this.calculateAverageBlockLevenshteinDistance(block);
+            this.blockLevenshteinDistanceMap.put(block, averageLevenshteinDistance);
         }
-        System.out.println("Inizio interrogazione...");
-        Workbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = (XSSFSheet) workbook.createSheet("OpenTriage blocking");
-        XSSFRow row0 = sheet.createRow(0);
-        row0.createCell(0).setCellValue("Blocco");
-        row0.createCell(1).setCellValue("TP");
-        row0.createCell(2).setCellValue("TN");
-        row0.createCell(3).setCellValue("FP");
-        row0.createCell(4).setCellValue("FN");
-        for(Blocco b: this.blockPromptMap.keySet()){
-            XSSFRow nextRow = sheet.createRow(sheet.getLastRowNum()+1);
-            System.out.print(b+": ");
-            System.out.println(this.blockPromptMap.get(b).size());
-            //iniziamo l'interrogazione
-            LLM llm = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
-            List<GPTQuery> answers = llm.processPrompts(this.blockPromptMap.get(b), "gpt-35-turbo", 0);
-            this.blockQueryMap.put(b, answers);
-            XSSFSheet promptSheet = (XSSFSheet) workbook.createSheet("Blocco "+b.getId());
-            XSSFRow row0Prompt = promptSheet.createRow(0);
-            row0Prompt.createCell(0).setCellValue("Prompt");
-            row0Prompt.createCell(1).setCellValue("Risposta");
-            row0Prompt.createCell(2).setCellValue("Ground Truth Linkage");
-            for(GPTQuery query : answers){
-                XSSFRow promptRow = promptSheet.createRow(promptSheet.getLastRowNum()+1);
-                promptRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
-                promptRow.createCell(1).setCellValue(query.getRisposta());
-                promptRow.createCell(2).setCellValue(((ClassificationPrompt)query.getPrompt()).isPositive());
-            }
-            Score score = ScoreCalculator.calculateScore(answers);
-            this.blockScoreMap.put(b, score);
-            nextRow.createCell(0).setCellValue(b.getId());
-            nextRow.createCell(1).setCellValue(score.getTP());
-            nextRow.createCell(2).setCellValue(score.getTN());
-            nextRow.createCell(3).setCellValue(score.getFP());
-            nextRow.createCell(4).setCellValue(score.getFN());
-            System.out.println(score);
+
+    }
+
+    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap) throws IOException {
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            String[] columns = line.split(";");
+            Blocco b = new Blocco(columns[0]);
+            String textA = columns[1];
+            String textB = columns[2];
+            Prompt prompt = PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(textA, textB, Boolean.parseBoolean(columns[3]));
+            this.promptLevenshteinDistanceMap.put(prompt, LevenshteinDistance.calculate(textA, textB));
+            this.promptSimilarityMap.put(prompt, CosineSimilarityText.apply(textA, textB));
+            AddToMapList.addToMapList(b, prompt, blockPromptMap);
         }
-        System.out.println("Interrogazione finita.");
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
-        String dateAndTime = date +"_"+ time.getHour()+ "_"+ time.getMinute();
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/"+"OpenTriageBlocking"+"-"+dateAndTime+".xlsx");
-        workbook.write(fileOut);
-        fileOut.close();
-        workbook.close();
-    }*/
+    }
+
+    private double calculateAverageBlockLevenshteinDistance(Blocco b) {
+        double average = 0;
+        for (Prompt p : this.blockPromptMap.get(b)) {
+            average += this.promptLevenshteinDistanceMap.get(p);
+        }
+        average /= this.blockPromptMap.get(b).size();
+        return average;
+    }
+
+    private double calculateAverageBlockCosineSimilarity(Blocco b) {
+        double average = 0;
+        for (Prompt p : this.blockPromptMap.get(b)) {
+            average += this.promptSimilarityMap.get(p);
+        }
+        average /= this.blockPromptMap.get(b).size();
+        return average;
+    }
 }

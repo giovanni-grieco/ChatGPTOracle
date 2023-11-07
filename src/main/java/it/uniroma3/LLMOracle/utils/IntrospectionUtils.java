@@ -12,11 +12,10 @@ public class IntrospectionUtils {
 
     private static Boolean isJarExecution = null;
 
-    private static boolean checkJarExecution() {
+    public static boolean checkJarExecution() {
         if (isJarExecution == null) {
             isJarExecution = IntrospectionUtils.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm().endsWith(".jar") || IntrospectionUtils.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm().endsWith(".exe");
         }
-        System.out.println("isJarExecution: " + isJarExecution);
         return isJarExecution;
     }
 

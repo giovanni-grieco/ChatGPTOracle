@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Application {
     public static AppProperties appProperties = null;
 
-    private Dataset dataset;
+    private final Dataset dataset;
     private int entityTypes;
 
     public Application(AppProperties appProperties) throws IOException {

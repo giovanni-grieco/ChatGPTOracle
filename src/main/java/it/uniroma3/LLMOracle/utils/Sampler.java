@@ -7,7 +7,6 @@ import java.util.List;
 public class Sampler <T>{
 
     private final int numberOfSamples;
-    private Collection<T> collection;
 
     private final List<T> unsampledList;
 

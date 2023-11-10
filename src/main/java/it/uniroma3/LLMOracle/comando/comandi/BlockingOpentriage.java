@@ -13,6 +13,7 @@ import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
 import it.uniroma3.LLMOracle.data.extraction.BlockDataExtractor;
+import it.uniroma3.LLMOracle.utils.AddToMapList;
 import it.uniroma3.LLMOracle.utils.Sampler;
 import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
 import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
@@ -183,25 +184,17 @@ public class BlockingOpentriage implements Comando {
         private void extractBlocks() throws IOException {
             FileReader fr = new FileReader(groundTruthPath);
             Iterable<CSVRecord> records = CSVFormat.Builder.create().setHeader().setSkipHeaderRecord(true).build().parse(fr);
-            for(CSVRecord record : records){
+            for (CSVRecord record : records) {
                 String row = record.get(0);
                 String[] columns = row.split(";");
                 String block = columns[0];
-                for(int i=1; i<columns.length; i++){
+                for (int i = 1; i < columns.length; i++) {
                     String unfilteredPath = columns[i];
                     String path = filtraPath(unfilteredPath);
-                    addToMapList(block, path, block2PathList);
+                    AddToMapList.addToMapList(block, path, block2PathList);
                 }
             }
             fr.close();
-        }
-
-        private <E,T> void addToMapList(T key, E value, Map<T, List<E>> map){
-            if(map.containsKey(key)){
-                map.get(key).add(value);
-            }else{
-                map.put(key, new ArrayList<>(List.of(value)));
-            }
         }
 
         @Override

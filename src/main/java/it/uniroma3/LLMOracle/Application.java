@@ -20,9 +20,8 @@ public class Application {
         this.dataset = new AlaskaDataset();
     }
 
-    public void run() throws IOException {
+    public void run(){
         this.entityTypes = appProperties.getDatasetFolders().length;
-
         ComandiFactory comandiFactory = new ComandiFactory();
         String input = "";
         Scanner scanner = new Scanner(System.in);
@@ -63,12 +62,10 @@ public class Application {
         String datasetPath = appProperties.getDatasetPath();
         String[] datasetFolders = appProperties.getDatasetFolders();
         String[] groundTruthFileNames = appProperties.getGroundTruthFileNames();
-
         System.out.println("API Key: " + APIKEY);
         System.out.println("Dataset Path: " + datasetPath);
         System.out.println("Dataset Folder: " + Arrays.toString(datasetFolders));
         System.out.println("Ground Truth File Name: " + Arrays.toString(groundTruthFileNames));
-
         Application app = new Application(appProperties);
         app.run();
     }

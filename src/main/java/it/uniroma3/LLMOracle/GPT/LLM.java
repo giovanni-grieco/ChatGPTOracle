@@ -26,15 +26,17 @@ public abstract class LLM {
         List<GPTQuery> outputs = new ArrayList<>();
         for (Prompt prompt : prompts) {
             System.out.println("Asking: " + prompt.toString());
+            int querytime = 0;
             try {
                 GPTQuery answer = this.processPrompt(prompt, modelName);
                 outputs.add(answer);
                 System.out.println("Answer: " + answer.getRisposta());
+                querytime = answer.getTempoDiRisposta();
             } catch (GPTException e) {
                 System.out.println("Error: " + e.getMessage());
                 System.out.println("Skipping to next prompt...");
             }
-            System.out.println("Waiting " + millisDelay + "ms\n");
+            System.out.println("Waited " + (millisDelay+querytime) + "ms\n");
             //Thread.sleep(millisDelay);
         }
         return outputs;

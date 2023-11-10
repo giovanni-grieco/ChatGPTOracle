@@ -10,17 +10,17 @@ public class AzureGPT extends GPT {
 
     private final String endpoint = System.getenv("AZURE_ENDPOINT")+"/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-05-15";
 
-    private String initChat = null;
+    private Chat initChat = null;
 
     public AzureGPT(String assistantContent) {
         super(System.getenv("AZURE_GPT_API_KEY"), assistantContent);
     }
-    public AzureGPT(String assistantContent, String chat) {
+    public AzureGPT(String assistantContent, Chat chat) {
         super(System.getenv("AZURE_GPT_API_KEY"), assistantContent);
         this.initChat = chat;
     }
 
-    public AzureGPT(String assistantContent, String initChat, String apiKey){
+    public AzureGPT(String assistantContent, Chat initChat, String apiKey){
         super(apiKey, assistantContent);
         this.initChat = initChat;
     }
@@ -34,7 +34,7 @@ public class AzureGPT extends GPT {
             conn.setRequestProperty("Content-Type", "application/json");
             String jsonBody = "{\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}";
             if(this.initChat!=null){
-                jsonBody += ","+initChat;
+                jsonBody += ","+initChat.toJson();
             }
             jsonBody+= ",{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
             conn.setDoOutput(true);

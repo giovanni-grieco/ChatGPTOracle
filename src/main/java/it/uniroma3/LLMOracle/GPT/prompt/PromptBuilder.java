@@ -74,8 +74,8 @@ public class PromptBuilder {
                 String pureDataE2 = HTMLFilter.filterTemplate(dataE2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e2.getData().get(randomDataNumber2).getDomain());*/
                 //Qua usiamo i campi title
                 //Rimpiazziamo le virgolette con due apici singoli per evitare problemi con l'API di chat GPT
-                String pureDataE1 = replaceWith("\"", "''" ,dataE1);
-                String pureDataE2 = replaceWith("\"", "''" ,dataE2);
+                String pureDataE1 = replaceWith("\"", "\\\"" ,dataE1);
+                String pureDataE2 = replaceWith("\"", "\\\"" ,dataE2);
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }
@@ -120,8 +120,8 @@ public class PromptBuilder {
                 /*String pureDataE1 = HTMLFilter.filterTemplate(data1, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber1).getDomain());
                 String pureDataE2 = HTMLFilter.filterTemplate(data2, HTMLFilter.DEFAULT_TO_REMOVE_TAGS, e1.getData().get(randomDataNumber2).getDomain());*/
                 //Qua usiamo i campi title
-                String pureDataE1 = replaceWith("\"", "''" ,data1);
-                String pureDataE2 = replaceWith("\"", "''" ,data2);
+                String pureDataE1 = replaceWith("\"", "\\\"" ,data1);
+                String pureDataE2 = replaceWith("\"", "\\\"" ,data2);
                 if(pureDataE1.isEmpty() || pureDataE2.isEmpty() || pureDataE1.isBlank() || pureDataE2.isBlank()){
                     throw new Exception("Empty data");
                 }

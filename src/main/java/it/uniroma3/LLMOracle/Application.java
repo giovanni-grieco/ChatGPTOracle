@@ -20,30 +20,32 @@ public class Application {
         this.dataset = new AlaskaDataset();
     }
 
-    public void run(){
+    public void run() {
         this.entityTypes = appProperties.getDatasetFolders().length;
         ComandiFactory comandiFactory = new ComandiFactory();
         String input = "";
         Scanner scanner = new Scanner(System.in);
         do {
-            System.out.println("Inserisci il comando da eseguire: (comandi disponibili: " + comandiFactory.getComandi() +", quit" +")");
+            System.out.println("Inserisci il comando da eseguire: (comandi disponibili: " + comandiFactory.getComandi() + ", quit" + ")");
             input = scanner.nextLine();
             if (!input.equals("quit")) {
                 try {
                     comandiFactory.makeComando(input).esegui(this);
-                } catch (ClassNotFoundException|InvocationTargetException|InstantiationException|IllegalAccessException e) {
-                    if(input.isEmpty() || input.isBlank()){
+                } catch (ClassNotFoundException | InvocationTargetException | InstantiationException |
+                         IllegalAccessException e) {
+                    if (input.isEmpty() || input.isBlank()) {
                         System.out.println("Inserisci un comando valido");
-                    }else{
+                    } else {
                         System.out.println("Il comando '" + input + "' non è stato riconosciuto");
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         } while (!input.equals("quit"));
         scanner.close();
     }
+
     public AppProperties getAppProperties() {
         return appProperties;
     }

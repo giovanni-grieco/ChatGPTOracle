@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class BlockingOpentriage implements Comando {
 
     private final Map<Blocco, Double> blockLevenshteinDistanceMap;
 
-    public BlockingOpentriage(){
+    public BlockingOpentriage() {
         this.blockPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
         this.blockScoreMap = new HashMap<>();
@@ -69,14 +70,15 @@ public class BlockingOpentriage implements Comando {
         while (blockEE.hasNextBlock()) {
             List<Prompt> prompts = new ArrayList<>();
             Blocco blocco = blockEE.nextBlock();
-            blockData = blocco.makeDataList();
+            System.out.println("Carico " + blocco + "...");
+            blockData = blocco.getDataList();
             for (int i = 0; i < blockData.size(); i++) {
-                if(blockData.get(i).getTitle().isEmpty() || blockData.get(i).getTitle().isBlank()){
+                if (blockData.get(i).getTitle().isEmpty() || blockData.get(i).getTitle().isBlank()) {
                     continue;
                 }
                 Entity e1 = dataset.getEntityByData(blockData.get(i));
                 for (int j = i; j < blockData.size(); j++) {
-                    if(blockData.get(j).getTitle().isEmpty() || blockData.get(j).getTitle().isBlank()){
+                    if (blockData.get(j).getTitle().isEmpty() || blockData.get(j).getTitle().isBlank()) {
                         continue;
                     }
                     Entity e2 = dataset.getEntityByData(blockData.get(j));
@@ -114,24 +116,24 @@ public class BlockingOpentriage implements Comando {
         row0.createCell(4).setCellValue("FN");
         row0.createCell(5).setCellValue("average text cosine similarity");
         row0.createCell(6).setCellValue("Levenshtein distance");
-        for(Blocco b: this.blockPromptMap.keySet()){
-            XSSFRow nextRow = sheet.createRow(sheet.getLastRowNum()+1);
-            System.out.print(b+": ");
+        for (Blocco b : this.blockPromptMap.keySet()) {
+            XSSFRow nextRow = sheet.createRow(sheet.getLastRowNum() + 1);
+            System.out.print(b + ": ");
             System.out.println(this.blockPromptMap.get(b).size());
             //iniziamo l'interrogazione
             LLM llm = LLMFactory.createLLMAllDefault();
             List<GPTQuery> answers = llm.processPrompts(this.blockPromptMap.get(b), "gpt-35-turbo", 0);
             this.blockQueryMap.put(b, answers);
-            XSSFSheet promptSheet = (XSSFSheet) workbook.createSheet("Blocco "+b.getId());
+            XSSFSheet promptSheet = (XSSFSheet) workbook.createSheet("Blocco " + b.getId());
             XSSFRow row0Prompt = promptSheet.createRow(0);
             row0Prompt.createCell(0).setCellValue("Prompt");
             row0Prompt.createCell(1).setCellValue("Risposta");
             row0Prompt.createCell(2).setCellValue("Ground Truth Linkage");
-            for(GPTQuery query : answers){
-                XSSFRow promptRow = promptSheet.createRow(promptSheet.getLastRowNum()+1);
+            for (GPTQuery query : answers) {
+                XSSFRow promptRow = promptSheet.createRow(promptSheet.getLastRowNum() + 1);
                 promptRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
                 promptRow.createCell(1).setCellValue(query.getRisposta());
-                promptRow.createCell(2).setCellValue(((ClassificationPrompt)query.getPrompt()).isPositive());
+                promptRow.createCell(2).setCellValue(((ClassificationPrompt) query.getPrompt()).isPositive());
             }
             Score score = ScoreCalculator.calculateScore(answers);
             this.blockScoreMap.put(b, score);
@@ -147,38 +149,45 @@ public class BlockingOpentriage implements Comando {
         System.out.println("Interrogazione finita.");
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
-        String dateAndTime = date +"_"+ time.getHour()+ "_"+ time.getMinute();
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/"+"OpenTriageBlocking"+"-"+dateAndTime+".xlsx");
+        String dateAndTime = date + "_" + time.getHour() + "_" + time.getMinute();
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "OpenTriageBlocking" + "-" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
     }
 
-    private static class EstrattoreBlocchi implements BlockDataExtractor{
+    private static class EstrattoreBlocchi implements BlockDataExtractor {
         private final String groundTruthPath;
 
-        private final Map<String, List<String>> block2PathList;
+        private final Map<String, List<String>> blockName2PathList;
 
-        private final EntityType EType;
+        private final EntityType entityType;
 
         public EstrattoreBlocchi(String groundTruthPath, EntityType type) throws IOException {
             this.groundTruthPath = groundTruthPath;
-            this.block2PathList = new HashMap<>();
+            this.blockName2PathList = new HashMap<>();
             this.extractBlocks();
-            this.EType = type;
+            this.entityType = type;
         }
 
-        public String nextBlockName(){
-            return block2PathList.keySet().iterator().next();
+        public String nextBlockName() {
+            return blockName2PathList.keySet().iterator().next();
         }
 
-        public Blocco nextBlock(){
-            String block = block2PathList.keySet().iterator().next();
-            return new Blocco(this.nextBlockName(), block2PathList.remove(block), this.EType);
+        public Blocco nextBlock() {
+            String blockName = this.nextBlockName();
+            List<BlockData> blockData = new ArrayList<>();
+            List<String> paths = blockName2PathList.remove(blockName);
+            Blocco b = new Blocco(blockName, blockData);
+            for (String path : paths) {
+                String[] split = path.split("/");
+                blockData.add(new BlockData(b, split[0], split[1], entityType));
+            }
+            return b;
         }
 
-        public boolean hasNextBlock(){
-            return !block2PathList.isEmpty();
+        public boolean hasNextBlock() {
+            return !blockName2PathList.isEmpty();
         }
 
         private void extractBlocks() throws IOException {
@@ -191,42 +200,42 @@ public class BlockingOpentriage implements Comando {
                 for (int i = 1; i < columns.length; i++) {
                     String unfilteredPath = columns[i];
                     String path = filtraPath(unfilteredPath);
-                    AddToMapList.addToMapList(block, path, block2PathList);
+                    AddToMapList.addToMapList(block, path, blockName2PathList);
                 }
             }
             fr.close();
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("Block2PathList:");
-            for(String block : block2PathList.keySet()){
+            for (String block : blockName2PathList.keySet()) {
                 sb.append("\n").append(block).append("-> ");
-                for(String path : block2PathList.get(block)){
+                for (String path : blockName2PathList.get(block)) {
                     sb.append(path).append(", ");
                 }
             }
             return sb.toString();
         }
 
-        private String filtraPath(String string){
-            return string.split("/file:/Users/rvoyat/git/weir/dataset/alaska/camera/")[1].replaceAll(".json","");
+        private String filtraPath(String string) {
+            return string.split("/file:/Users/rvoyat/git/weir/dataset/alaska/camera/")[1].replaceAll(".json", "");
         }
     }
 
 
-    public void initialiseTextDistanceMaps(){
-        for(Blocco b: this.blockPromptMap.keySet()){
+    public void initialiseTextDistanceMaps() {
+        for (Blocco b : this.blockPromptMap.keySet()) {
             List<Prompt> prompts = this.blockPromptMap.get(b);
             int levenshteinSum = 0;
             double sum = 0;
-            for(Prompt p: prompts){
+            for (Prompt p : prompts) {
                 sum += this.promptSimilarityMap.get(p);
                 levenshteinSum += this.promptLevenshteinDistanceMap.get(p);
             }
-            double levenshteinAverage = (double) levenshteinSum /prompts.size();
-            double average = sum/prompts.size();
+            double levenshteinAverage = (double) levenshteinSum / prompts.size();
+            double average = sum / prompts.size();
             this.blockAverageTextCosineSimilarityMap.put(b, average);
             this.blockLevenshteinDistanceMap.put(b, levenshteinAverage);
         }

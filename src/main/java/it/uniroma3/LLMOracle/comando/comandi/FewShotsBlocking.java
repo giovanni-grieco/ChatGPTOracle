@@ -20,7 +20,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -66,9 +65,6 @@ public class FewShotsBlocking implements Comando {
         this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
         datasetReader.close();
         trainsetReader.close();
-        //System.out.println(blockPromptMap);
-        //System.out.println(blockTrainPromptMap);
-        //Chiediamo all'utente se vuole fare few shot learning su tutto il dominio o per blocco
         Scanner keyboardScanner = new Scanner(System.in);
         System.out.println("Vuoi fare few shot learning su tutto il dominio (0) o per blocco(1)?");
         int choice = keyboardScanner.nextInt();
@@ -79,64 +75,16 @@ public class FewShotsBlocking implements Comando {
         }
         if (choice == 0) {
             this.domainFewShotPrompting();
+            this.makeExcelFile(choice, this.blockPromptMap.keySet());
         } else {
             this.blockFewShotPrompting();
-        }
-        //CREIAMO IL FOGLIO EXCEL
-        Workbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = (XSSFSheet) workbook.createSheet("OpenTriage blocking");
-        XSSFRow row0 = sheet.createRow(0);
-        row0.createCell(0).setCellValue("Blocco");
-        row0.createCell(1).setCellValue("TP");
-        row0.createCell(2).setCellValue("TN");
-        row0.createCell(3).setCellValue("FP");
-        row0.createCell(4).setCellValue("FN");
-        row0.createCell(5).setCellValue("avg cos similarity");
-        row0.createCell(6).setCellValue("avg levenshtein");
-        row0.createCell(7).setCellValue("F1");
-        row0.createCell(8).setCellValue("MCC");
-        for(Blocco blocco : this.blockPromptMap.keySet()){
-            XSSFSheet blockSheet = (XSSFSheet) workbook.createSheet(blocco.getId());
-            XSSFRow blockSheetHeaderRow= blockSheet.createRow(0);
-            blockSheetHeaderRow.createCell(0).setCellValue("Prompt");
-            blockSheetHeaderRow.createCell(1).setCellValue("Risposta");
-            blockSheetHeaderRow.createCell(2).setCellValue("Risposta attesa");
-            //Fixare per few shots per blocco. Dato che se iteriamo su tutti i blocchi, non è detto che troviamo le query
-            //per tutti i blocchi dato che in few shots per blocco iteriamo sui blocchi di test.
-            for(GPTQuery query : this.blockQueryMap.get(blocco)){
-                XSSFRow blockSheetRow = blockSheet.createRow(blockSheet.getLastRowNum()+1);
-                blockSheetRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
-                blockSheetRow.createCell(1).setCellValue(query.getRisposta());
-                blockSheetRow.createCell(2).setCellValue(((ClassificationPrompt)query.getPrompt()).isPositive() ? "yes" : "no");
-            }
-            //Salviamo i prompt effettuati
-
-            XSSFRow blockRow = sheet.createRow(sheet.getLastRowNum()+1);
-            Score blockScore = this.blockScoreMap.get(blocco);
-            blockRow.createCell(0).setCellValue(blocco.getId());
-            blockRow.createCell(1).setCellValue(blockScore.getTP());
-            blockRow.createCell(2).setCellValue(blockScore.getTN());
-            blockRow.createCell(3).setCellValue(blockScore.getFP());
-            blockRow.createCell(4).setCellValue(blockScore.getFN());
-            blockRow.createCell(5).setCellValue(this.blockToSampledPromptCosineSimilarityMap.get(blocco));
-            blockRow.createCell(6).setCellValue(this.blockToSampledPromptLevenshteinDistanceMap.get(blocco));
-            blockRow.createCell(7).setCellValue(blockScore.getFScore());
-            blockRow.createCell(8).setCellValue(blockScore.getMCC());
+            this.makeExcelFile(choice, this.blockTrainPromptMap.keySet());
         }
 
-        //Aggiungiamo la data al nome
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
-        String dateAndTime = date +"_"+ time.getHour()+ "_"+ time.getMinute();
-        String type = choice == 0 ? "domain" : "block";
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/"+"fewshotsblocking-"+type+"-"+dateAndTime+".xlsx");
-        workbook.write(fileOut);
-        fileOut.close();
-        workbook.close();
     }
 
     private void blockFewShotPrompting() throws InterruptedException {
-        List<Prompt> learningPromptList = new ArrayList<>();
+        //Iteriamo solo sui blocchi contenuti nel file di training
         for(Blocco blocco : this.blockTrainPromptMap.keySet()){
             List<Prompt> trainingPromptList = this.blockTrainPromptMap.get(blocco);
             List<Prompt> sampledTrainingPromptList = new Sampler<Prompt>(3, trainingPromptList).sampleCollection();
@@ -146,6 +94,7 @@ public class FewShotsBlocking implements Comando {
                 fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
                         .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
             }
+            System.out.println(fewShotsPromptingChat);
             LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
             List<Prompt> promptList = this.blockPromptMap.get(blocco);
             List<Prompt> sampledPromptList = new Sampler<Prompt>(1000, promptList).sampleCollection();
@@ -224,21 +173,56 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private double calculateAverageBlockLevenshteinDistance(Blocco b) {
-        double average = 0;
-        for (Prompt p : this.blockPromptMap.get(b)) {
-            average += this.promptLevenshteinDistanceMap.get(p);
-        }
-        average /= this.blockPromptMap.get(b).size();
-        return average;
-    }
+    private void makeExcelFile(int choice, Set<Blocco> involvedBlocks) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = (XSSFSheet) workbook.createSheet("OpenTriage blocking");
+        XSSFRow row0 = sheet.createRow(0);
+        row0.createCell(0).setCellValue("Blocco");
+        row0.createCell(1).setCellValue("TP");
+        row0.createCell(2).setCellValue("TN");
+        row0.createCell(3).setCellValue("FP");
+        row0.createCell(4).setCellValue("FN");
+        row0.createCell(5).setCellValue("avg cos similarity");
+        row0.createCell(6).setCellValue("avg levenshtein");
+        row0.createCell(7).setCellValue("F1");
+        row0.createCell(8).setCellValue("MCC");
+        for(Blocco blocco : involvedBlocks){
+            XSSFSheet blockSheet = (XSSFSheet) workbook.createSheet(blocco.getId());
+            XSSFRow blockSheetHeaderRow= blockSheet.createRow(0);
+            blockSheetHeaderRow.createCell(0).setCellValue("Prompt");
+            blockSheetHeaderRow.createCell(1).setCellValue("Risposta");
+            blockSheetHeaderRow.createCell(2).setCellValue("Risposta attesa");
+            //Fixare per few shots per blocco. Dato che se iteriamo su tutti i blocchi, non è detto che troviamo le query
+            //per tutti i blocchi dato che in few shots per blocco iteriamo sui blocchi di test.
+            for(GPTQuery query : this.blockQueryMap.get(blocco)){
+                XSSFRow blockSheetRow = blockSheet.createRow(blockSheet.getLastRowNum()+1);
+                blockSheetRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
+                blockSheetRow.createCell(1).setCellValue(query.getRisposta());
+                blockSheetRow.createCell(2).setCellValue(((ClassificationPrompt)query.getPrompt()).isPositive() ? "yes" : "no");
+            }
+            //Salviamo i prompt effettuati
 
-    private double calculateAverageBlockCosineSimilarity(Blocco b) {
-        double average = 0;
-        for (Prompt p : this.blockPromptMap.get(b)) {
-            average += this.promptSimilarityMap.get(p);
+            XSSFRow blockRow = sheet.createRow(sheet.getLastRowNum()+1);
+            Score blockScore = this.blockScoreMap.get(blocco);
+            blockRow.createCell(0).setCellValue(blocco.getId());
+            blockRow.createCell(1).setCellValue(blockScore.getTP());
+            blockRow.createCell(2).setCellValue(blockScore.getTN());
+            blockRow.createCell(3).setCellValue(blockScore.getFP());
+            blockRow.createCell(4).setCellValue(blockScore.getFN());
+            blockRow.createCell(5).setCellValue(this.blockToSampledPromptCosineSimilarityMap.get(blocco));
+            blockRow.createCell(6).setCellValue(this.blockToSampledPromptLevenshteinDistanceMap.get(blocco));
+            blockRow.createCell(7).setCellValue(blockScore.getFScore());
+            blockRow.createCell(8).setCellValue(blockScore.getMCC());
         }
-        average /= this.blockPromptMap.get(b).size();
-        return average;
+
+        //Aggiungiamo la data al nome
+        LocalDate date = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        String dateAndTime = date +"_"+ time.getHour()+ "_"+ time.getMinute();
+        String type = choice == 0 ? "domain" : "block";
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/"+"fewshotsblocking-"+type+"-"+dateAndTime+".xlsx");
+        workbook.write(fileOut);
+        fileOut.close();
+        workbook.close();
     }
 }

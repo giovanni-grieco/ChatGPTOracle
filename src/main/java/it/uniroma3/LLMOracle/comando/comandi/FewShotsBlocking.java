@@ -74,20 +74,30 @@ public class FewShotsBlocking implements Comando {
             choice = keyboardScanner.nextInt();
         }
         if (choice == 0) {
-            this.domainFewShotPrompting();
+            //usiamo train per fare training
+            this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, 3);
+            this.makeExcelFile(choice, this.blockPromptMap.keySet());
+            //usiamo oracle per fare training
+            this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, 3);
             this.makeExcelFile(choice, this.blockPromptMap.keySet());
         } else {
-            this.blockFewShotPrompting();
+            //Usiamo i train per fare few shot learning e interroghiamo su tutti i blocchi
+            this.blockFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, 3);
             this.makeExcelFile(choice, this.blockTrainPromptMap.keySet());
+            //usiamo oracle per fare training
+            this.blockFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, 3);
+            this.makeExcelFile(choice, this.blockPromptMap.keySet());
         }
 
     }
 
-    private void blockFewShotPrompting() throws InterruptedException {
+
+
+    private void blockFewShotPrompting(Set<Blocco> trainingBlocksSet, Map<Blocco,List<Prompt>>block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
         //Iteriamo solo sui blocchi contenuti nel file di training
-        for(Blocco blocco : this.blockTrainPromptMap.keySet()){
-            List<Prompt> trainingPromptList = this.blockTrainPromptMap.get(blocco);
-            List<Prompt> sampledTrainingPromptList = new Sampler<Prompt>(3, trainingPromptList).sampleCollection();
+        for(Blocco blocco : trainingBlocksSet){
+            List<Prompt> trainingPromptList = block2PromptTrainingMap.get(blocco);
+            List<Prompt> sampledTrainingPromptList = new Sampler<>(trainingPromptAmount, trainingPromptList).sampleCollection();
             Chat fewShotsPromptingChat = new Chat();
             for(Prompt prompt : sampledTrainingPromptList){
                 ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
@@ -96,8 +106,8 @@ public class FewShotsBlocking implements Comando {
             }
             System.out.println(fewShotsPromptingChat);
             LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
-            List<Prompt> promptList = this.blockPromptMap.get(blocco);
-            List<Prompt> sampledPromptList = new Sampler<Prompt>(1000, promptList).sampleCollection();
+            List<Prompt> promptList = block2PromptTestMap.get(blocco);
+            List<Prompt> sampledPromptList = new Sampler<>(1000, promptList).sampleCollection();
             List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 0);
             this.blockScoreMap.put(blocco, ScoreCalculator.calculateScore(answers));
             this.blockQueryMap.put(blocco, answers);
@@ -114,10 +124,10 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void domainFewShotPrompting() throws InterruptedException {
+    private void domainFewShotPrompting(Set<Blocco> trainingBlockSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco,List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
         List<Prompt> learningPromptList = new ArrayList<>();
         //Estraiamo a caso 5 blocchi e da questi 5 blocchi estraiamo a caso 1 prompt per blocco
-        Random random = new Random();
+        /*Random random = new Random();
         List<Blocco> blockList = new ArrayList<>(this.blockTrainPromptMap.keySet());
         for (int i = 0; i < 3; i++) {
             int randomNumber = random.nextInt();
@@ -130,6 +140,14 @@ public class FewShotsBlocking implements Comando {
             anotherRandomNumber = anotherRandomNumber % promptList.size();
             Prompt p = promptList.get(anotherRandomNumber);
             learningPromptList.add(p);
+        }*/
+        //samplo 3 blocchi dal set di blocchi di training
+        List<Blocco> sampleBlocchi = new Sampler<>(trainingPromptAmount, trainingBlockSet).sampleCollection();
+        for(Blocco b: sampleBlocchi){
+            //samplo un prompt per blocco
+            List<Prompt> promptList = block2PromptTrainingMap.get(b);
+            List<Prompt> sampledPromptList = new Sampler<>(1, promptList).sampleCollection();
+            learningPromptList.addAll(sampledPromptList);
         }
         Chat fewShotsPromptingChat = new Chat();
         for(Prompt prompt : learningPromptList){
@@ -140,8 +158,8 @@ public class FewShotsBlocking implements Comando {
         System.out.println(fewShotsPromptingChat);
         String assistantContent = LLM.STANDARD_INITIALIZATION_PROMPT;
         LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
-        for(Blocco b : this.blockPromptMap.keySet()){
-            Sampler<Prompt> promptSampler = new Sampler<>(1000,this.blockPromptMap.get(b));
+        for(Blocco b : block2PromptTestMap.keySet()){
+            Sampler<Prompt> promptSampler = new Sampler<>(1000,block2PromptTestMap.get(b));
             List<Prompt> sampledPrompt = promptSampler.sampleCollection();
             List<GPTQuery> answers = gpt.processPrompts(sampledPrompt, "gpt-35-turbo", 0);
             this.blockQueryMap.put(b,answers);

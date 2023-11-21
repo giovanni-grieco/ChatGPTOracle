@@ -47,5 +47,8 @@ public class Segmenter {
         return this.string2beSegmented;
     }
 
+    public String getFirstNCharacters(int n){
+        return this.string2beSegmented.substring(0, n);
+    }
 
 }

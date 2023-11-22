@@ -128,7 +128,21 @@ public class FewShotsBlocking implements Comando {
         //Iteriamo solo sui blocchi contenuti nel file di training
         for (Blocco blocco : trainingBlocksSet) {
             List<Prompt> trainingPromptList = block2PromptTrainingMap.get(blocco);
-            List<Prompt> sampledTrainingPromptList = new Sampler<>(trainingPromptAmount, trainingPromptList).sampleCollection();
+            int promptPositivi = trainingPromptAmount / 2;
+            int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
+            int promptPositiviCreati = 0;
+            int promptNegativiCreati = 0;
+            List<Prompt> sampledTrainingPromptList = new ArrayList<>();
+            while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) {
+                Prompt promptEstratto = new Sampler<Prompt>(1, trainingPromptList).sampleCollection().get(0);
+                if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+                    sampledTrainingPromptList.add(promptEstratto);
+                    promptPositiviCreati++;
+                } else if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
+                    sampledTrainingPromptList.add(promptEstratto);
+                    promptNegativiCreati++;
+                }
+            }
             Chat fewShotsPromptingChat = new Chat();
             for (Prompt prompt : sampledTrainingPromptList) {
                 ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;

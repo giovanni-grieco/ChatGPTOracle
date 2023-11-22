@@ -4,13 +4,13 @@ import it.uniroma3.LLMOracle.Application;
 import it.uniroma3.LLMOracle.GPT.GPTQuery;
 import it.uniroma3.LLMOracle.GPT.LLM;
 import it.uniroma3.LLMOracle.GPT.chatCompletion.AzureGPT;
+import it.uniroma3.LLMOracle.GPT.chatCompletion.Chat;
 import it.uniroma3.LLMOracle.GPT.prompt.ClassificationPrompt;
 import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
 import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.utils.file.FileRetriever;
 import it.uniroma3.LLMOracle.utils.file.FileSaver;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.time.LocalDate;
@@ -48,15 +48,16 @@ public class DatasetRoger implements Comando {
                 }
             }
             System.out.println(prompts);
-            String chat = "{\"role\": \"user\", \"content\": \"first: Fujifilm Fujifilm FinePix S1 Black Digital 16800000 pixels 3.6 in 4.3 in 22.6 oz 5.2 in Storage 1 year(s) Quick Glance 1 year(s) 16400000 pixels $329.00 Newegg.com Newegg.com. second: Fujifilm FinePix S8500 8 5 5 4 Rs.19,999 Fujifilm US Write a review Digital Cameras Brand EAN: Exposure Compensation Connector Type Included Accessories Similar price Sensor Type Sensor Size Optical Zoom Focal Length Focal Length Equivalent to 35mm Digital Zoom Screen Size Canon SX50 HS\"}";
-            chat += ",{\"role\":\"assistant\", \"content\": \"no\"}";
-            chat += ",{\"role\": \"user\", \"content\": \"first: Nikon D5300 Body Only Hong Kong DSLR SD Card Nikon Grey 20.0MP Yes Grey 1 Day Universal Drop-shipping International Limited 2013 US$10 Million - US$50 Million 20.0MP 32191 3000 Piece/Pieces per Day Eastern Europe South America. second: Nikon D3300 DSLR Body Black 27,09 Nikon Supplied Battery USB Other Features Face Detection 460 gms Face Detection Dell Venue 8 Pro 32 GB Tablet Nov 01, Expert Review Cameras Price Nikon to high price 27 Delivery\"}";
-            chat += ",{\"role\":\"assistant\", \"content\": \"no\"}";
-            chat += ",{\"role\":\"user\", \"content\": \"first: Canon Eos 5d Mark iii (Body) Brightness Adjustment 1,96,196 22.30 Megapixels 2600mah Ebay Camera Cameras Cameras & Accessories SHOPCLUES Rs 196196 REDIFF Rs 196275 SHOPCLUES Rs 233996 PAYTM Rs 234776 INFIBEAM Rs 217995 SNAPDEAL. second: Memory Type: Sensor Details 5DIIIB Canon EOS 5D Mk III Body Weight Video Recording Format: Lens Mount 860g Image Format Full Frame - FX 22mp ALL-I H264 .MOV Canon EF CMOS Resolution: My personal.\"}";
-            chat += ",{\"role\":\"assistant\", \"content\": \"yes\"}";
-            chat += ",{\"role\":\"user\", \"content\": \"first: Nikon 16 30x Optical Zoom ebay Point & Shoot 35 (W) x 64 (H) x 110 (D) mm 16 ISO Rating 125 - 1600 Face Detection BSI CMOS 1/2.3 inch Max Resolution 4608 x 3456 Pixels 3 inch TFT LCD with anti-reflection coating 921K Focal Length Auto Focus Maximum Shutter Speed Minimum Shutter Speed Metering Flash Range Nikon Coolpix S9700. second: 1/2000 sec Max aperture (wide) 3.7 1cm Shutter speed min Shutter speed max ISO min ISO max Viewfinder type Screen size (inches) File formats Colour 228 16 CMOS 1 / 2.3 inch 4608 x 3456 30 750 25 Yes Max aperture (tele) 6.4 Minimum focus distance Image stabilisation 30 White Nikon 229.00 PXW9889 Nikon Coolpix S9700\"}";
-            chat += ",{\"role\":\"assistant\", \"content\": \"yes\"}";
-            LLM linkerLLM = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.");
+            Chat chat = new Chat();
+            chat.addUserChatMessage("first: Fujifilm Fujifilm FinePix S1 Black Digital 16800000 pixels 3.6 in 4.3 in 22.6 oz 5.2 in Storage 1 year(s) Quick Glance 1 year(s) 16400000 pixels $329.00 Newegg.com Newegg.com. second: Fujifilm FinePix S8500 8 5 5 4 Rs.19,999 Fujifilm US Write a review Digital Cameras Brand EAN: Exposure Compensation Connector Type Included Accessories Similar price Sensor Type Sensor Size Optical Zoom Focal Length Focal Length Equivalent to 35mm Digital Zoom Screen Size Canon SX50 HS")
+                    .addSystemChatAnswer("no")
+                    .addUserChatMessage("first: Nikon D5300 Body Only Hong Kong DSLR SD Card Nikon Grey 20.0MP Yes Grey 1 Day Universal Drop-shipping International Limited 2013 US$10 Million - US$50 Million 20.0MP 32191 3000 Piece/Pieces per Day Eastern Europe South America. second: Nikon D3300 DSLR Body Black 27,09 Nikon Supplied Battery USB Other Features Face Detection 460 gms Face Detection Dell Venue 8 Pro 32 GB Tablet Nov 01, Expert Review Cameras Price Nikon to high price 27 Delivery")
+                    .addSystemChatAnswer("no")
+                    .addUserChatMessage("first: Canon Eos 5d Mark iii (Body) Brightness Adjustment 1,96,196 22.30 Megapixels 2600mah Ebay Camera Cameras Cameras & Accessories SHOPCLUES Rs 196196 REDIFF Rs 196275 SHOPCLUES Rs 233996 PAYTM Rs 234776 INFIBEAM Rs 217995 SNAPDEAL. second: Memory Type: Sensor Details 5DIIIB Canon EOS 5D Mk III Body Weight Video Recording Format: Lens Mount 860g Image Format Full Frame - FX 22mp ALL-I H264 .MOV Canon EF CMOS Resolution: My personal.")
+                    .addSystemChatAnswer("yes")
+                    .addUserChatMessage("first: Nikon 16 30x Optical Zoom ebay Point & Shoot 35 (W) x 64 (H) x 110 (D) mm 16 ISO Rating 125 - 1600 Face Detection BSI CMOS 1/2.3 inch Max Resolution 4608 x 3456 Pixels 3 inch TFT LCD with anti-reflection coating 921K Focal Length Auto Focus Maximum Shutter Speed Minimum Shutter Speed Metering Flash Range Nikon Coolpix S9700. second: 1/2000 sec Max aperture (wide) 3.7 1cm Shutter speed min Shutter speed max ISO min ISO max Viewfinder type Screen size (inches) File formats Colour 228 16 CMOS 1 / 2.3 inch 4608 x 3456 30 750 25 Yes Max aperture (tele) 6.4 Minimum focus distance Image stabilisation 30 White Nikon 229.00 PXW9889 Nikon Coolpix S9700")
+                    .addSystemChatAnswer("yes");
+            LLM linkerLLM = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.", chat);
             List<GPTQuery> answers = linkerLLM.processPrompts(prompts, modello, 0);
             String results = ScoreCalculator.calculateScore(answers).toString();
             System.out.println(results);

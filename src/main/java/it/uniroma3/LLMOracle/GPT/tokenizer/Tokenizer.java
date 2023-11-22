@@ -1,10 +1,8 @@
 package it.uniroma3.LLMOracle.GPT.tokenizer;
 
-import com.didalgo.gpt3.Encoding;
-import com.didalgo.gpt3.GPT3Tokenizer;
+
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.EncodingRegistry;
-import com.knuddels.jtokkit.api.EncodingType;
 import com.knuddels.jtokkit.api.ModelType;
 
 import java.util.Collections;

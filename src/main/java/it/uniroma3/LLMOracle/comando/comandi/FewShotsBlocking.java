@@ -10,6 +10,7 @@ import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
 import it.uniroma3.LLMOracle.GPT.prompt.PromptBuilder;
 import it.uniroma3.LLMOracle.GPT.score.Score;
 import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
+import it.uniroma3.LLMOracle.GPT.tokenizer.Tokenizer;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
 import it.uniroma3.LLMOracle.utils.AddToMapList;
@@ -48,7 +49,7 @@ public class FewShotsBlocking implements Comando {
 
     private int cutoffChoice;
 
-    private int charsPerDescription;
+    private int tokensPerDescription;
 
     public FewShotsBlocking() {
         this.blockPromptMap = new HashMap<>();
@@ -78,21 +79,19 @@ public class FewShotsBlocking implements Comando {
         }
         int trainingPromptsAmount;
         if (cutoffChoice == 1) {
-            System.out.println("Inserisci il numero di caratteri massimi per prompt");
-            this.charsPerDescription = keyboardScanner.nextInt();
-            if (this.charsPerDescription < 1) {
+            System.out.println("Inserisci il numero di token massimi per prompt");
+            this.tokensPerDescription = keyboardScanner.nextInt();
+            if (this.tokensPerDescription < 1) {
                 System.out.println("Inserisci un valore valido");
-                System.out.println("Inserisci il numero di token per prompt");
-                this.charsPerDescription = keyboardScanner.nextInt();
+                System.out.println("Inserisci il numero di token massimi per prompt");
+                this.tokensPerDescription = keyboardScanner.nextInt();
             }
-            this.populatePromptMaps(datasetReader, this.blockPromptMap, this.charsPerDescription);
-            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, this.charsPerDescription);
-            trainingPromptsAmount = 7;
-        } else {
-            this.populatePromptMaps(datasetReader, this.blockPromptMap);
-            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
+            trainingPromptsAmount = 10;
+        }else{
             trainingPromptsAmount = 3;
         }
+        this.populatePromptMaps(datasetReader, this.blockPromptMap);
+        this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
         datasetReader.close();
         trainsetReader.close();
         String choiceString = "Vuoi fare train-oracle domain(0) oracle-oracle domain(1) train-oracle block(2) oracle-oracle block(3)?";
@@ -123,7 +122,7 @@ public class FewShotsBlocking implements Comando {
     }
 
 
-    private void blockFewShotPrompting(Set<Blocco> trainingBlocksSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
+    public void blockFewShotPrompting(Set<Blocco> trainingBlocksSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
         //Iteriamo solo sui blocchi contenuti nel file di training
         for (Blocco blocco : trainingBlocksSet) {
             List<Prompt> trainingPromptList = block2PromptTrainingMap.get(blocco);
@@ -131,7 +130,7 @@ public class FewShotsBlocking implements Comando {
             int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
             int promptPositiviCreati = 0;
             int promptNegativiCreati = 0;
-            int maxRetries = 10;
+            int maxRetries = 100;
 
             List<Prompt> sampledTrainingPromptList = new ArrayList<>();
             while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && maxRetries > 0) {
@@ -155,6 +154,15 @@ public class FewShotsBlocking implements Comando {
             }
             Chat fewShotsPromptingChat = new Chat();
             for (Prompt prompt : sampledTrainingPromptList) {
+                /*String textPrompt = String.copyValueOf(prompt.getTextPrompt().toCharArray());
+                if (this.cutoffChoice == 1) {
+                    Tokenizer tokenizer = new Tokenizer(textPrompt);
+                    textPrompt = tokenizer.getNextNTokens(this.tokensPerDescription);
+                }*/
+                if(this.cutoffChoice == 1){
+                    prompt = this.shortenPrompt((ClassificationPrompt) prompt, this.tokensPerDescription);
+
+                }
                 ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
                 fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
                         .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
@@ -163,14 +171,27 @@ public class FewShotsBlocking implements Comando {
             LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
             List<Prompt> promptList = block2PromptTestMap.get(blocco);
             List<Prompt> sampledPromptList = new Sampler<>(1000, promptList).sampleCollection();
+
+            if(this.cutoffChoice == 1){
+                List<Prompt> shortenedPromptList = new ArrayList<>();
+                for(Prompt p : sampledPromptList){
+                    shortenedPromptList.add(this.shortenPrompt((ClassificationPrompt) p, this.tokensPerDescription));
+                }
+                sampledPromptList = shortenedPromptList;
+            }
+
             List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 0);
             this.blockScoreMap.put(blocco, ScoreCalculator.calculateScore(answers));
             this.blockQueryMap.put(blocco, answers);
             double sumofsimilarity = 0f;
             int sumoflevenshtein = 0;
-            for (Prompt sampled : sampledPromptList) {
-                sumoflevenshtein += this.promptLevenshteinDistanceMap.get(sampled);
-                sumofsimilarity += this.promptSimilarityMap.get(sampled);
+            try {
+                for (Prompt sampled : sampledPromptList) {
+                    sumoflevenshtein += this.promptLevenshteinDistanceMap.get(sampled);
+                    sumofsimilarity += this.promptSimilarityMap.get(sampled);
+                }
+            }catch(Exception e){
+                System.err.println("Exception while calculating similarity and levenshtein distance");
             }
             double averageSimilarity = sumofsimilarity / sampledPromptList.size();
             double averageLevenshteinDistance = (double) sumoflevenshtein / sampledPromptList.size();
@@ -179,13 +200,13 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void domainFewShotPrompting(Set<Blocco> trainingBlockSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
+    public void domainFewShotPrompting(Set<Blocco> trainingBlockSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
         List<Prompt> learningPromptList = new ArrayList<>();
         int promptPositivi = trainingPromptAmount / 2;
         int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
         int promptPositiviCreati = 0;
         int promptNegativiCreati = 0;
-        int maxRetries = 10;
+        int maxRetries = 100;
         while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && maxRetries > 0) {
             Blocco bloccoEstratto = new Sampler<Blocco>(1, trainingBlockSet).sampleCollection().get(0);
             List<Prompt> promptList = block2PromptTrainingMap.get(bloccoEstratto);
@@ -207,6 +228,10 @@ public class FewShotsBlocking implements Comando {
         }
         Chat fewShotsPromptingChat = new Chat();
         for (Prompt prompt : learningPromptList) {
+            String textPrompt = String.copyValueOf(prompt.getTextPrompt().toCharArray());
+            if(this.cutoffChoice == 1){
+                prompt = this.shortenPrompt((ClassificationPrompt) prompt, this.tokensPerDescription);
+            }
             ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
             fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
                     .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
@@ -217,14 +242,26 @@ public class FewShotsBlocking implements Comando {
         for (Blocco b : block2PromptTestMap.keySet()) {
             Sampler<Prompt> promptSampler = new Sampler<>(1000, block2PromptTestMap.get(b));
             List<Prompt> sampledPrompt = promptSampler.sampleCollection();
+            if(this.cutoffChoice == 1){
+                List<Prompt> shortenedPromptList = new ArrayList<>();
+                for(Prompt p : sampledPrompt){
+                    ClassificationPrompt pr = this.shortenPrompt((ClassificationPrompt) p, this.tokensPerDescription);
+                    shortenedPromptList.add(pr);
+                }
+                sampledPrompt = shortenedPromptList;
+            }
             List<GPTQuery> answers = gpt.processPrompts(sampledPrompt, "gpt-35-turbo", 0);
             this.blockQueryMap.put(b, answers);
             this.blockScoreMap.put(b, ScoreCalculator.calculateScore(answers));
             double sumofsimilarity = 0f;
             int sumoflevenshtein = 0;
-            for (Prompt sampled : sampledPrompt) {
-                sumoflevenshtein += this.promptLevenshteinDistanceMap.get(sampled);
-                sumofsimilarity += this.promptSimilarityMap.get(sampled);
+            try {
+                for (Prompt sampled : sampledPrompt) {
+                    sumoflevenshtein += this.promptLevenshteinDistanceMap.get(sampled);
+                    sumofsimilarity += this.promptSimilarityMap.get(sampled);
+                }
+            }catch(Exception e){
+                System.err.println("Exception while calculating similarity and levenshtein distance");
             }
             double averageSimilarity = sumofsimilarity / sampledPrompt.size();
             double averageLevenshteinDistance = (double) sumoflevenshtein / sampledPrompt.size();
@@ -233,7 +270,21 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap) throws IOException {
+    public ClassificationPrompt shortenPrompt(ClassificationPrompt prompt, int tokensPerDescription) {
+        String textPrompt = String.copyValueOf(prompt.getTextPrompt().toCharArray());
+        String[] firstSecond = textPrompt.split("second: ");
+        String first = firstSecond[0].replace("first: ", "");
+        String second = firstSecond[1];
+        Tokenizer t1 = new Tokenizer(first);
+        Tokenizer t2 = new Tokenizer(second);
+        String firstShortened = t1.getNextNTokens(tokensPerDescription);
+        String secondShortened = t2.getNextNTokens(tokensPerDescription);
+        this.promptLevenshteinDistanceMap.put(prompt, LevenshteinDistance.calculate(firstShortened, secondShortened));
+        this.promptSimilarityMap.put(prompt, CosineSimilarityText.apply(firstShortened, secondShortened));
+        return (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(firstShortened, secondShortened, prompt.isPositive());
+    }
+
+    public void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap) throws IOException {
         String line = null;
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
@@ -247,7 +298,7 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap, int tokerPerDescription) throws IOException {
+    public void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap, int tokerPerDescription) throws IOException {
         String line = null;
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
@@ -263,7 +314,7 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void makeExcelFile(Set<Blocco> involvedBlocks) throws IOException {
+    public void makeExcelFile(Set<Blocco> involvedBlocks) throws IOException {
         Workbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = (XSSFSheet) workbook.createSheet("OpenTriage blocking");
         XSSFRow row0 = sheet.createRow(0);
@@ -324,7 +375,7 @@ public class FewShotsBlocking implements Comando {
         String cutoffAt = "";
         if (cutoffChoice == 1) {
             cutoff = "cutoff";
-            cutoffAt += this.charsPerDescription;
+            cutoffAt += this.tokensPerDescription;
         } else {
             cutoff = "nocutoff";
         }

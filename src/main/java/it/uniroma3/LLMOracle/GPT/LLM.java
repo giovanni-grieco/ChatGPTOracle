@@ -50,7 +50,7 @@ public abstract class LLM {
             }
             String estimatedTime = String.format("%.2f", ((this.getAverageTime()*(prompts.size()-processedPrompts)))/1000);
             String output = "Processed prompts: "+processedPrompts+"/"+totalPrompts+" "+"estimated time remaining "+estimatedTime+"s "+this.getNextLoadingChar();
-            int outputLength = output.length();
+            //int outputLength = output.length();
             if(!firstPrompt){
                 /*for(int i = 0; i<outputLength; i++){
                     System.out.print("\b");
@@ -73,7 +73,8 @@ public abstract class LLM {
             int endTime = (int) System.currentTimeMillis();
             return new GPTQuery(answer, modelName, prompt, endTime - initTime);
         } catch (Exception e) {
-            throw new GPTException(e.getMessage(), e.getCause());
+            int promptLength = prompt.getTextPrompt().length();
+            throw new GPTException("prompt length: "+promptLength+" "+e.getMessage(), e.getCause());
         }
     }
 

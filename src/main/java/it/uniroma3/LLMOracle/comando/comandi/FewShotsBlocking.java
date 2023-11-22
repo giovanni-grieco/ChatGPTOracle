@@ -88,7 +88,7 @@ public class FewShotsBlocking implements Comando {
             }
             this.populatePromptMaps(datasetReader, this.blockPromptMap, this.charsPerDescription);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, this.charsPerDescription);
-            trainingPromptsAmount = 7;
+            trainingPromptsAmount = 6;
         } else {
             this.populatePromptMaps(datasetReader, this.blockPromptMap);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
@@ -128,19 +128,26 @@ public class FewShotsBlocking implements Comando {
         //Iteriamo solo sui blocchi contenuti nel file di training
         for (Blocco blocco : trainingBlocksSet) {
             List<Prompt> trainingPromptList = block2PromptTrainingMap.get(blocco);
+            System.out.println("Training prompt list size: " + trainingPromptList.size());
             int promptPositivi = trainingPromptAmount / 2;
             int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
             int promptPositiviCreati = 0;
             int promptNegativiCreati = 0;
             List<Prompt> sampledTrainingPromptList = new ArrayList<>();
-            while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) {
-                Prompt promptEstratto = new Sampler<Prompt>(1, trainingPromptList).sampleCollection().get(0);
-                if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
-                    sampledTrainingPromptList.add(promptEstratto);
-                    promptPositiviCreati++;
-                } else if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
-                    sampledTrainingPromptList.add(promptEstratto);
-                    promptNegativiCreati++;
+            if(trainingPromptList.size() < trainingPromptAmount){
+                sampledTrainingPromptList.addAll(trainingPromptList);
+            }else {
+                int maxtries = trainingPromptAmount * 100;
+                while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi && maxtries > 0) {
+                    Prompt promptEstratto = new Sampler<Prompt>(1, trainingPromptList).sampleCollection().get(0);
+                    if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+                        sampledTrainingPromptList.add(promptEstratto);
+                        promptPositiviCreati++;
+                    } else if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
+                        sampledTrainingPromptList.add(promptEstratto);
+                        promptNegativiCreati++;
+                    }
+                    maxtries--;
                 }
             }
             Chat fewShotsPromptingChat = new Chat();
@@ -150,7 +157,8 @@ public class FewShotsBlocking implements Comando {
                         .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
             }
             System.out.println(fewShotsPromptingChat);
-            LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
+            //LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
+            LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
             List<Prompt> promptList = block2PromptTestMap.get(blocco);
             List<Prompt> sampledPromptList = new Sampler<>(1000, promptList).sampleCollection();
             List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 0);
@@ -175,7 +183,8 @@ public class FewShotsBlocking implements Comando {
         int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
         int promptPositiviCreati = 0;
         int promptNegativiCreati = 0;
-        while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) {
+        int maxtries = trainingPromptAmount*100;
+        while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi && maxtries > 0) {
             Blocco bloccoEstratto = new Sampler<Blocco>(1,trainingBlockSet).sampleCollection().get(0);
             List<Prompt> promptList = block2PromptTrainingMap.get(bloccoEstratto);
             Prompt promptEstratto = new Sampler<Prompt>(1,promptList).sampleCollection().get(0);
@@ -186,6 +195,7 @@ public class FewShotsBlocking implements Comando {
                 learningPromptList.add(promptEstratto);
                 promptNegativiCreati++;
             }
+            maxtries--;
         }
         Chat fewShotsPromptingChat = new Chat();
         for (Prompt prompt : learningPromptList) {
@@ -195,7 +205,8 @@ public class FewShotsBlocking implements Comando {
         }
         System.out.println(fewShotsPromptingChat);
         String assistantContent = LLM.STANDARD_INITIALIZATION_PROMPT;
-        LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
+        //LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
+        LLM gpt = new AzureGPT(assistantContent);
         for (Blocco b : block2PromptTestMap.keySet()) {
             Sampler<Prompt> promptSampler = new Sampler<>(1000, block2PromptTestMap.get(b));
             List<Prompt> sampledPrompt = promptSampler.sampleCollection();
@@ -234,8 +245,8 @@ public class FewShotsBlocking implements Comando {
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
             Blocco b = new Blocco(columns[0]);
-            String textA = columns[1].toLowerCase();
-            String textB = columns[2].toLowerCase();
+            String textA = columns[1].toLowerCase().replace("\"", "\\\"");
+            String textB = columns[2].toLowerCase().replace("\"", "\\\"");
             String cutTextA = textA.substring(0, Math.min(textA.length(), tokerPerDescription));
             String cutTextB = textB.substring(0, Math.min(textB.length(), tokerPerDescription));
             ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(cutTextA, cutTextB, Boolean.parseBoolean(columns[3]));

@@ -70,10 +70,20 @@ public class FewShotsBlocking implements Comando {
         Scanner keyboardScanner = new Scanner(System.in);
         System.out.println("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si)");
         this.cutoffChoice = keyboardScanner.nextInt();
+        while (cutoffChoice < 0 || cutoffChoice > 1) {
+            System.out.println("Inserisci un valore valido");
+            System.out.println("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si)");
+            cutoffChoice = keyboardScanner.nextInt();
+        }
         int trainingPromptsAmount;
         if (cutoffChoice == 1) {
             System.out.println("Inserisci il numero di token per prompt");
             int tokensPerPrompt = keyboardScanner.nextInt();
+            if(tokensPerPrompt < 1){
+                System.out.println("Inserisci un valore valido");
+                System.out.println("Inserisci il numero di token per prompt");
+                tokensPerPrompt = keyboardScanner.nextInt();
+            }
             this.populatePromptMaps(datasetReader, this.blockPromptMap, tokensPerPrompt);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, tokensPerPrompt);
             trainingPromptsAmount = 7;
@@ -109,7 +119,7 @@ public class FewShotsBlocking implements Comando {
             this.blockFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
             this.makeExcelFile(this.blockPromptMap.keySet());
         }
-
+        keyboardScanner.close();
     }
 
 

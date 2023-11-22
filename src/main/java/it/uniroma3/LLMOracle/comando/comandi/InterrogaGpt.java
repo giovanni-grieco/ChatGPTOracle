@@ -65,7 +65,7 @@ public class InterrogaGpt implements Comando {
         System.out.println("Prompts size: " + prompts.size());
         System.out.println("Inizio interrogazione...");
         System.out.println("Tempo attesa stimato: " + (tempoAttesa * (matchingEntityPromptsAmount + nonMatchingEntityPromptsAmount)) / 1000 + " secondi");
-        LLM gpt = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.");
+        LLM gpt = new AzureGPT("You will be given 2 snippets of text. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.");
         //String modello = "curie:ft-personal-2023-08-19-19-36-38";
         String modello = "gpt-3.5-turbo";
         List<GPTQuery> answers = gpt.processPrompts(prompts, modello, tempoAttesa);

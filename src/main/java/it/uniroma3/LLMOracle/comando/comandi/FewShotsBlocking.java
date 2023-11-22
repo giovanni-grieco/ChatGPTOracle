@@ -77,7 +77,7 @@ public class FewShotsBlocking implements Comando {
         }
         int trainingPromptsAmount;
         if (cutoffChoice == 1) {
-            System.out.println("Inserisci il numero di token per prompt");
+            System.out.println("Inserisci il numero di caratteri massimi per prompt");
             int tokensPerPrompt = keyboardScanner.nextInt();
             if(tokensPerPrompt < 1){
                 System.out.println("Inserisci un valore valido");

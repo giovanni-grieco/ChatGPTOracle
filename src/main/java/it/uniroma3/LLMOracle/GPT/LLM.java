@@ -52,10 +52,9 @@ public abstract class LLM {
             String output = "Processed prompts: "+processedPrompts+"/"+totalPrompts+" "+"estimated time remaining "+estimatedTime+"s "+this.getNextLoadingChar();
             int outputLength = output.length();
             if(!firstPrompt){
-                /*for(int i = 0; i<outputLength; i++){
+                for(int i = 0; i<outputLength; i++){
                     System.out.print("\b");
-                }*/
-                System.out.print("\r");
+                }
             }
             firstPrompt = false;
             System.out.print(output);

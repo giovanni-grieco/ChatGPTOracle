@@ -5,7 +5,7 @@ import it.uniroma3.LLMOracle.GPT.GPTQuery;
 import it.uniroma3.LLMOracle.GPT.LLM;
 import it.uniroma3.LLMOracle.GPT.chatCompletion.AzureGPT;
 import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
-import it.uniroma3.LLMOracle.GPT.segmentazione.Segmenter;
+import it.uniroma3.LLMOracle.GPT.tokenizer.Tokenizer;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.Entity;
 import it.uniroma3.LLMOracle.data.extraction.HTMLFilter;
@@ -29,7 +29,7 @@ public class Segmentazione implements Comando {
             int maxTokensPerPrompt = 3000;
 
             List<String> segments = new ArrayList<>();
-            Segmenter segmenter = new Segmenter(testoFiltrato);
+            Tokenizer segmenter = new Tokenizer(testoFiltrato);
             while(segmenter.hasNextToken()){
                 String segment = segmenter.getNextNTokens(maxTokensPerPrompt);
                 segments.add(segment);

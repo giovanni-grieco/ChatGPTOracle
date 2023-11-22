@@ -10,7 +10,6 @@ import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
 import it.uniroma3.LLMOracle.GPT.prompt.PromptBuilder;
 import it.uniroma3.LLMOracle.GPT.score.Score;
 import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
-import it.uniroma3.LLMOracle.GPT.segmentazione.Segmenter;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
 import it.uniroma3.LLMOracle.utils.AddToMapList;
@@ -81,7 +80,7 @@ public class FewShotsBlocking implements Comando {
         if (cutoffChoice == 1) {
             System.out.println("Inserisci il numero di caratteri massimi per prompt");
             this.charsPerDescription = keyboardScanner.nextInt();
-            if(this.charsPerDescription < 1){
+            if (this.charsPerDescription < 1) {
                 System.out.println("Inserisci un valore valido");
                 System.out.println("Inserisci il numero di token per prompt");
                 this.charsPerDescription = keyboardScanner.nextInt();
@@ -132,15 +131,26 @@ public class FewShotsBlocking implements Comando {
             int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
             int promptPositiviCreati = 0;
             int promptNegativiCreati = 0;
+            int maxRetries = 10;
+
             List<Prompt> sampledTrainingPromptList = new ArrayList<>();
-            while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) {
+            while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && maxRetries > 0) {
+                /*System.out.println("test");
+                System.out.println("maxRetries: "+maxRetries);*/
                 Prompt promptEstratto = new Sampler<Prompt>(1, trainingPromptList).sampleCollection().get(0);
+                boolean trovato = false;
                 if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                     sampledTrainingPromptList.add(promptEstratto);
                     promptPositiviCreati++;
-                } else if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
+                    trovato = true;
+                }
+                if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
                     sampledTrainingPromptList.add(promptEstratto);
                     promptNegativiCreati++;
+                    trovato = true;
+                }
+                if (!trovato) {
+                    maxRetries--;
                 }
             }
             Chat fewShotsPromptingChat = new Chat();
@@ -175,16 +185,24 @@ public class FewShotsBlocking implements Comando {
         int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
         int promptPositiviCreati = 0;
         int promptNegativiCreati = 0;
-        while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) {
-            Blocco bloccoEstratto = new Sampler<Blocco>(1,trainingBlockSet).sampleCollection().get(0);
+        int maxRetries = 10;
+        while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && maxRetries > 0) {
+            Blocco bloccoEstratto = new Sampler<Blocco>(1, trainingBlockSet).sampleCollection().get(0);
             List<Prompt> promptList = block2PromptTrainingMap.get(bloccoEstratto);
-            Prompt promptEstratto = new Sampler<Prompt>(1,promptList).sampleCollection().get(0);
-            if(((ClassificationPrompt)promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+            Prompt promptEstratto = new Sampler<Prompt>(1, promptList).sampleCollection().get(0);
+            boolean trovato = false;
+            if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                 learningPromptList.add(promptEstratto);
                 promptPositiviCreati++;
-            }else if(!((ClassificationPrompt)promptEstratto).isPositive() && promptNegativiCreati != promptNegativi){
+                trovato = true;
+            }
+            if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
                 learningPromptList.add(promptEstratto);
                 promptNegativiCreati++;
+                trovato = true;
+            }
+            if (!trovato) {
+                maxRetries--;
             }
         }
         Chat fewShotsPromptingChat = new Chat();
@@ -291,6 +309,7 @@ public class FewShotsBlocking implements Comando {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         String dateAndTime = date + "_" + time.getHour() + "_" + time.getMinute();
+        // addestramentoSu-InterrogazioneSu-addestramentoDaTuttoDominio/PerBlocco
         String type = "";
         if (choice == 0) {
             type = "train-oracle-domain";
@@ -309,7 +328,7 @@ public class FewShotsBlocking implements Comando {
         } else {
             cutoff = "nocutoff";
         }
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff+"at-"+ cutoffAt + "-" + dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type + "-" + cutoff + "at-" + cutoffAt + "-" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

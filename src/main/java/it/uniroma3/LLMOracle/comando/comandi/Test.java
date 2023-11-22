@@ -3,15 +3,10 @@ package it.uniroma3.LLMOracle.comando.comandi;
 import it.uniroma3.LLMOracle.Application;
 import it.uniroma3.LLMOracle.GPT.GPTException;
 import it.uniroma3.LLMOracle.GPT.chatCompletion.Chat;
-import it.uniroma3.LLMOracle.GPT.prompt.ClassificationPrompt;
-import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
-import it.uniroma3.LLMOracle.GPT.prompt.PromptBuilder;
-import it.uniroma3.LLMOracle.GPT.segmentazione.Segmenter;
+import it.uniroma3.LLMOracle.GPT.tokenizer.Tokenizer;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.Blocco;
 import it.uniroma3.LLMOracle.utils.AddToMapList;
-import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
-import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -49,7 +44,8 @@ public class Test implements Comando {
             List<String> promptList = this.blockTrainPromptMap.get(b);
             for(String p : promptList){
                 //System.out.println(p);
-                String cutPrompt = p.substring(0, Math.min(p.length(), tokensPerDescription));
+                Tokenizer tokenizer = new Tokenizer(p);
+                String cutPrompt = tokenizer.getNextNTokens(tokensPerDescription);
                 tokenisedPrompts.add(cutPrompt);
             }
         }

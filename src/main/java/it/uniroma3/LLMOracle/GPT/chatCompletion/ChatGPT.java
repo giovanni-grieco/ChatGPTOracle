@@ -11,19 +11,19 @@ import java.net.URL;
  */
 public class ChatGPT extends GPT {
 
-    private final String initChat;
+    private Chat initChat = null;
 
     public ChatGPT(String assistantContent) {
         super(System.getenv("OPENAI_API_KEY"), assistantContent);
         this.initChat = null;
     }
 
-    public ChatGPT(String assistantContent, String initChat) {
+    public ChatGPT(String assistantContent, Chat initChat) {
         super(System.getenv("OPENAI_API_KEY"), assistantContent);
         this.initChat = initChat;
     }
 
-    public ChatGPT(String assistantContent, String initChat, String apiKey){
+    public ChatGPT(String assistantContent, Chat initChat, String apiKey){
         super(apiKey, assistantContent);
         this.initChat = initChat;
     }
@@ -36,7 +36,9 @@ public class ChatGPT extends GPT {
         conn.setRequestProperty("Authorization", myToken);
         conn.setRequestProperty("Content-Type", "application/json");
         // The request body
-        String jsonBody = "{\"model\": \""+modelName+"\",\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"},{ \"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+        String jsonBody = "{\"model\": \""+modelName+"\",\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}"+
+                (this.initChat!=null ? ","+this.initChat.toJson() : "")
+                +",{ \"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
         conn.setDoOutput(true);
         conn.getOutputStream().write(jsonBody.getBytes());
         // Response from ChatGPT

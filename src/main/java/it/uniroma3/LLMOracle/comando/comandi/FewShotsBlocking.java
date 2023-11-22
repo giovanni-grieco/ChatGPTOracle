@@ -49,6 +49,8 @@ public class FewShotsBlocking implements Comando {
 
     private int cutoffChoice;
 
+    private int charsPerDescription;
+
     public FewShotsBlocking() {
         this.blockPromptMap = new HashMap<>();
         this.blockTrainPromptMap = new HashMap<>();
@@ -78,14 +80,14 @@ public class FewShotsBlocking implements Comando {
         int trainingPromptsAmount;
         if (cutoffChoice == 1) {
             System.out.println("Inserisci il numero di caratteri massimi per prompt");
-            int tokensPerPrompt = keyboardScanner.nextInt();
-            if(tokensPerPrompt < 1){
+            this.charsPerDescription = keyboardScanner.nextInt();
+            if(this.charsPerDescription < 1){
                 System.out.println("Inserisci un valore valido");
                 System.out.println("Inserisci il numero di token per prompt");
-                tokensPerPrompt = keyboardScanner.nextInt();
+                this.charsPerDescription = keyboardScanner.nextInt();
             }
-            this.populatePromptMaps(datasetReader, this.blockPromptMap, tokensPerPrompt);
-            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, tokensPerPrompt);
+            this.populatePromptMaps(datasetReader, this.blockPromptMap, this.charsPerDescription);
+            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, this.charsPerDescription);
             trainingPromptsAmount = 7;
         } else {
             this.populatePromptMaps(datasetReader, this.blockPromptMap);
@@ -119,7 +121,6 @@ public class FewShotsBlocking implements Comando {
             this.blockFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
             this.makeExcelFile(this.blockPromptMap.keySet());
         }
-        keyboardScanner.close();
     }
 
 
@@ -287,12 +288,14 @@ public class FewShotsBlocking implements Comando {
             type = "oracle-oracle-block";
         }
         String cutoff = "";
+        String cutoffAt = "";
         if (cutoffChoice == 1) {
             cutoff = "cutoff";
+            cutoffAt += this.charsPerDescription;
         } else {
             cutoff = "nocutoff";
         }
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff + "-" + dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff+"at-"+ cutoffAt + "-" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

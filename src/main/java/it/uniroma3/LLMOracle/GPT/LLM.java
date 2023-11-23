@@ -47,6 +47,7 @@ public abstract class LLM {
                 this.addTime(querytime);
             } catch (GPTException e) {
                 exceptions.add("Error: " + e.getMessage()+"\n Skipped to next prompt...");
+                processedPrompts++;
                 /*System.out.println("Error: " + e.getMessage());
                 System.out.println("Skipped to next prompt...");*/
             }
@@ -80,7 +81,7 @@ public abstract class LLM {
             return new GPTQuery(answer, modelName, prompt, endTime - initTime);
         } catch (Exception e) {
             int promptLength = prompt.getTextPrompt().length();
-            throw new GPTException("prompt length: "+promptLength+" "+e.getMessage(), e.getCause());
+            throw new GPTException("prompt length: "+promptLength+"\nfailed prompt: "+prompt+"\n"+e.getMessage(), e.getCause());
         }
     }
 

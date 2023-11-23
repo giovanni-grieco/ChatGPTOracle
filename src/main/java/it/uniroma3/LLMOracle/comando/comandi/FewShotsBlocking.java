@@ -233,8 +233,8 @@ public class FewShotsBlocking implements Comando {
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
             Blocco b = new Blocco(columns[0]);
-            String textA = columns[1].toLowerCase().replace("\"", "\\\"");
-            String textB = columns[2].toLowerCase().replace("\"", "\\\"");
+            String textA = columns[1].toLowerCase().replaceAll("\"", "\\\"");
+            String textB = columns[2].toLowerCase().replaceAll("\"", "\\\"");
             ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(textA, textB, Boolean.parseBoolean(columns[3]));
             this.promptLevenshteinDistanceMap.put(prompt, LevenshteinDistance.calculate(textA, textB));
             this.promptSimilarityMap.put(prompt, CosineSimilarityText.apply(textA, textB));
@@ -247,8 +247,8 @@ public class FewShotsBlocking implements Comando {
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
             Blocco b = new Blocco(columns[0]);
-            String textA = columns[1].toLowerCase().replace("\"", "\\\"");
-            String textB = columns[2].toLowerCase().replace("\"", "\\\"");
+            String textA = columns[1].toLowerCase().replaceAll("\"", "\\\"");
+            String textB = columns[2].toLowerCase().replaceAll("\"", "\\\"");
             String cutTextA = textA.substring(0, Math.min(textA.length(), tokerPerDescription));
             String cutTextB = textB.substring(0, Math.min(textB.length(), tokerPerDescription));
             ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(cutTextA, cutTextB, Boolean.parseBoolean(columns[3]));

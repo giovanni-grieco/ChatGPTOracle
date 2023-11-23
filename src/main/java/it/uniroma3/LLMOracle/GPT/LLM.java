@@ -34,6 +34,7 @@ public abstract class LLM {
         int processedPrompts=0;
         int totalPrompts = prompts.size();
         boolean firstPrompt = true;
+        List<String> exceptions = new ArrayList<>();
         for (Prompt prompt : prompts) {
             //System.out.println("Asking: " + prompt.toString());
             int querytime = 0;
@@ -45,8 +46,9 @@ public abstract class LLM {
                 querytime = answer.getTempoDiRisposta();
                 this.addTime(querytime);
             } catch (GPTException e) {
-                System.out.println("Error: " + e.getMessage());
-                System.out.println("Skipping to next prompt...");
+                exceptions.add("Error: " + e.getMessage()+"\n Skipped to next prompt...");
+                /*System.out.println("Error: " + e.getMessage());
+                System.out.println("Skipped to next prompt...");*/
             }
             String estimatedTime = String.format("%.2f", ((this.getAverageTime()*(prompts.size()-processedPrompts)))/1000);
             String output = "Processed prompts: "+processedPrompts+"/"+totalPrompts+" "+"estimated time remaining "+estimatedTime+"s "+this.getNextLoadingChar();
@@ -61,6 +63,10 @@ public abstract class LLM {
             System.out.print(output);
         }
         System.out.println();
+        System.out.println("Exceptions raised: "+exceptions.size());
+        for(String s : exceptions){
+            System.out.println(s);
+        }
         return outputs;
     }
 

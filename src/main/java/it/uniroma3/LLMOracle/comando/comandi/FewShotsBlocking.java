@@ -137,17 +137,17 @@ public class FewShotsBlocking implements Comando {
             if(trainingPromptList.size() < trainingPromptAmount){
                 sampledTrainingPromptList.addAll(trainingPromptList);
             }else {
-                int maxtries = trainingPromptAmount * 100;
-                while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi && maxtries > 0) {
-                    Prompt promptEstratto = new Sampler<Prompt>(1, trainingPromptList).sampleCollection().get(0);
-                    if (((ClassificationPrompt) promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+                List<Prompt> temp = new ArrayList<>(trainingPromptList);
+                while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !temp.isEmpty()) {
+                    //estraiamo i primi n prompt
+                    ClassificationPrompt promptEstratto = (ClassificationPrompt) temp.remove(0);
+                    if ((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                         sampledTrainingPromptList.add(promptEstratto);
                         promptPositiviCreati++;
-                    } else if (!((ClassificationPrompt) promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
+                    } else if (!( promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
                         sampledTrainingPromptList.add(promptEstratto);
                         promptNegativiCreati++;
                     }
-                    maxtries--;
                 }
             }
             Chat fewShotsPromptingChat = new Chat();
@@ -183,19 +183,21 @@ public class FewShotsBlocking implements Comando {
         int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
         int promptPositiviCreati = 0;
         int promptNegativiCreati = 0;
-        int maxtries = trainingPromptAmount*100;
-        while (promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi && maxtries > 0) {
-            Blocco bloccoEstratto = new Sampler<Blocco>(1,trainingBlockSet).sampleCollection().get(0);
-            List<Prompt> promptList = block2PromptTrainingMap.get(bloccoEstratto);
-            Prompt promptEstratto = new Sampler<Prompt>(1,promptList).sampleCollection().get(0);
-            if(((ClassificationPrompt)promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+        List<Prompt> tempList = new ArrayList<>();
+        //Metto tutti i prompt provenienti da tutti i blocchi temporanea in una lista
+        for(Blocco b: trainingBlockSet){
+            tempList.addAll(block2PromptTrainingMap.get(b));
+        }
+        while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !tempList.isEmpty()) {
+            //estraiamo i primi n prompt
+            ClassificationPrompt promptEstratto = (ClassificationPrompt)tempList.remove(0);
+            if((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                 learningPromptList.add(promptEstratto);
                 promptPositiviCreati++;
-            }else if(!((ClassificationPrompt)promptEstratto).isPositive() && promptNegativiCreati != promptNegativi){
+            }else if(!(promptEstratto).isPositive() && promptNegativiCreati != promptNegativi){
                 learningPromptList.add(promptEstratto);
                 promptNegativiCreati++;
             }
-            maxtries--;
         }
         Chat fewShotsPromptingChat = new Chat();
         for (Prompt prompt : learningPromptList) {
@@ -325,4 +327,7 @@ public class FewShotsBlocking implements Comando {
         fileOut.close();
         workbook.close();
     }
+
+
+
 }

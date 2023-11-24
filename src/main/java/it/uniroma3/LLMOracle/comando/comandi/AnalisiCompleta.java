@@ -28,8 +28,8 @@ public class AnalisiCompleta implements Comando {
             percentualePositivi = 0;
         }
         for(Thread t : workerThreads){
-            t.start();
-            t.join();
+            t.start(); //non si può multithreaddare perché il rate dell'api non lo consente
+            t.join();   //quindi si ricade in questa situazione
         }
         System.out.println("Analisi completa finita. Thread arrestati.");
     }

@@ -13,42 +13,30 @@ import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.Blocco;
 import it.uniroma3.LLMOracle.utils.AddToMapList;
-import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
-import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BaselineBlocking implements Comando {
 
+    private final Map<Prompt, String[]> promptToTextArrayMap;
     private final Map<Blocco, List<Prompt>> blockPromptMap;
     private final Map<Blocco, List<GPTQuery>> blockQueryMap;
     private final Map<Blocco, Score> blockScoreMap;
-    /*private final Map<Prompt, Double> promptSimilarityMap;
-    private final Map<Prompt, Integer> promptLevenshteinDistanceMap;
-    private final Map<Blocco, Double> blockToSampledPromptCosineSimilarityMap;
-    private final Map<Blocco, Double> blockToSampledPromptLevenshteinDistanceMap;*/
 
     public BaselineBlocking(){
         this.blockPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
         this.blockScoreMap = new HashMap<>();
-        /*this.promptSimilarityMap = new HashMap<>();
-        this.promptLevenshteinDistanceMap = new HashMap<>();
-        this.blockToSampledPromptCosineSimilarityMap = new HashMap<>();
-        this.blockToSampledPromptLevenshteinDistanceMap = new HashMap<>();*/
+        this.promptToTextArrayMap = new HashMap<>();
     }
 
     @Override
@@ -56,10 +44,51 @@ public class BaselineBlocking implements Comando {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
         String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
-        populatePromptMaps(datasetReader, this.blockPromptMap);
+        populatePromptMaps(datasetReader, this.blockPromptMap,60);
         datasetReader.close();
+        Set<Blocco> blocks = new HashSet<>(this.blockPromptMap.keySet());
+        /*for(Blocco b: this.blockPromptMap.keySet()){
+            System.out.println(blockPromptMap.get(b));
+        }*/
+        //this.makeExcelFile(this.iterateOnBlocks(blocks));
+        this.makeExcelFile(this.iterateOnSingleBlockVariableCharacter((Blocco)blocks.toArray()[0]));
+    }
+
+    private Set<Blocco> iterateOnSingleBlockVariableCharacter(Blocco blocco) throws GPTException, InterruptedException {
+        //simuliamo la creazione dei blocchi ma in realtà tutti i prompt sono in un unico blocco
+        //li rinominiamo usando l'id basato sul numero di caratteri
+        Set<Blocco> blocchiFarlocchi = new HashSet<>();
+        List<Prompt> promptsOfBlock = this.blockPromptMap.get(blocco);
+        int charsAmountPerDescription = 10;
+        while(charsAmountPerDescription <= 200){
+            for(Prompt p : promptsOfBlock){
+                String[] textArray = this.promptToTextArrayMap.get(p);
+                String textA = textArray[0];
+                String textB = textArray[1];
+                String cutTextA = textA.substring(0, Math.min(textA.length(), charsAmountPerDescription));
+                String cutTextB = textB.substring(0, Math.min(textB.length(), charsAmountPerDescription));
+                ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(cutTextA, cutTextB, ((ClassificationPrompt) p).isPositive());
+                Blocco newBlocco = new Blocco(String.valueOf(charsAmountPerDescription));
+                AddToMapList.addToMapList(newBlocco, prompt, this.blockPromptMap);
+                blocchiFarlocchi.add(newBlocco);
+            }
+            charsAmountPerDescription += 10;
+        }
+        for(Blocco farlocco : blocchiFarlocchi){
+            List<Prompt> corti = this.blockPromptMap.get(farlocco);
+            LLM gpt = LLMFactory.createLLMAllDefault();
+            List<GPTQuery> queries = gpt.processPrompts(corti, "gpt-3.5-turbo", 0);
+            this.blockQueryMap.put(farlocco, queries);
+            Score scorePerBlock = ScoreCalculator.calculateScore(queries);
+            this.blockScoreMap.put(farlocco, scorePerBlock);
+        }
+        return blocchiFarlocchi;
+    }
+
+    private Set<Blocco> iterateOnBlocks(Set<Blocco> blocks) throws GPTException, InterruptedException {
         for(Blocco b: this.blockPromptMap.keySet()){
-            System.out.println(b);
+            blocks.remove(b);
+            System.out.println("Block selected: "+b.getId()+"\nBlocks remaining: "+ blocks.size());
             List<Prompt> promptsOfBlock = this.blockPromptMap.get(b);
             LLM gpt = LLMFactory.createLLMAllDefault();
             List<GPTQuery> queries = gpt.processPrompts(promptsOfBlock, "gpt-3.5-turbo", 0);
@@ -67,8 +96,7 @@ public class BaselineBlocking implements Comando {
             Score scorePerBlock = ScoreCalculator.calculateScore(queries);
             this.blockScoreMap.put(b, scorePerBlock);
         }
-        Set<Blocco> involvedBlocks = this.blockPromptMap.keySet();
-        this.makeExcelFile(involvedBlocks);
+        return blocks;
     }
 
     private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap) throws IOException {
@@ -83,16 +111,17 @@ public class BaselineBlocking implements Comando {
         }
     }
 
-    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap, int tokerPerDescription) throws IOException {
+    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap, int charsAmountPerDescription) throws IOException {
         String line = null;
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
             Blocco b = new Blocco(columns[0]);
             String textA = columns[1].toLowerCase().replaceAll("\"", "\\\"");
             String textB = columns[2].toLowerCase().replaceAll("\"", "\\\"");
-            String cutTextA = textA.substring(0, Math.min(textA.length(), tokerPerDescription));
-            String cutTextB = textB.substring(0, Math.min(textB.length(), tokerPerDescription));
+            String cutTextA = textA.substring(0, Math.min(textA.length(), charsAmountPerDescription));
+            String cutTextB = textB.substring(0, Math.min(textB.length(), charsAmountPerDescription));
             ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(cutTextA, cutTextB, Boolean.parseBoolean(columns[3]));
+            this.promptToTextArrayMap.put(prompt, new String[]{textA, textB});
             AddToMapList.addToMapList(b, prompt, blockPromptMap);
         }
     }
@@ -139,7 +168,7 @@ public class BaselineBlocking implements Comando {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         String dateAndTime = date + "_" + time.getHour() + "_" + time.getMinute();
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-"+ dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-"+"variableLength-"+ dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

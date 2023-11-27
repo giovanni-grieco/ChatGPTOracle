@@ -65,61 +65,89 @@ public class FewShotsBlocking implements Comando {
     @Override
     public void esegui(Application application) throws IOException, InterruptedException {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
-        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
-        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";
+        /*String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
+        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";*/
+        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttr_camera0_15.csv";
+        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_topAttr_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
         BufferedReader trainsetReader = new BufferedReader(new FileReader(trainsetPath));
         Scanner keyboardScanner = new Scanner(System.in);
-        System.out.println("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si)");
+        System.out.print("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si): ");
         this.cutoffChoice = keyboardScanner.nextInt();
         while (cutoffChoice < 0 || cutoffChoice > 1) {
             System.out.println("Inserisci un valore valido");
-            System.out.println("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si)");
+            System.out.print("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si): ");
             cutoffChoice = keyboardScanner.nextInt();
         }
         int trainingPromptsAmount;
         if (cutoffChoice == 1) {
-            System.out.println("Inserisci il numero di caratteri massimi per prompt");
+            System.out.print("Inserisci il numero di caratteri massimi per prompt: ");
             this.charsPerDescription = keyboardScanner.nextInt();
             if(this.charsPerDescription < 1){
                 System.out.println("Inserisci un valore valido");
-                System.out.println("Inserisci il numero di token per prompt");
+                System.out.print("Inserisci il numero di token per prompt: ");
                 this.charsPerDescription = keyboardScanner.nextInt();
             }
             this.populatePromptMaps(datasetReader, this.blockPromptMap, this.charsPerDescription);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, this.charsPerDescription);
-            trainingPromptsAmount = 6;
         } else {
             this.populatePromptMaps(datasetReader, this.blockPromptMap);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
-            trainingPromptsAmount = 3;
+        }
+        System.out.print("Scegli la quantità di learning prompts per i prompt:");
+        trainingPromptsAmount = keyboardScanner.nextInt();
+        while (trainingPromptsAmount < 0) {
+            System.out.println("Inserisci un valore valido");
+            System.out.print("Scegli la quantità di learning prompts per i prompt:");
+            trainingPromptsAmount = keyboardScanner.nextInt();
         }
         datasetReader.close();
         trainsetReader.close();
-        String choiceString = "Vuoi fare train-oracle domain(0) oracle-oracle domain(1) train-oracle block(2) oracle-oracle block(3)?";
-        System.out.println(choiceString);
-        this.choice = keyboardScanner.nextInt();
-        while (choice < 0 || choice > 3) {
-            System.out.println("Inserisci un valore valido");
-            System.out.println(choiceString);
-            choice = keyboardScanner.nextInt();
-        }
-        if (choice == 0) {
-            //usiamo train per fare training
-            this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
-            this.makeExcelFile(this.blockPromptMap.keySet());
-        } else if (choice == 1) {
-            //usiamo oracle per fare training
-            this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
-            this.makeExcelFile(this.blockPromptMap.keySet());
-        } else if (choice == 2) {
-            //Usiamo i train per fare few shot learning e interroghiamo su tutti i blocchi
-            this.blockFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
-            this.makeExcelFile(this.blockTrainPromptMap.keySet());
-        } else {
-            //usiamo oracle per fare training
-            this.blockFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
-            this.makeExcelFile(this.blockPromptMap.keySet());
+
+        if(trainingPromptsAmount == 0){
+            String choiceString = "Vuoi fare train (0) o oracle (1)?: ";
+            System.out.print(choiceString);
+            this.choice = keyboardScanner.nextInt();
+            while (choice < 0 || choice > 1) {
+                System.out.println("Inserisci un valore valido");
+                System.out.print(choiceString);
+                choice = keyboardScanner.nextInt();
+            }
+            if (choice == 0) {
+                //usiamo train per fare training
+                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockPromptMap.keySet());
+            } else {
+                //usiamo oracle per fare training
+                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockPromptMap.keySet());
+            }
+        }else{
+            String choiceString = "Vuoi fare train-oracle domain(0) oracle-oracle domain(1) train-oracle block(2) oracle-oracle block(3)?: ";
+            System.out.print(choiceString);
+            this.choice = keyboardScanner.nextInt();
+            while (choice < 0 || choice > 3) {
+                System.out.println("Inserisci un valore valido");
+                System.out.print(choiceString);
+                choice = keyboardScanner.nextInt();
+            }
+            if (choice == 0) {
+                //usiamo train per fare training
+                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockPromptMap.keySet());
+            } else if (choice == 1) {
+                //usiamo oracle per fare training
+                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockPromptMap.keySet());
+            } else if (choice == 2) {
+                //Usiamo i train per fare few shot learning e interroghiamo su tutti i blocchi
+                this.blockFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockTrainPromptMap.keySet());
+            } else {
+                //usiamo oracle per fare training
+                this.blockFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.makeExcelFile(this.blockPromptMap.keySet());
+            }
         }
     }
 
@@ -207,8 +235,8 @@ public class FewShotsBlocking implements Comando {
         }
         System.out.println(fewShotsPromptingChat);
         String assistantContent = LLM.STANDARD_INITIALIZATION_PROMPT;
-        //LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
-        LLM gpt = new AzureGPT(assistantContent);
+        LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
+        //LLM gpt = new AzureGPT(assistantContent);
         for (Blocco b : block2PromptTestMap.keySet()) {
             Sampler<Prompt> promptSampler = new Sampler<>(1000, block2PromptTestMap.get(b));
             List<Prompt> sampledPrompt = promptSampler.sampleCollection();

@@ -42,16 +42,17 @@ public class BaselineBlocking implements Comando {
     @Override
     public void esegui(Application application) throws InterruptedException, IOException, GPTException {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
-        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
+        //String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
+        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttr_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
         populatePromptMaps(datasetReader, this.blockPromptMap,60);
         datasetReader.close();
         Set<Blocco> blocks = new HashSet<>(this.blockPromptMap.keySet());
-        /*for(Blocco b: this.blockPromptMap.keySet()){
+        for(Blocco b: this.blockPromptMap.keySet()){
             System.out.println(blockPromptMap.get(b));
-        }*/
-        //this.makeExcelFile(this.iterateOnBlocks(blocks));
-        this.makeExcelFile(this.iterateOnSingleBlockVariableCharacter((Blocco)blocks.toArray()[0]));
+        }
+        this.makeExcelFile(this.iterateOnBlocks(blocks));
+        //this.makeExcelFile(this.iterateOnSingleBlockVariableCharacter((Blocco)blocks.toArray()[0]));
     }
 
     private Set<Blocco> iterateOnSingleBlockVariableCharacter(Blocco blocco) throws GPTException, InterruptedException {
@@ -168,7 +169,7 @@ public class BaselineBlocking implements Comando {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         String dateAndTime = date + "_" + time.getHour() + "_" + time.getMinute();
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-"+"variableLength-"+ dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-"+"OracleTopAttr-"+ dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

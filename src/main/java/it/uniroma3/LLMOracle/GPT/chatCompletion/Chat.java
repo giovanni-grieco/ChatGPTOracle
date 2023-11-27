@@ -45,4 +45,7 @@ public class Chat {
         return sb.toString();
     }
 
+    public boolean isEmpty() {
+        return chatElements.isEmpty();
+    }
 }

@@ -30,7 +30,7 @@ public class AzureGPT extends GPT {
             conn.setRequestProperty("api-key", privateKey);
             conn.setRequestProperty("Content-Type", "application/json");
             String jsonBody = "{\"messages\": [{\"role\": \"system\", \"content\": \"" + this.assistantContent + "\"}";
-            if(this.initChat!=null){
+            if(this.initChat!=null && !this.initChat.isEmpty()){
                 jsonBody += ","+initChat.toJson();
             }
             jsonBody+= ",{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";

@@ -23,7 +23,7 @@ public class AzureGPT extends GPT {
         this.initChat = initChat;
     }
     @Override
-    public String answerQuestionCompletion(String prompt, String modelName) throws IOException {
+    public String answerQuestionCompletion(String prompt, String modelName) {
         try{
             HttpURLConnection conn = (HttpURLConnection) new URL(endpoint).openConnection();
             conn.setRequestMethod("POST");
@@ -40,6 +40,7 @@ public class AzureGPT extends GPT {
             String outputRaw = new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().reduce((a, b) -> a + b).orElse("");
             return this.extractMessageFromJSONResponse(outputRaw);
         }catch (Exception e){
+            String message = e.getMessage();
             throw new RuntimeException(e);
         }
     }

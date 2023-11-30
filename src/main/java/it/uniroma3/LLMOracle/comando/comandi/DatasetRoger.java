@@ -57,7 +57,7 @@ public class DatasetRoger implements Comando {
                     .addSystemChatAnswer("yes")
                     .addUserChatMessage("first: Nikon 16 30x Optical Zoom ebay Point & Shoot 35 (W) x 64 (H) x 110 (D) mm 16 ISO Rating 125 - 1600 Face Detection BSI CMOS 1/2.3 inch Max Resolution 4608 x 3456 Pixels 3 inch TFT LCD with anti-reflection coating 921K Focal Length Auto Focus Maximum Shutter Speed Minimum Shutter Speed Metering Flash Range Nikon Coolpix S9700. second: 1/2000 sec Max aperture (wide) 3.7 1cm Shutter speed min Shutter speed max ISO min ISO max Viewfinder type Screen size (inches) File formats Colour 228 16 CMOS 1 / 2.3 inch 4608 x 3456 30 750 25 Yes Max aperture (tele) 6.4 Minimum focus distance Image stabilisation 30 White Nikon 229.00 PXW9889 Nikon Coolpix S9700")
                     .addSystemChatAnswer("yes");
-            LLM linkerLLM = new AzureGPT("You will be given 2 snippets of texts. You will have to answer whether the 2 texts are talking about the same entity, object or subject. Answer only with yes or no.", chat);
+            LLM linkerLLM = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, chat);
             List<GPTQuery> answers = linkerLLM.processPrompts(prompts, modello, 0);
             String results = ScoreCalculator.calculateScore(answers).toString();
             System.out.println(results);

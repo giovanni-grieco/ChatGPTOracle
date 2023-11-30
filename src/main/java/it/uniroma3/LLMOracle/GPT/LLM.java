@@ -62,6 +62,7 @@ public abstract class LLM {
             }
             firstPrompt = false;
             System.out.print(output);
+            Thread.sleep(millisDelay);
         }
         System.out.println();
         System.out.println("Exceptions raised: "+exceptions.size());

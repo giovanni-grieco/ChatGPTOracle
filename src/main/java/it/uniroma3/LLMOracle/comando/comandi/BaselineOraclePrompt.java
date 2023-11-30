@@ -25,14 +25,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-public class BaselineBlocking implements Comando {
+public class BaselineOraclePrompt implements Comando {
 
     private final Map<Prompt, String[]> promptToTextArrayMap;
     private final Map<Blocco, List<Prompt>> blockPromptMap;
     private final Map<Blocco, List<GPTQuery>> blockQueryMap;
     private final Map<Blocco, Score> blockScoreMap;
 
-    public BaselineBlocking(){
+    public BaselineOraclePrompt(){
         this.blockPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
         this.blockScoreMap = new HashMap<>();

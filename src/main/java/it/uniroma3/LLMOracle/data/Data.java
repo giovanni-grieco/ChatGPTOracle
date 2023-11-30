@@ -40,7 +40,15 @@ public abstract class Data {
     public abstract Path toFullPath();
 
     public String getTitle(){
-        return Cache.getTitle(this).replaceAll("\""," inches");
+        return Cache.getTitle(this).replaceAll("\"","\\\"");
+    }
+
+    public String getTitleQuick(){
+        try {
+            return HTMLFilter.getTitleQuick(this.getTextData());
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public String getTextData() throws IOException {
@@ -58,7 +66,7 @@ public abstract class Data {
 
     public String getTitleFromParser(){
         try {
-            return HTMLFilter.getTitle(this.getTextData());
+            return HTMLFilter.getTitleQuick(this.getTextData());
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -52,6 +52,27 @@ public class HTMLFilter {
         return doc.title();
     }
 
+    public static String getTitleQuick(String html){
+        int titleStartIndex = html.indexOf("<title>");
+        int titleEndIndex = html.indexOf("</title>");
+        if(titleStartIndex==-1 || titleEndIndex==-1){
+            return null;
+        }
+        String title = html.substring(titleStartIndex+7,titleEndIndex).replaceAll("\n","");
+        title = removeChar(title, '"');
+        title = removeChar(title , '\n');
+        return title;
+    }
+    public static String removeChar(String text, char c){
+        StringBuilder sb = new StringBuilder();
+        for(char ch : text.toCharArray()){
+            if(ch!=c){
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
+    }
+
     public static String filter(String html, Iterable<String> tagsToRemove) {
         Document doc = Jsoup.parse(html);
         removeSpecifiedTags(doc, tagsToRemove);

@@ -25,18 +25,33 @@ public class AlaskaDataset implements Dataset{
             EntityExtractor extractor = new AlaskaEntityExtractor(type, Path.of(appProperties.getDatasetPath() + "/" + appProperties.getGroundTruthFileNames()[type.getTypeIndex()]));
             extractor.extractEntitiesFromGroundTruth(entities);
         }
+        int camere = 0;
+        int monitor = 0;
+        int notebook = 0;
         //Stampiamo le entità per controllare
         for (Entity e : entities) {
+            if(e.getType().equals(EntityType.CAMERA)){
+                camere++;
+            }
+            if(e.getType().equals(EntityType.MONITOR)){
+                monitor++;
+            }
+            if(e.getType().equals(EntityType.NOTEBOOK)){
+                notebook++;
+            }
             System.out.println(e);
             for (Data d : e.getData()) {
                 this.dataEntityMap.put(d, e);
             }
         }
         System.out.println("Entities extracted: " + entities.size());
+        System.out.println("Camere: " + camere);
+        System.out.println("Monitor: " + monitor);
+        System.out.println("Notebook: " + notebook);
         System.out.println("Data-Entity map size: " + dataEntityMap.size());
-        for(Data d: dataEntityMap.keySet()){
+        /*for(Data d: dataEntityMap.keySet()){
             System.out.println(d + " -> " + dataEntityMap.get(d));
-        }
+        }*/
     }
 
     @Override

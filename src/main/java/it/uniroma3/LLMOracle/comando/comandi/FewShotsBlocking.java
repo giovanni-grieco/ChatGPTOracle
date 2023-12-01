@@ -50,6 +50,7 @@ public class FewShotsBlocking implements Comando {
     private int cutoffChoice;
 
     private int charsPerDescription;
+    private int trainingPromptsAmount;
 
     public FewShotsBlocking() {
         this.blockPromptMap = new HashMap<>();
@@ -60,6 +61,7 @@ public class FewShotsBlocking implements Comando {
         this.promptLevenshteinDistanceMap = new HashMap<>();
         this.blockToSampledPromptCosineSimilarityMap = new HashMap<>();
         this.blockToSampledPromptLevenshteinDistanceMap = new HashMap<>();
+        this.trainingPromptsAmount = 0;
     }
 
     @Override
@@ -79,7 +81,7 @@ public class FewShotsBlocking implements Comando {
             System.out.print("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si): ");
             cutoffChoice = keyboardScanner.nextInt();
         }
-        int trainingPromptsAmount;
+
         if (cutoffChoice == 1) {
             System.out.print("Inserisci il numero di caratteri massimi per prompt: ");
             this.charsPerDescription = keyboardScanner.nextInt();
@@ -94,11 +96,11 @@ public class FewShotsBlocking implements Comando {
             this.populatePromptMaps(datasetReader, this.blockPromptMap);
             this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
         }
-        System.out.print("Scegli la quantità di learning prompts per i prompt:");
+        System.out.print("Scegli la quantità di k-shots learning prompts: ");
         trainingPromptsAmount = keyboardScanner.nextInt();
         while (trainingPromptsAmount < 0) {
             System.out.println("Inserisci un valore valido");
-            System.out.print("Scegli la quantità di learning prompts per i prompt:");
+            System.out.print("Scegli la quantità di k-shots learning prompts: ");
             trainingPromptsAmount = keyboardScanner.nextInt();
         }
         datasetReader.close();
@@ -115,11 +117,11 @@ public class FewShotsBlocking implements Comando {
             }
             if (choice == 0) {
                 //usiamo train per fare training
-                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap);
                 this.makeExcelFile(this.blockPromptMap.keySet());
             } else {
                 //usiamo oracle per fare training
-                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap);
                 this.makeExcelFile(this.blockPromptMap.keySet());
             }
         }else{
@@ -133,11 +135,11 @@ public class FewShotsBlocking implements Comando {
             }
             if (choice == 0) {
                 //usiamo train per fare training
-                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap);
                 this.makeExcelFile(this.blockPromptMap.keySet());
             } else if (choice == 1) {
                 //usiamo oracle per fare training
-                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
+                this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap);
                 this.makeExcelFile(this.blockPromptMap.keySet());
             } else if (choice == 2) {
                 //Usiamo i train per fare few shot learning e interroghiamo su tutti i blocchi
@@ -166,6 +168,7 @@ public class FewShotsBlocking implements Comando {
                 sampledTrainingPromptList.addAll(trainingPromptList);
             }else {
                 List<Prompt> temp = new ArrayList<>(trainingPromptList);
+                Collections.shuffle(temp);
                 while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !temp.isEmpty()) {
                     //estraiamo i primi n prompt
                     ClassificationPrompt promptEstratto = (ClassificationPrompt) temp.remove(0);
@@ -185,11 +188,12 @@ public class FewShotsBlocking implements Comando {
                         .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
             }
             System.out.println(fewShotsPromptingChat);
+            System.out.println(fewShotsPromptingChat.toJson());
             //LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
             LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
             List<Prompt> promptList = block2PromptTestMap.get(blocco);
             List<Prompt> sampledPromptList = new Sampler<>(1000, promptList).sampleCollection();
-            List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 0);
+            List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 500);
             this.blockScoreMap.put(blocco, ScoreCalculator.calculateScore(answers));
             this.blockQueryMap.put(blocco, answers);
             double sumofsimilarity = 0f;
@@ -205,10 +209,10 @@ public class FewShotsBlocking implements Comando {
         }
     }
 
-    private void domainFewShotPrompting(Set<Blocco> trainingBlockSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap, int trainingPromptAmount) throws InterruptedException {
+    private void domainFewShotPrompting(Set<Blocco> trainingBlockSet, Map<Blocco, List<Prompt>> block2PromptTrainingMap, Map<Blocco, List<Prompt>> block2PromptTestMap) throws InterruptedException {
         List<Prompt> learningPromptList = new ArrayList<>();
-        int promptPositivi = trainingPromptAmount / 2;
-        int promptNegativi = (trainingPromptAmount / 2) + (trainingPromptAmount % 2);
+        int promptPositivi = this.trainingPromptsAmount / 2;
+        int promptNegativi = (trainingPromptsAmount / 2) + (trainingPromptsAmount % 2);
         int promptPositiviCreati = 0;
         int promptNegativiCreati = 0;
         List<Prompt> tempList = new ArrayList<>();
@@ -216,9 +220,11 @@ public class FewShotsBlocking implements Comando {
         for(Blocco b: trainingBlockSet){
             tempList.addAll(block2PromptTrainingMap.get(b));
         }
+        //shuffle tempList
+        Collections.shuffle(tempList);
         while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !tempList.isEmpty()) {
-            //estraiamo i primi n prompt
-            ClassificationPrompt promptEstratto = (ClassificationPrompt)tempList.remove(0);
+            //estraggo a caso un prompt
+            ClassificationPrompt promptEstratto = (ClassificationPrompt) tempList.remove(0);
             if((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                 learningPromptList.add(promptEstratto);
                 promptPositiviCreati++;
@@ -227,6 +233,11 @@ public class FewShotsBlocking implements Comando {
                 promptNegativiCreati++;
             }
         }
+
+        if(tempList.isEmpty()){
+            System.out.println("Attenzione, i prompt estratti per fare few shots potrebbero essere sbilanciati");
+        }
+
         Chat fewShotsPromptingChat = new Chat();
         for (Prompt prompt : learningPromptList) {
             ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
@@ -234,6 +245,7 @@ public class FewShotsBlocking implements Comando {
                     .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
         }
         System.out.println(fewShotsPromptingChat);
+        System.out.println(fewShotsPromptingChat.toJson());
         String assistantContent = LLM.STANDARD_INITIALIZATION_PROMPT;
         LLM gpt = new AzureGPT(assistantContent, fewShotsPromptingChat);
         //LLM gpt = new AzureGPT(assistantContent);
@@ -350,7 +362,7 @@ public class FewShotsBlocking implements Comando {
         } else {
             cutoff = "nocutoff";
         }
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff+"at-"+ cutoffAt + "-" + dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff+"at-"+ cutoffAt + "-"+"-"+this.trainingPromptsAmount+"shots-" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

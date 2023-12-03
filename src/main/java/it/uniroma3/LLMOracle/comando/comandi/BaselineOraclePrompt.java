@@ -45,7 +45,7 @@ public class BaselineOraclePrompt implements Comando {
         //String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
         String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttr_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
-        populatePromptMaps(datasetReader, this.blockPromptMap,60);
+        populatePromptMaps(datasetReader, this.blockPromptMap);
         datasetReader.close();
         Set<Blocco> blocks = new HashSet<>(this.blockPromptMap.keySet());
         for(Blocco b: this.blockPromptMap.keySet()){
@@ -87,12 +87,11 @@ public class BaselineOraclePrompt implements Comando {
     }
 
     private Set<Blocco> iterateOnBlocks(Set<Blocco> blocks) throws GPTException, InterruptedException {
-        for(Blocco b: this.blockPromptMap.keySet()){
-            blocks.remove(b);
+        for(Blocco b: blocks){
             System.out.println("Block selected: "+b.getId()+"\nBlocks remaining: "+ blocks.size());
             List<Prompt> promptsOfBlock = this.blockPromptMap.get(b);
             LLM gpt = LLMFactory.createLLMAllDefault();
-            List<GPTQuery> queries = gpt.processPrompts(promptsOfBlock, "gpt-3.5-turbo", 0);
+            List<GPTQuery> queries = gpt.processPrompts(promptsOfBlock, "gpt-3.5-turbo", 250);
             this.blockQueryMap.put(b, queries);
             Score scorePerBlock = ScoreCalculator.calculateScore(queries);
             this.blockScoreMap.put(b, scorePerBlock);

@@ -42,16 +42,17 @@ public class BaselineTrainingPrompt implements Comando {
     @Override
     public void esegui(Application application) throws InterruptedException, IOException, GPTException {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
-        String datasetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";
+        //String datasetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";
+        String datasetPath = datasetFolderPath + "/nuovo/camera/train_topAttr_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
-        populatePromptMaps(datasetReader, this.blockPromptMap,60);
+        populatePromptMaps(datasetReader, this.blockPromptMap);
         datasetReader.close();
         Set<Blocco> blocks = new HashSet<>(this.blockPromptMap.keySet());
         /*for(Blocco b: this.blockPromptMap.keySet()){
             System.out.println(blockPromptMap.get(b));
         }*/
-        //this.makeExcelFile(this.iterateOnBlocks(blocks));
-        this.makeExcelFile(this.iterateOnSingleBlockVariableCharacter((Blocco)blocks.toArray()[0]));
+        this.makeExcelFile(this.iterateOnBlocks(blocks));
+        //this.makeExcelFile(this.iterateOnSingleBlockVariableCharacter((Blocco)blocks.toArray()[0]));
     }
 
     private Set<Blocco> iterateOnSingleBlockVariableCharacter(Blocco blocco) throws GPTException, InterruptedException {
@@ -86,12 +87,11 @@ public class BaselineTrainingPrompt implements Comando {
     }
 
     private Set<Blocco> iterateOnBlocks(Set<Blocco> blocks) throws GPTException, InterruptedException {
-        for(Blocco b: this.blockPromptMap.keySet()){
-            blocks.remove(b);
+        for(Blocco b: blocks){
             System.out.println("Block selected: "+b.getId()+"\nBlocks remaining: "+ blocks.size());
             List<Prompt> promptsOfBlock = this.blockPromptMap.get(b);
             LLM gpt = LLMFactory.createLLMAllDefault();
-            List<GPTQuery> queries = gpt.processPrompts(promptsOfBlock, "gpt-3.5-turbo", 0);
+            List<GPTQuery> queries = gpt.processPrompts(promptsOfBlock, "gpt-3.5-turbo", 250);
             this.blockQueryMap.put(b, queries);
             Score scorePerBlock = ScoreCalculator.calculateScore(queries);
             this.blockScoreMap.put(b, scorePerBlock);
@@ -168,7 +168,7 @@ public class BaselineTrainingPrompt implements Comando {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         String dateAndTime = date + "_" + time.getHour() + "_" + time.getMinute();
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-"+"variableLength-"+ dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "baseline-TrainTopAttr"+"-"+ dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();

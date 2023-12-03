@@ -22,7 +22,6 @@ public abstract class LLM {
 
     int loadingCharIndex = 0;
 
-
     protected LLM(String apiKey) {
         LLM.privateKey = apiKey;
     }
@@ -53,11 +52,7 @@ public abstract class LLM {
             }
             String estimatedTime = String.format("%.2f", ((this.getAverageTime()*(prompts.size()-processedPrompts)))/1000);
             String output = "Processed prompts: "+processedPrompts+"/"+totalPrompts+" "+"estimated time remaining "+estimatedTime+"s "+this.getNextLoadingChar();
-            //int outputLength = output.length();
             if(!firstPrompt){
-                /*for(int i = 0; i<outputLength; i++){
-                    System.out.print("\b");
-                }*/
                 System.out.print("\r");
             }
             firstPrompt = false;

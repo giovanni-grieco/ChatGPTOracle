@@ -65,7 +65,7 @@ public class BlockingOpentriage implements Comando {
         String datasetPath = datasetFolderPath + "/" + "blockpages_camera0_15.csv";
         BlockDataExtractor blockEE = new EstrattoreBlocchi(datasetPath, EntityType.CAMERA);
         Dataset dataset = application.getDataset();
-        List<BlockData> blockData;
+        List<Data> blockData;
         System.out.println("Carico i blocchi...");
         while (blockEE.hasNextBlock()) {
             List<Prompt> prompts = new ArrayList<>();
@@ -176,7 +176,7 @@ public class BlockingOpentriage implements Comando {
 
         public Blocco nextBlock() {
             String blockName = this.nextBlockName();
-            List<BlockData> blockData = new ArrayList<>();
+            List<Data> blockData = new ArrayList<>();
             List<String> paths = blockName2PathList.remove(blockName);
             Blocco b = new Blocco(blockName, blockData);
             for (String path : paths) {

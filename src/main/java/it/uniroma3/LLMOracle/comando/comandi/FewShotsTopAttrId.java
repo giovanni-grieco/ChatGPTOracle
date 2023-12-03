@@ -10,13 +10,13 @@ import it.uniroma3.LLMOracle.GPT.prompt.Prompt;
 import it.uniroma3.LLMOracle.GPT.prompt.PromptBuilder;
 import it.uniroma3.LLMOracle.GPT.score.Score;
 import it.uniroma3.LLMOracle.GPT.score.ScoreCalculator;
-import it.uniroma3.LLMOracle.GPT.segmentazione.Segmenter;
 import it.uniroma3.LLMOracle.comando.Comando;
 import it.uniroma3.LLMOracle.data.*;
 import it.uniroma3.LLMOracle.utils.AddToMapList;
 import it.uniroma3.LLMOracle.utils.Sampler;
 import it.uniroma3.LLMOracle.utils.textDistance.CosineSimilarityText;
 import it.uniroma3.LLMOracle.utils.textDistance.LevenshteinDistance;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -27,12 +27,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
-public class FewShotsBlocking2 implements Comando {
+public class FewShotsTopAttrId implements Comando {
 
     //Si, sembra soffrire di mappite però non posso assegnare questa responsabilità a una specifica classe esistente
     private final Map<Blocco, List<Prompt>> blockPromptMap;
 
     private final Map<Blocco, List<Prompt>> blockTrainPromptMap;
+
+    private final Map<Prompt, Pair<Data, Data>> dataPromptMap;
 
     //contiene le risposte
     private final Map<Blocco, List<GPTQuery>> blockQueryMap;
@@ -51,7 +53,7 @@ public class FewShotsBlocking2 implements Comando {
 
     private int charsPerDescription;
 
-    public FewShotsBlocking2() {
+    public FewShotsTopAttrId() {
         this.blockPromptMap = new HashMap<>();
         this.blockTrainPromptMap = new HashMap<>();
         this.blockQueryMap = new HashMap<>();
@@ -60,6 +62,7 @@ public class FewShotsBlocking2 implements Comando {
         this.promptLevenshteinDistanceMap = new HashMap<>();
         this.blockToSampledPromptCosineSimilarityMap = new HashMap<>();
         this.blockToSampledPromptLevenshteinDistanceMap = new HashMap<>();
+        this.dataPromptMap = new HashMap<>();
     }
 
     @Override
@@ -67,33 +70,14 @@ public class FewShotsBlocking2 implements Comando {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
         /*String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
         String trainsetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";*/
-        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttr_camera0_15.csv";
-        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_topAttr_camera0_15.csv";
+        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttrId_camera0_15.csv";
+        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_topAttrId_camera0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
         BufferedReader trainsetReader = new BufferedReader(new FileReader(trainsetPath));
         Scanner keyboardScanner = new Scanner(System.in);
-        System.out.print("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si): ");
-        this.cutoffChoice = keyboardScanner.nextInt();
-        while (cutoffChoice < 0 || cutoffChoice > 1) {
-            System.out.println("Inserisci un valore valido");
-            System.out.print("Vuoi eseguire un cutoff ai testi dei prompt? (0 no, 1 si): ");
-            cutoffChoice = keyboardScanner.nextInt();
-        }
         int trainingPromptsAmount;
-        if (cutoffChoice == 1) {
-            System.out.print("Inserisci il numero di caratteri massimi per prompt: ");
-            this.charsPerDescription = keyboardScanner.nextInt();
-            if(this.charsPerDescription < 1){
-                System.out.println("Inserisci un valore valido");
-                System.out.print("Inserisci il numero di token per prompt: ");
-                this.charsPerDescription = keyboardScanner.nextInt();
-            }
-            this.populatePromptMaps(datasetReader, this.blockPromptMap, this.charsPerDescription);
-            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap, this.charsPerDescription);
-        } else {
-            this.populatePromptMaps(datasetReader, this.blockPromptMap);
-            this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
-        }
+        this.populatePromptMaps(datasetReader, this.blockPromptMap);
+        this.populatePromptMaps(trainsetReader, this.blockTrainPromptMap);
         System.out.print("Scegli la quantità di learning prompts per i prompt:");
         trainingPromptsAmount = keyboardScanner.nextInt();
         while (trainingPromptsAmount < 0) {
@@ -103,8 +87,7 @@ public class FewShotsBlocking2 implements Comando {
         }
         datasetReader.close();
         trainsetReader.close();
-
-        if(trainingPromptsAmount == 0){
+        if (trainingPromptsAmount == 0) {
             String choiceString = "Vuoi fare train (0) o oracle (1)?: ";
             System.out.print(choiceString);
             this.choice = keyboardScanner.nextInt();
@@ -122,7 +105,7 @@ public class FewShotsBlocking2 implements Comando {
                 this.domainFewShotPrompting(this.blockPromptMap.keySet(), this.blockPromptMap, this.blockPromptMap, trainingPromptsAmount);
                 this.makeExcelFile(this.blockPromptMap.keySet());
             }
-        }else{
+        } else {
             String choiceString = "Vuoi fare train-oracle domain(0) oracle-oracle domain(1) train-oracle block(2) oracle-oracle block(3)?: ";
             System.out.print(choiceString);
             this.choice = keyboardScanner.nextInt();
@@ -162,9 +145,9 @@ public class FewShotsBlocking2 implements Comando {
             int promptPositiviCreati = 0;
             int promptNegativiCreati = 0;
             List<Prompt> sampledTrainingPromptList = new ArrayList<>();
-            if(trainingPromptList.size() < trainingPromptAmount){
+            if (trainingPromptList.size() < trainingPromptAmount) {
                 sampledTrainingPromptList.addAll(trainingPromptList);
-            }else {
+            } else {
                 List<Prompt> temp = new ArrayList<>(trainingPromptList);
                 while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !temp.isEmpty()) {
                     //estraiamo i primi n prompt
@@ -172,7 +155,7 @@ public class FewShotsBlocking2 implements Comando {
                     if ((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                         sampledTrainingPromptList.add(promptEstratto);
                         promptPositiviCreati++;
-                    } else if (!( promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
+                    } else if (!(promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
                         sampledTrainingPromptList.add(promptEstratto);
                         promptNegativiCreati++;
                     }
@@ -213,16 +196,16 @@ public class FewShotsBlocking2 implements Comando {
         int promptNegativiCreati = 0;
         List<Prompt> tempList = new ArrayList<>();
         //Metto tutti i prompt provenienti da tutti i blocchi temporanea in una lista
-        for(Blocco b: trainingBlockSet){
+        for (Blocco b : trainingBlockSet) {
             tempList.addAll(block2PromptTrainingMap.get(b));
         }
         while ((promptPositiviCreati != promptPositivi || promptNegativiCreati != promptNegativi) && !tempList.isEmpty()) {
             //estraiamo i primi n prompt
-            ClassificationPrompt promptEstratto = (ClassificationPrompt)tempList.remove(0);
-            if((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
+            ClassificationPrompt promptEstratto = (ClassificationPrompt) tempList.remove(0);
+            if ((promptEstratto).isPositive() && promptPositiviCreati != promptPositivi) {
                 learningPromptList.add(promptEstratto);
                 promptPositiviCreati++;
-            }else if(!(promptEstratto).isPositive() && promptNegativiCreati != promptNegativi){
+            } else if (!(promptEstratto).isPositive() && promptNegativiCreati != promptNegativi) {
                 learningPromptList.add(promptEstratto);
                 promptNegativiCreati++;
             }
@@ -261,28 +244,19 @@ public class FewShotsBlocking2 implements Comando {
         while ((line = reader.readLine()) != null) {
             String[] columns = line.split(";");
             Blocco b = new Blocco(columns[0]);
-            String textA = columns[1].toLowerCase().replaceAll("\"", "\\\"");
-            String textB = columns[2].toLowerCase().replaceAll("\"", "\\\"");
-            ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(textA, textB, Boolean.parseBoolean(columns[3]));
+            String domainA = columns[1].split("/")[0];
+            String idA = columns[1].split("/")[1];
+            String domainB = columns[3].split("/")[0];
+            String idB = columns[3].split("/")[1];
+            Data dataA = new BlockData(b, domainA, idA, EntityType.CAMERA);
+            Data dataB = new BlockData(b, domainB, idB, EntityType.CAMERA);
+            String textA = columns[2].toLowerCase().replaceAll("\"", "\\\"");
+            String textB = columns[4].toLowerCase().replaceAll("\"", "\\\"");
+            ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(textA, textB, Boolean.parseBoolean(columns[5]));
             this.promptLevenshteinDistanceMap.put(prompt, LevenshteinDistance.calculate(textA, textB));
             this.promptSimilarityMap.put(prompt, CosineSimilarityText.apply(textA, textB));
             AddToMapList.addToMapList(b, prompt, blockPromptMap);
-        }
-    }
-
-    private void populatePromptMaps(BufferedReader reader, Map<Blocco, List<Prompt>> blockPromptMap, int tokerPerDescription) throws IOException {
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            String[] columns = line.split(";");
-            Blocco b = new Blocco(columns[0]);
-            String textA = columns[1].toLowerCase().replaceAll("\"", "\\\"");
-            String textB = columns[2].toLowerCase().replaceAll("\"", "\\\"");
-            String cutTextA = textA.substring(0, Math.min(textA.length(), tokerPerDescription));
-            String cutTextB = textB.substring(0, Math.min(textB.length(), tokerPerDescription));
-            ClassificationPrompt prompt = (ClassificationPrompt) PromptBuilder.buildPromptTwoSnippetsStandardChatGPT(cutTextA, cutTextB, Boolean.parseBoolean(columns[3]));
-            this.promptLevenshteinDistanceMap.put(prompt, LevenshteinDistance.calculate(cutTextA, cutTextB));
-            this.promptSimilarityMap.put(prompt, CosineSimilarityText.apply(cutTextA, cutTextB));
-            AddToMapList.addToMapList(b, prompt, blockPromptMap);
+            this.dataPromptMap.put(prompt, Pair.of(dataA, dataB));
         }
     }
 
@@ -305,6 +279,8 @@ public class FewShotsBlocking2 implements Comando {
             blockSheetHeaderRow.createCell(0).setCellValue("Prompt");
             blockSheetHeaderRow.createCell(1).setCellValue("Risposta");
             blockSheetHeaderRow.createCell(2).setCellValue("Risposta attesa");
+            blockSheetHeaderRow.createCell(3).setCellValue("Data A");
+            blockSheetHeaderRow.createCell(4).setCellValue("Data B");
             //Fixare per few shots per blocco. Dato che se iteriamo su tutti i blocchi, non è detto che troviamo le query
             //per tutti i blocchi dato che in few shots per blocco iteriamo sui blocchi di test.
             for (GPTQuery query : this.blockQueryMap.get(blocco)) {
@@ -312,6 +288,9 @@ public class FewShotsBlocking2 implements Comando {
                 blockSheetRow.createCell(0).setCellValue(query.getPrompt().getTextPrompt());
                 blockSheetRow.createCell(1).setCellValue(query.getRisposta());
                 blockSheetRow.createCell(2).setCellValue(((ClassificationPrompt) query.getPrompt()).isPositive() ? "yes" : "no");
+                Pair<Data, Data> dataPair = this.dataPromptMap.get(query.getPrompt());
+                blockSheetRow.createCell(3).setCellValue(dataPair.getLeft().getDomain()+"/"+dataPair.getLeft().getId());
+                blockSheetRow.createCell(4).setCellValue(dataPair.getRight().getDomain()+"/"+dataPair.getRight().getId());
             }
             //Salviamo i prompt effettuati
 
@@ -350,12 +329,9 @@ public class FewShotsBlocking2 implements Comando {
         } else {
             cutoff = "nocutoff";
         }
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-" + type+"-"+ cutoff+"at-"+ cutoffAt + "-" + dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-TopAttrId" + type + "-" + cutoff + "at-" + cutoffAt + "-" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
     }
-
-
-
 }

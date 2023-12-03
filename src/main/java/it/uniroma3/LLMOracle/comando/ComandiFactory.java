@@ -35,7 +35,6 @@ public class ComandiFactory {
     }
 
     public String getComandi() {
-
         List<Class<?>> classiComando = IntrospectionUtils.getClassesInPackage(comandiPackage);
         StringBuilder sb = new StringBuilder();
         for(int i =0;i<classiComando.size()-1;i++){

@@ -8,13 +8,13 @@ public class Blocco {
 
     private final String id;
 
-    private List<BlockData> blockData;
+    private List<Data> blockData;
 
     public Blocco(String id) {
         this.id = id;
     }
 
-    public Blocco(String id, List<BlockData> data) {
+    public Blocco(String id, List<Data> data) {
         this.id = id;
         this.blockData = data;
     }
@@ -23,13 +23,12 @@ public class Blocco {
         return this.id;
     }
 
-
     @Override
     public String toString() {
         return this.id;
     }
 
-    public List<BlockData> getDataList() {
+    public List<Data> getDataList() {
         return this.blockData;
     }
 

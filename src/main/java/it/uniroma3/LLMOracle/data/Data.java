@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Data {
 
-    private String domain;
-    private String id;
+    private final String domain;
+    private final String id;
 
     public Data(String domain, String id){
         this.domain = domain;
@@ -25,16 +25,8 @@ public abstract class Data {
         return domain;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public abstract Path toFullPath();

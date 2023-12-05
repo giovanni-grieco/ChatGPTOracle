@@ -53,6 +53,8 @@ public class FewShotsTopAttrId implements Comando {
 
     private int charsPerDescription;
 
+    private Chat fewShotsPromptingChat;
+
     public FewShotsTopAttrId() {
         this.blockPromptMap = new HashMap<>();
         this.blockTrainPromptMap = new HashMap<>();
@@ -63,6 +65,7 @@ public class FewShotsTopAttrId implements Comando {
         this.blockToSampledPromptCosineSimilarityMap = new HashMap<>();
         this.blockToSampledPromptLevenshteinDistanceMap = new HashMap<>();
         this.dataPromptMap = new HashMap<>();
+        this.fewShotsPromptingChat = null;
     }
 
     @Override
@@ -70,8 +73,8 @@ public class FewShotsTopAttrId implements Comando {
         String datasetFolderPath = application.getAppProperties().getDatasetPath();
         /*String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_ext_camera0_15.csv";
         String trainsetPath = datasetFolderPath + "/nuovo/camera/train_ext_camera0_15.csv";*/
-        String datasetPath = datasetFolderPath + "/nuovo/camera/oracle_topAttrId_camera0_15.csv";
-        String trainsetPath = datasetFolderPath + "/nuovo/camera/train_topAttrId_camera0_15.csv";
+        String datasetPath = datasetFolderPath + "/nuovo/notebook/oracle_topAttrId_notebook0_15.csv";
+        String trainsetPath = datasetFolderPath + "/nuovo/notebook/train_topAttrId_notebook0_15.csv";
         BufferedReader datasetReader = new BufferedReader(new FileReader(datasetPath));
         BufferedReader trainsetReader = new BufferedReader(new FileReader(trainsetPath));
         Scanner keyboardScanner = new Scanner(System.in);
@@ -114,6 +117,8 @@ public class FewShotsTopAttrId implements Comando {
                 System.out.print(choiceString);
                 choice = keyboardScanner.nextInt();
             }
+            //istanziamo una Chat
+            this.fewShotsPromptingChat = new Chat();
             if (choice == 0) {
                 //usiamo train per fare training
                 this.domainFewShotPrompting(this.blockTrainPromptMap.keySet(), this.blockTrainPromptMap, this.blockPromptMap, trainingPromptsAmount);
@@ -161,15 +166,16 @@ public class FewShotsTopAttrId implements Comando {
                     }
                 }
             }
-            Chat fewShotsPromptingChat = new Chat();
-            for (Prompt prompt : sampledTrainingPromptList) {
-                ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
-                fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
-                        .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
+            if(this.fewShotsPromptingChat != null) {
+                for (Prompt prompt : sampledTrainingPromptList) {
+                    ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
+                    fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
+                            .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
+                }
             }
             System.out.println(fewShotsPromptingChat);
-            //LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
-            LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
+            LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT, fewShotsPromptingChat);
+            //LLM gpt = new AzureGPT(LLM.STANDARD_INITIALIZATION_PROMPT);
             List<Prompt> promptList = block2PromptTestMap.get(blocco);
             List<Prompt> sampledPromptList = new Sampler<>(1000, promptList).sampleCollection();
             List<GPTQuery> answers = gpt.processPrompts(sampledPromptList, "gpt-35-turbo", 0);
@@ -210,11 +216,12 @@ public class FewShotsTopAttrId implements Comando {
                 promptNegativiCreati++;
             }
         }
-        Chat fewShotsPromptingChat = new Chat();
-        for (Prompt prompt : learningPromptList) {
-            ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
-            fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
-                    .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
+        if(this.fewShotsPromptingChat!= null) {
+            for (Prompt prompt : learningPromptList) {
+                ClassificationPrompt classificationPrompt = (ClassificationPrompt) prompt;
+                fewShotsPromptingChat.addUserChatMessage(classificationPrompt.getTextPrompt())
+                        .addSystemChatAnswer(classificationPrompt.isPositive() ? "yes" : "no");
+            }
         }
         System.out.println(fewShotsPromptingChat);
         String assistantContent = LLM.STANDARD_INITIALIZATION_PROMPT;
@@ -329,7 +336,7 @@ public class FewShotsTopAttrId implements Comando {
         } else {
             cutoff = "nocutoff";
         }
-        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshotsblocking-TopAttrId" + type + "-" + cutoff + "at-" + cutoffAt + "-" + dateAndTime + ".xlsx");
+        FileOutputStream fileOut = new FileOutputStream("./spreadsheets/blocking/" + "fewshots-NotebookTopAttrId" + dateAndTime + ".xlsx");
         workbook.write(fileOut);
         fileOut.close();
         workbook.close();
